@@ -179,39 +179,51 @@ void Simulator::push_safes()
     }
 }
 
-struct PartialDers
-{
-    std::vector<LinearVar> ders;
-
-    void add(const LinearVar d)
-    {
-        for (uint32_t i = 0; i < ders.size(); i++)
-        {
-            if (ders[i].var == d.var)
-            {
-                ders[i].mult += d.mult;
-                return;
-            }
-        }
-        ders.push_back(d);
-    }
-
-    void add(const double der, const uint32_t var)
-    {
-        add(LinearVar(der, var));
-    }
-};
-
-double Simulator::var_value(const uint32_t var)
+double Simulator::var_value(const State& st, const uint32_t var)
 {
     if (var == CONST_VAR)
         return 1;
     if (var < freecount)
-        return s1.u(point_list[var]).x;
+        return st.u(point_list[var]).x;
     else if (var < freecount * 2)
-        return s1.u(point_list[var - freecount]).y;
+        return st.u(point_list[var - freecount]).y;
     else
-        return s1.p(point_list[var - freecount * 2]);
+        return st.p(point_list[var - freecount * 2]);
+}
+
+double Simulator::dependent_var_value(const State& st, const int32_t x, const int32_t y, const VarType vtype)
+{
+    if (freepoints(x, y))
+        return var_value(st, pointnums(x, y) + vtype * freecount);
+    double val = 0;
+    for (const LinearVar lv : vdep(x, y, vtype))
+    {
+        val += lv.mult * var_value(st, lv.var);
+    }
+    return val;
+}
+
+void Simulator::add_par_ders(PartialDers& ders, const double coeff, const int32_t x, const int32_t y, const VarType vtype)
+{
+    if (freepoints(x, y))
+    {
+        ders.add(coeff, pointnums(x, y) + vtype * freecount);
+    }
+    else
+    {
+        for (const LinearVar lv : vdep(x, y, vtype))
+        {
+            ders.add(coeff * lv.mult, lv.var);
+        }
+    }
+}
+
+void Simulator::push_equation(const int eq, const PartialDers& ders)
+{
+    for (const LinearVar lv : ders.ders)
+    {
+        push_entry(eq, lv.var, lv.mult);
+    }
 }
 
 void Simulator::push_unsafes()
@@ -223,13 +235,84 @@ void Simulator::push_unsafes()
             if (safepoints(x, y) || !freepoints(x, y))
                 continue;
             const uint32_t massconseq = pointnums(x, y) + 2 * freecount;
+            const double uxxpytp = dependent_var_value(s1, x + 1, y, VarType::Ux);
+            const double uxxmytp = dependent_var_value(s1, x - 1, y, VarType::Ux);
+            const double uyxyptp = dependent_var_value(s1, x, y + 1, VarType::Uy);
+            const double uyxymtp = dependent_var_value(s1, x, y - 1, VarType::Uy);
+            f[massconseq] = uxxpytp - uxxmytp + uyxyptp - uyxymtp;
             PartialDers massconsders;
-            double uxxpy = 0;
-            for (const LinearVar lv : vdep(x + 1, y, VarType::Ux))
-            {
-                massconsders.add(lv.var, lv.mult);
-                uxxpy += lv.mult * 
-            }
+            add_par_ders(massconsders, 1, x + 1, y, VarType::Ux);
+            add_par_ders(massconsders, -1, x - 1, y, VarType::Ux);
+            add_par_ders(massconsders, 1, x, y + 1, VarType::Uy);
+            add_par_ders(massconsders, -1, x, y - 1, VarType::Uy);
+            push_equation(massconseq, massconsders);
+            const uint32_t xtimeeq = pointnums(x, y);
+            const double uxxytp = s1.u(x, y).x;
+            const double uxxyt = s0.u(x, y).x;
+            const double uyxytp = s1.u(x, y).y;
+            const double uxxyptp = dependent_var_value(s1, x, y + 1, VarType::Ux);
+            const double uxxymtp = dependent_var_value(s1, x, y - 1, VarType::Uy);
+            const double pxpytp = dependent_var_value(s1, x + 1, y, VarType::P);
+            const double pxmytp = dependent_var_value(s1, x - 1, y, VarType::P);
+            const double uxxpyt = dependent_var_value(s0, x + 1, y, VarType::Ux);
+            const double uxxmyt = dependent_var_value(s0, x - 1, y, VarType::Ux);
+            const double uyxyt = s0.u(x, y).y;
+            const double uxxypt = dependent_var_value(s0, x, y + 1, VarType::Ux);
+            const double uxxymt = dependent_var_value(s0, x, y - 1, VarType::Ux);
+            const double pxpyt = dependent_var_value(s0, x + 1, y, VarType::P);
+            const double pxmyt = dependent_var_value(s0, x - 1, y, VarType::P);
+            const double uxxpyt = dependent_var_value(s0, x + 1, y, VarType::Ux);
+            const double uxxmyt = dependent_var_value(s0, x - 1, y, VarType::Ux);
+            const double uxxypt = dependent_var_value(s0, x, y + 1, VarType::Ux);
+            const double uxxymt = dependent_var_value(s0, x, y - 1, VarType::Ux);
+            f[xtimeeq] = 2 * rho * (uxxytp - uxxyt) / dt // d/dt ux
+                + uxxytp * (uxxpytp - uxxmytp) / (2 * dx) + uyxytp * (uxxyptp - uxxymtp) / (2 * dx) // u dot grad ux (t + 1)
+                + (pxpytp - pxmytp) / (2 * dx) // (grad p).x (t + 1)
+                - mu * (uxxpytp + uxxmytp + uxxyptp + uxxymtp - 4 * uxxytp) / (dx * dx) // lap ux (t + 1)
+                + uxxyt * (uxxpyt - uxxmyt) / (2 * dx) + uyxyt * (uxxypt - uxxymt) / (2 * dx) // u dot grad ux (t)
+                + (pxpyt - pxmyt) / (2 * dx) // (grad p).x (t)
+                - mu * (uxxpyt + uxxmyt + uxxypt + uxxymt - 4 * uxxyt) / (dx * dx); // lap ux (t)
+            PartialDers xtimeders;
+            add_par_ders(xtimeders, 2 * rho / dt, x, y, VarType::Ux);
+            add_par_ders(xtimeders, (uxxpytp - uxxmytp) / (2 * dx), x, y, VarType::Ux);
+            add_par_ders(xtimeders, uxxytp / (2 * dx), x + 1, y, VarType::Ux);
+            add_par_ders(xtimeders, -uxxytp / (2 * dx), x - 1, y, VarType::Ux);
+            add_par_ders(xtimeders, (uxxyptp - uxxymtp) / (2 * dx), x, y, VarType::Uy);
+            add_par_ders(xtimeders, uyxytp / (2 * dx), x, y + 1, VarType::Ux);
+            add_par_ders(xtimeders, -uyxytp / (2 * dx), x, y - 1, VarType::Ux);
+            add_par_ders(xtimeders, 1 / (2 * dx), x + 1, y, VarType::P);
+            add_par_ders(xtimeders, 1 / (2 * dx), x - 1, y, VarType::P);
+            add_par_ders(xtimeders, -mu / (dx * dx), x + 1, y, VarType::Ux);
+            add_par_ders(xtimeders, -mu / (dx * dx), x - 1, y, VarType::Ux);
+            add_par_ders(xtimeders, -mu / (dx * dx), x, y + 1, VarType::Ux);
+            add_par_ders(xtimeders, -mu / (dx * dx), x, y - 1, VarType::Ux);
+            add_par_ders(xtimeders, 4 * mu / (dx * dx), x, y, VarType::Ux);
+            push_equation(xtimeeq, xtimeders);
+            const uint32_t ytimeeq = pointnums(x, y) + freecount;
+            const double uyxyt = dependent_var_value(s0, x, y, VarType::Uy);
+            const double uyxpytp = dependent_var_value(s1, x + 1, y, VarType::Uy);
+            const double uyxmytp = dependent_var_value(s1, x - 1, y, VarType::Uy);
+            const double uyxyptp = dependent_var_value(s1, x, y + 1, VarType::Uy);
+            const double uyxymtp = dependent_var_value(s1, x, y - 1, VarType::Uy);
+            const double pxyptp = dependent_var_value(s1, x, y + 1, VarType::P);
+            const double pxymtp = dependent_var_value(s1, x, y - 1, VarType::P);
+            const double uyxpyt = dependent_var_value(s0, x + 1, y, VarType::Uy);
+            const double uyxmyt = dependent_var_value(s0, x - 1, y, VarType::Uy);
+            const double uyxypt = dependent_var_value(s0, x, y + 1, VarType::Uy);
+            const double uyxymt = dependent_var_value(s0, x, y - 1, VarType::Uy);
+            const double pxypt = dependent_var_value(s0, x, y + 1, VarType::P);
+            const double pxymt = dependent_var_value(s0, x, y - 1, VarType::P);
+            f[ytimeeq] = 2 * rho * (uyxytp - uyxyt) / dt // d/dt uy
+                + uxxytp * (uyxpytp - uyxmytp) / (2 * dx) + uyxytp * (uyxyptp - uyxymtp) / (2 * dx) // u dot grad uy (t + 1)
+                + (pxyptp - pxymtp) / (2 * dx) // (grad p).y (t + 1)
+                - mu * (uyxpytp + uyxmytp + uyxyptp + uyxymtp - 4 * uyxytp) / (dx * dx) // lap uy (t + 1)
+                + uxxyt * (uyxpyt - uyxmyt) / (2 * dx) + uyxyt * (uyxypt - uyxymt) / (2 * dx) // u dot grad uy (t)
+                + (pxypt - pxymt) / (2 * dx) // (grad p).y (t)
+                - mu * (uyxpyt + uyxmyt + uyxypt + uyxymt - 4 * uyxyt) / (dx * dx); // lap uy (t)
+            PartialDers ytimeders;
+            add_par_ders(ytimeders, 2 * rho / dt, x, y, VarType::Uy);
+            add_par_ders((uyxpytp - uyxmytp) / (2 * dx), x, y, VarType::Ux);
+            add_par_ders(uxxytp / (2 * dx), x + 1, y, VarType::Uy);
         }
     }
 }

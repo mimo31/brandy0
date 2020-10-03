@@ -18,6 +18,7 @@
 #include "linearvar.h"
 #include "vartype.h"
 #include "point.h"
+#include "partialders.h"
 
 namespace brandy0
 {
@@ -45,8 +46,11 @@ private:
     Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> solver;
     uint32_t nexteq;
 
-    double var_value(const uint32_t var);
+    double var_value(const State& st, const uint32_t var);
+    double Simulator::dependent_var_value(const State& st, const int32_t x, const int32_t y, const VarType vtype);
+    void Simulator::add_par_ders(PartialDers& ders, const double coeff, const int32_t x, const int32_t y, const VarType vtype);
     void push_entry(const int eq, const int var, const double val);
+    void push_equation(const int eq, const PartialDers& ders);
     void push_safes();
     void push_unsafes();
     std::vector<LinearVar>& Simulator::vdep(const int32_t x, const int32_t y, const VarType vtype);
