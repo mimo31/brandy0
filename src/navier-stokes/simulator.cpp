@@ -311,8 +311,20 @@ void Simulator::push_unsafes()
                 - mu * (uyxpyt + uyxmyt + uyxypt + uyxymt - 4 * uyxyt) / (dx * dx); // lap uy (t)
             PartialDers ytimeders;
             add_par_ders(ytimeders, 2 * rho / dt, x, y, VarType::Uy);
-            add_par_ders((uyxpytp - uyxmytp) / (2 * dx), x, y, VarType::Ux);
-            add_par_ders(uxxytp / (2 * dx), x + 1, y, VarType::Uy);
+            add_par_ders(ytimeders, (uyxpytp - uyxmytp) / (2 * dx), x, y, VarType::Ux);
+            add_par_ders(ytimeders, uxxytp / (2 * dx), x + 1, y, VarType::Uy);
+            add_par_ders(ytimeders, -uxxytp / (2 * dx), x - 1, y, VarType::Uy);
+            add_par_ders(ytimeders, (uyxyptp - uyxymtp) / (2 * dx), x, y, VarType::Uy);
+            add_par_ders(ytimeders, uyxytp / (2 * dx), x, y + 1, VarType::Uy);
+            add_par_ders(ytimeders, -uyxytp / (2 * dx), x, y - 1, VarType::Uy);
+            add_par_ders(ytimeders, 1 / (2 * dx), x, y + 1, VarType::P);
+            add_par_ders(ytimeders, -1 / (2 * dx), x, y - 1, VarType::P);
+            add_par_ders(ytimeders, -mu / (dx * dx), x + 1, y, VarType::Uy);
+            add_par_ders(ytimeders, -mu / (dx * dx), x - 1, y, VarType::Uy);
+            add_par_ders(ytimeders, -mu / (dx * dx), x, y + 1, VarType::Uy);
+            add_par_ders(ytimeders, -mu / (dx * dx), x, y - 1, VarType::Uy);
+            add_par_ders(ytimeders, 4 * mu / (dx * dx), x, y, VarType::Uy);
+            push_equation(ytimeeq, ytimeders);
         }
     }
 }
