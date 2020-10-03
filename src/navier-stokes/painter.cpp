@@ -8,8 +8,6 @@
 
 #include "CImg.h"
 
-#include "simulator.h"
-
 namespace brandy0
 {
 

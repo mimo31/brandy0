@@ -1,11 +1,11 @@
 /**
- * painter.h
+ * statgen.h
  * 
  * Author: Viktor Fukala
  * Created on 2020/10/3
  */
-#ifndef PAINTER_H
-#define PAINTER_H
+#ifndef STATGEN_H
+#define STATGEN_H
 
 #include <string>
 
@@ -15,8 +15,8 @@
 namespace brandy0
 {
 
-void save(const Simulator& s, const std::string& filename);
+void print_stats(const Simulator& s, const uint32_t iteration);
 
 }
 
-#endif // PAINTER_H
+#endif // STATGEN_H

@@ -32,6 +32,11 @@ struct Grid
         return data[x + y * n];
     }
 
+    T &operator()(const Point& p) const
+    {
+        return data[p.x + p.y * n];
+    }
+
     Grid &operator=(const Grid &other)
     {
         copy_n(other.data, n * n, data);

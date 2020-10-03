@@ -11,7 +11,7 @@ namespace brandy0
 {
 
 /**
- * Struct containing two doulbes representing a 2D vector
+ * Struct containing two doubles representing a 2D vector
  */
 struct vec2d
 {
