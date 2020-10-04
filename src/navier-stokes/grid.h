@@ -7,7 +7,8 @@
 #ifndef GRID_H
 #define GRID_H
 
-#include <global.h>
+#include "global.h"
+#include "point.h"
 
 namespace brandy0
 {
@@ -39,7 +40,7 @@ struct Grid
 
     Grid &operator=(const Grid &other)
     {
-        copy_n(other.data, n * n, data);
+        std::copy_n(other.data, n * n, data);
         return *this;
     }
 };

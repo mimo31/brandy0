@@ -20,6 +20,8 @@ struct PartialDers
 
     void add(const LinearVar d)
     {
+        if (d.var < 0)
+            cout << d.var << endl;
         for (uint32_t i = 0; i < ders.size(); i++)
         {
             if (ders[i].var == d.var)

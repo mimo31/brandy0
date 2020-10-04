@@ -15,7 +15,7 @@ namespace brandy0
 
 inline vec2d tocoor(const int32_t x, const int32_t y)
 {
-    return vec2d(x / double(n) - .5, y / double(n) - .5);
+    return vec2d((x + .5) / double(n) - .5, (y + .5) / double(n) - .5);
 }
 
 void Simulator::init_values()
@@ -36,7 +36,7 @@ void Simulator::init_free_safe_indicators()
     {
         for (int32_t x = 0; x < n; x++)
         {
-            freepoints(x, y) = tocoor(x, y).len2() < midr * midr;
+            freepoints(x, y) = !(tocoor(x, y).len2() < midr * midr);
             if (freepoints(x, y))
             {
                 pointnums(x, y) = freecount;
@@ -54,7 +54,11 @@ void Simulator::init_free_safe_indicators()
                 safepoints(x, y) = false;
             else
                 safepoints(x, y) = freepoints(x, y) && freepoints(x + 1, y) && freepoints(x - 1, y) && freepoints(x, y + 1) && freepoints(x, y - 1);
-            point_list[next_ind] = Point(x, y);
+            if (freepoints(x, y))
+            {
+                point_list[next_ind] = Point(x, y);
+                next_ind++;
+            }
         }
     }
 }
@@ -72,6 +76,8 @@ void Simulator::init_var_dependencies()
         vdep(cor, -1, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
         vdep(cor, n, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
         vdep(cor, -1, VarType::Uy).push_back(LinearVar(uenv.y, CONST_VAR));
+        //vdep(cor, -1, VarType::Uy).push_back(LinearVar(2, pointnums(0, cor) + freecount));
+        //vdep(cor, -1, VarType::Uy).push_back(LinearVar(-1, pointnums(1, cor) + freecount));
         vdep(cor, n, VarType::Uy).push_back(LinearVar(uenv.y, CONST_VAR));
         vdep(cor, -1, VarType::P).push_back(LinearVar(penv, CONST_VAR));
         vdep(cor, n, VarType::P).push_back(LinearVar(penv, CONST_VAR));
@@ -82,9 +88,9 @@ void Simulator::init_var_dependencies()
         vdep(-1, cor, VarType::P).push_back(LinearVar(penv, CONST_VAR));
         vdep(n, cor, VarType::P).push_back(LinearVar(penv, CONST_VAR));
     }
-    for (int32_t y = 0; y < n; y++)
+    for (int32_t y = 1; y < n - 1; y++)
     {
-        for (int32_t x = 0; x < n; x++)
+        for (int32_t x = 1; x < n - 1; x++)
         {
             if (freepoints(x, y))
                 continue;
@@ -94,23 +100,23 @@ void Simulator::init_var_dependencies()
             const bool mvyfree = freepoints(x, y + movey);
             if (!mvxfree && !mvyfree)
                 continue;
-            const vec2d f = tocoor(x, y);
-            const uint32_t pcou = mvxfree && mvyfree ? 2 : 1;
+            const vec2d f = tocoor(-y, x);
+            const uint32_t pcou = (mvxfree && mvyfree) ? 2 : 1;
             if (mvxfree)
             {
-                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.x / f.len2() / pcou, var_id(x + movex, y, VarType::Ux)));
-                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.y / f.len2() / pcou, var_id(x + movex, y, VarType::Uy)));
-                vdep(x, y, VarType::Uy).push_back(LinearVar(f.x * f.y / f.len2() / pcou, var_id(x + movex, y, VarType::Ux)));
-                vdep(x, y, VarType::Uy).push_back(LinearVar(f.y * f.y / f.len2() / pcou, var_id(x + movex, y, VarType::Uy)));
-                vdep(x, y, VarType::P).push_back(LinearVar(1 / double(pcou), var_id(x + movex, y, VarType::P)));
+                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.x / f.len2() / pcou, pointnums(x + movex, y)));
+                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.y / f.len2() / pcou, pointnums(x + movex, y) + freecount));
+                vdep(x, y, VarType::Uy).push_back(LinearVar(f.x * f.y / f.len2() / pcou, pointnums(x + movex, y)));
+                vdep(x, y, VarType::Uy).push_back(LinearVar(f.y * f.y / f.len2() / pcou, pointnums(x + movex, y) + freecount));
+                vdep(x, y, VarType::P).push_back(LinearVar(1 / double(pcou), pointnums(x + movex, y) + 2 * freecount));
             }
             if (mvyfree)
             {
-                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.x / f.len2() / pcou, var_id(x, y + movey, VarType::Ux)));
-                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.y / f.len2() / pcou, var_id(x, y + movey, VarType::Uy)));
-                vdep(x, y, VarType::Uy).push_back(LinearVar(f.x * f.y / f.len2() / pcou, var_id(x, y + movey, VarType::Ux)));
-                vdep(x, y, VarType::Uy).push_back(LinearVar(f.y * f.y / f.len2() / pcou, var_id(x, y + movey, VarType::Uy)));
-                vdep(x, y, VarType::P).push_back(LinearVar(1 / double(pcou), var_id(x + movex, y, VarType::P)));
+                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.x / f.len2() / pcou, pointnums(x, y + movey)));
+                vdep(x, y, VarType::Ux).push_back(LinearVar(f.x * f.y / f.len2() / pcou, pointnums(x, y + movey) + freecount));
+                vdep(x, y, VarType::Uy).push_back(LinearVar(f.x * f.y / f.len2() / pcou, pointnums(x, y + movey)));
+                vdep(x, y, VarType::Uy).push_back(LinearVar(f.y * f.y / f.len2() / pcou, pointnums(x, y + movey) + freecount));
+                vdep(x, y, VarType::P).push_back(LinearVar(1 / double(pcou), pointnums(x, y + movey) + 2 * freecount));
             }
         }
     }
@@ -118,9 +124,9 @@ void Simulator::init_var_dependencies()
 
 void Simulator::init_linear_algebra()
 {
-    f = Eigen::VectorXd(freecount);
-    jacsol = Eigen::VectorXd(freecount);
-    jac = Eigen::SparseMatrix<double, Eigen::RowMajor>(freecount, freecount); 
+    f = Eigen::VectorXd(freecount * 3);
+    jacsol = Eigen::VectorXd(freecount * 3);
+    jac = Eigen::SparseMatrix<double, Eigen::RowMajor>(freecount * 3, freecount * 3); 
 }
 
 std::vector<LinearVar>& Simulator::vdep(const int32_t x, const int32_t y, const VarType vtype)
@@ -130,6 +136,10 @@ std::vector<LinearVar>& Simulator::vdep(const int32_t x, const int32_t y, const 
 
 void Simulator::push_entry(const int eq, const int var, const double val)
 {
+    if (eq < 0)
+        cout << eq << endl;
+    if (var < 0)
+        cout << var << endl;
     nonzeros.push_back(Eigen::Triplet<double>(eq, var, val));
 }
 
@@ -140,13 +150,13 @@ void Simulator::push_safes()
         for (int32_t x = 1; x < n - 1; x++)
         {
             if (!safepoints(x, y))
-                x = n - x;
+                continue;
             const uint32_t massconseq = pointnums(x, y) + 2 * freecount;
-            push_entry(massconseq, pointnums(x + 1, y), 1);
-            push_entry(massconseq, pointnums(x - 1, y), -1);
-            push_entry(massconseq, pointnums(x, y + 1) + freecount, 1);
-            push_entry(massconseq, pointnums(x, y - 1) + freecount, -1);
-            f[massconseq] = s1.u(x + 1, y).x - s1.u(x - 1, y).x + s1.u(x, y + 1).y - s1.u(x, y - 1).y;
+            push_entry(massconseq, pointnums(x + 1, y), 1 / (2 * dx));
+            push_entry(massconseq, pointnums(x - 1, y), -1 / (2 * dx));
+            push_entry(massconseq, pointnums(x, y + 1) + freecount, 1 / (2 * dx));
+            push_entry(massconseq, pointnums(x, y - 1) + freecount, -1 / (2 * dx));
+            f[massconseq] = (s1.u(x + 1, y).x - s1.u(x - 1, y).x + s1.u(x, y + 1).y - s1.u(x, y - 1).y) / (2 * dx);
             const uint32_t xtimeeq = pointnums(x, y);
             push_entry(xtimeeq, pointnums(x, y), 2 * rho / dt + (s1.u(x + 1, y).x - s1.u(x - 1, y).x) / (2 * dx) + 4 * mu / (dx * dx));
             push_entry(xtimeeq, pointnums(x - 1, y), -s1.u(x, y).x / (2 * dx) - mu / (dx * dx));
@@ -154,6 +164,8 @@ void Simulator::push_safes()
             push_entry(xtimeeq, pointnums(x, y - 1), -s1.u(x, y).y / (2 * dx) - mu / (dx * dx));
             push_entry(xtimeeq, pointnums(x, y + 1), s1.u(x, y).y / (2 * dx) - mu / (dx * dx));
             push_entry(xtimeeq, pointnums(x, y) + freecount, (s1.u(x, y + 1).x - s1.u(x, y - 1).x) / (2 * dx));
+            push_entry(xtimeeq, pointnums(x - 1, y) + 2 * freecount, -1 / (2 * dx));
+            push_entry(xtimeeq, pointnums(x + 1, y) + 2 * freecount, 1 / (2 * dx));
             f[xtimeeq] = 2 * rho * (s1.u(x, y).x - s0.u(x, y).x) / dt // time derivative
                 + s1.u(x, y).x * (s1.u(x + 1, y).x - s1.u(x - 1, y).x) / (2 * dx) + s1.u(x, y).y * (s1.u(x, y + 1).x - s1.u(x, y - 1).x) / (2 * dx) // t + 1: u dot grad u
                 + (s1.p(x + 1, y) - s1.p(x - 1, y)) / (2 * dx) // t + 1: grad p
@@ -165,9 +177,11 @@ void Simulator::push_safes()
             push_entry(ytimeeq, pointnums(x, y) + freecount, 2 * rho / dt + (s1.u(x, y + 1).y - s1.u(x, y - 1).y) / (2 * dx) + 4 * mu / (dx * dx));
             push_entry(ytimeeq, pointnums(x - 1, y) + freecount, -s1.u(x, y).x / (2 * dx) - mu / (dx * dx));
             push_entry(ytimeeq, pointnums(x + 1, y) + freecount, s1.u(x, y).x / (2 * dx) - mu / (dx * dx));
-            push_entry(ytimeeq, pointnums(x, y - 1), -s1.u(x, y).y / (2 * dx) - mu / (dx * dx));
-            push_entry(ytimeeq, pointnums(x, y + 1), s1.u(x, y).y / (2 * dx) - mu / (dx * dx));
+            push_entry(ytimeeq, pointnums(x, y - 1) + freecount, -s1.u(x, y).y / (2 * dx) - mu / (dx * dx));
+            push_entry(ytimeeq, pointnums(x, y + 1) + freecount, s1.u(x, y).y / (2 * dx) - mu / (dx * dx));
             push_entry(ytimeeq, pointnums(x, y), (s1.u(x + 1, y).y - s1.u(x - 1, y).y) / (2 * dx));
+            push_entry(ytimeeq, pointnums(x, y - 1) + 2 * freecount, -1 / (2 * dx));
+            push_entry(ytimeeq, pointnums(x, y + 1) + 2 * freecount, 1 / (2 * dx));
             f[ytimeeq] = 2 * rho * (s1.u(x, y).y - s0.u(x, y).y) / dt // time derivative
                 + s1.u(x, y).x * (s1.u(x + 1, y).y - s1.u(x - 1, y).y) / (2 * dx) + s1.u(x, y).y * (s1.u(x, y + 1).y - s1.u(x, y - 1).y) / (2 * dx) // t + 1: u dot grad u
                 + (s1.p(x, y + 1) - s1.p(x, y - 1)) / (2 * dx) // t + 1: grad p
@@ -193,7 +207,7 @@ double Simulator::var_value(const State& st, const uint32_t var)
 
 double Simulator::dependent_var_value(const State& st, const int32_t x, const int32_t y, const VarType vtype)
 {
-    if (freepoints(x, y))
+    if (x >= 0 && x < n && y >= 0 && y < n && freepoints(x, y))
         return var_value(st, pointnums(x, y) + vtype * freecount);
     double val = 0;
     for (const LinearVar lv : vdep(x, y, vtype))
@@ -205,7 +219,7 @@ double Simulator::dependent_var_value(const State& st, const int32_t x, const in
 
 void Simulator::add_par_ders(PartialDers& ders, const double coeff, const int32_t x, const int32_t y, const VarType vtype)
 {
-    if (freepoints(x, y))
+    if (x >= 0 && x < n && y >= 0 && y < n && freepoints(x, y))
     {
         ders.add(coeff, pointnums(x, y) + vtype * freecount);
     }
@@ -213,7 +227,8 @@ void Simulator::add_par_ders(PartialDers& ders, const double coeff, const int32_
     {
         for (const LinearVar lv : vdep(x, y, vtype))
         {
-            ders.add(coeff * lv.mult, lv.var);
+            if (lv.var != CONST_VAR)
+                ders.add(coeff * lv.mult, lv.var);
         }
     }
 }
@@ -239,19 +254,19 @@ void Simulator::push_unsafes()
             const double uxxmytp = dependent_var_value(s1, x - 1, y, VarType::Ux);
             const double uyxyptp = dependent_var_value(s1, x, y + 1, VarType::Uy);
             const double uyxymtp = dependent_var_value(s1, x, y - 1, VarType::Uy);
-            f[massconseq] = uxxpytp - uxxmytp + uyxyptp - uyxymtp;
+            f[massconseq] = (uxxpytp - uxxmytp + uyxyptp - uyxymtp) / (2 * dx);
             PartialDers massconsders;
-            add_par_ders(massconsders, 1, x + 1, y, VarType::Ux);
-            add_par_ders(massconsders, -1, x - 1, y, VarType::Ux);
-            add_par_ders(massconsders, 1, x, y + 1, VarType::Uy);
-            add_par_ders(massconsders, -1, x, y - 1, VarType::Uy);
+            add_par_ders(massconsders, 1 / (2 * dx), x + 1, y, VarType::Ux);
+            add_par_ders(massconsders, -1 / (2 * dx), x - 1, y, VarType::Ux);
+            add_par_ders(massconsders, 1 / (2 * dx), x, y + 1, VarType::Uy);
+            add_par_ders(massconsders, -1 / (2 * dx), x, y - 1, VarType::Uy);
             push_equation(massconseq, massconsders);
             const uint32_t xtimeeq = pointnums(x, y);
             const double uxxytp = s1.u(x, y).x;
             const double uxxyt = s0.u(x, y).x;
             const double uyxytp = s1.u(x, y).y;
             const double uxxyptp = dependent_var_value(s1, x, y + 1, VarType::Ux);
-            const double uxxymtp = dependent_var_value(s1, x, y - 1, VarType::Uy);
+            const double uxxymtp = dependent_var_value(s1, x, y - 1, VarType::Ux);
             const double pxpytp = dependent_var_value(s1, x + 1, y, VarType::P);
             const double pxmytp = dependent_var_value(s1, x - 1, y, VarType::P);
             const double uxxpyt = dependent_var_value(s0, x + 1, y, VarType::Ux);
@@ -261,10 +276,6 @@ void Simulator::push_unsafes()
             const double uxxymt = dependent_var_value(s0, x, y - 1, VarType::Ux);
             const double pxpyt = dependent_var_value(s0, x + 1, y, VarType::P);
             const double pxmyt = dependent_var_value(s0, x - 1, y, VarType::P);
-            const double uxxpyt = dependent_var_value(s0, x + 1, y, VarType::Ux);
-            const double uxxmyt = dependent_var_value(s0, x - 1, y, VarType::Ux);
-            const double uxxypt = dependent_var_value(s0, x, y + 1, VarType::Ux);
-            const double uxxymt = dependent_var_value(s0, x, y - 1, VarType::Ux);
             f[xtimeeq] = 2 * rho * (uxxytp - uxxyt) / dt // d/dt ux
                 + uxxytp * (uxxpytp - uxxmytp) / (2 * dx) + uyxytp * (uxxyptp - uxxymtp) / (2 * dx) // u dot grad ux (t + 1)
                 + (pxpytp - pxmytp) / (2 * dx) // (grad p).x (t + 1)
@@ -281,7 +292,7 @@ void Simulator::push_unsafes()
             add_par_ders(xtimeders, uyxytp / (2 * dx), x, y + 1, VarType::Ux);
             add_par_ders(xtimeders, -uyxytp / (2 * dx), x, y - 1, VarType::Ux);
             add_par_ders(xtimeders, 1 / (2 * dx), x + 1, y, VarType::P);
-            add_par_ders(xtimeders, 1 / (2 * dx), x - 1, y, VarType::P);
+            add_par_ders(xtimeders, -1 / (2 * dx), x - 1, y, VarType::P);
             add_par_ders(xtimeders, -mu / (dx * dx), x + 1, y, VarType::Ux);
             add_par_ders(xtimeders, -mu / (dx * dx), x - 1, y, VarType::Ux);
             add_par_ders(xtimeders, -mu / (dx * dx), x, y + 1, VarType::Ux);
@@ -289,11 +300,8 @@ void Simulator::push_unsafes()
             add_par_ders(xtimeders, 4 * mu / (dx * dx), x, y, VarType::Ux);
             push_equation(xtimeeq, xtimeders);
             const uint32_t ytimeeq = pointnums(x, y) + freecount;
-            const double uyxyt = dependent_var_value(s0, x, y, VarType::Uy);
             const double uyxpytp = dependent_var_value(s1, x + 1, y, VarType::Uy);
             const double uyxmytp = dependent_var_value(s1, x - 1, y, VarType::Uy);
-            const double uyxyptp = dependent_var_value(s1, x, y + 1, VarType::Uy);
-            const double uyxymtp = dependent_var_value(s1, x, y - 1, VarType::Uy);
             const double pxyptp = dependent_var_value(s1, x, y + 1, VarType::P);
             const double pxymtp = dependent_var_value(s1, x, y - 1, VarType::P);
             const double uyxpyt = dependent_var_value(s0, x + 1, y, VarType::Uy);
@@ -329,28 +337,81 @@ void Simulator::push_unsafes()
     }
 }
 
+constexpr uint32_t itersperstep = 1;
+
 void Simulator::iter()
 {
-    // let state 1 be the current best approximation of the next state (assumed)
-    for (uint32_t i = 0; i < itersperstep; i++)
+    /*for (uint32_t j = 0; j < freecount; j++)
     {
-
+    double delta = 0.0001;
+    Eigen::VectorXd col(freecount * 3);
+    for (uint32_t i = 0; i < freecount * 3; i++)
+    {
+        col[i] = 0;
     }
-    // iterate a few times (improve the current best approximation):
-    //// show
-    for (uint32_t y = 0; y < n; y++)
+    col[j + 2 * freecount] = delta;
+    nonzeros.clear();
+    push_safes();
+    push_unsafes();
+    double* prevf = new double[freecount * 3];
+    for (uint32_t i = 0; i < freecount * 3; i++)
     {
-        for (uint32_t x = 0; x < n; x++)
+        prevf[i] = f[i];
+    }
+    jac.setFromTriplets(nonzeros.begin(), nonzeros.end());
+    Eigen::VectorXd prod = jac * col;
+    for (uint32_t i = 0; i < freecount * 3; i++)
+    {
+        if (prod[i] != 0)
+            cout << i << ": " << prod[i] << endl;
+    }
+    s1.p(point_list[j]) += delta;
+    nonzeros.clear();
+    push_safes();
+    push_unsafes();
+    for (uint32_t i = 0; i < freecount * 3; i++)
+    {
+        if (abs(f[i] - prevf[i] - prod[i]) > 0.0001)
         {
-
+            cout << j << ", " << i << ": " << f[i] << " from " << prevf[i] << " (delta = " << f[i] - prevf[i] << ")" << endl;
+            cout << "prod = " << prod[i] << endl;
         }
     }
-    swap(sig1, nextsig);
-    swap(sig0, nextsig);
-    swap(jj1, nextjj);
-    swap(jj0, nextjj);
-    swap(t1, nextt);
-    swap(t0, nextt);
+    s1.p(point_list[j]) = 1;
+    }
+    return;*/
+    // let state 1 be the current best approximation of the next state (assumed)
+    //double* original = new double[3 * freecount];
+    for (uint32_t i = 0; i < 2; i++)
+    {
+        nonzeros.clear();
+        push_safes();
+        push_unsafes();
+        /*for (uint32_t j = 0; j < 3 * freecount; j += 16)
+        {
+            if (f[j] != 0)
+                cout << j << ": " << f[j] << " (" << original[j] << ")" << endl;
+            original[j] = f[j];
+        }*/
+        jac.setFromTriplets(nonzeros.begin(), nonzeros.end());
+        solver.compute(jac);
+        const double fnorm = f.squaredNorm();
+        cout << fnorm << endl;
+        jacsol = solver.solve(f);
+        //cout << "solving" << endl;
+        for (uint32_t y = 0; y < n; y++)
+        {
+            for (uint32_t x = 0; x < n; x++)
+            {
+                if (!freepoints(x, y))
+                    continue;
+                s1.u(x, y).x -= jacsol[pointnums(x, y)];
+                s1.u(x, y).y -= jacsol[pointnums(x, y) + freecount];
+                s1.p(x, y) -= jacsol[pointnums(x, y) + 2 * freecount];
+            }
+        }
+    }
+    s0 = s1;
 }
 
 }

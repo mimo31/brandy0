@@ -14,13 +14,14 @@
 namespace brandy0
 {
 
-constexpr uint32_t stepsperframe = 53 * 4;
-constexpr uint32_t itersperstep = 8;
+constexpr uint32_t stepsperframe = 1;
 
-int main()
+void run()
 {
     Simulator sim;
     sim.init();
+    /*sim.iter();
+    return;*/
     for (uint32_t i = 0;; i++)
     {
         save(sim, std::to_string(i) + ".png");
@@ -30,7 +31,12 @@ int main()
             sim.iter();
         }
     }
-    return EXIT_SUCCESS;
 }
 
+}
+
+int main()
+{
+    brandy0::run();
+    return EXIT_SUCCESS;
 }
