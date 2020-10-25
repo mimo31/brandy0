@@ -40,7 +40,7 @@ int clamp(const int val)
 
 void save(const Simulator& s, const std::string& filename)
 {
-    cimg_library::CImg<unsigned char> pimg(n, n, 1, 3, 0);
+    /*cimg_library::CImg<unsigned char> pimg(n, n, 1, 3, 0);
     for (uint32_t x = 0; x < n; x++)
     {
         for (uint32_t y = 0; y < n; y++)
@@ -49,11 +49,11 @@ void save(const Simulator& s, const std::string& filename)
             pimg(x, y, 0) = pimg(x, y, 1) = pimg(x, y, 2) = clamp(val);
         }
     }
-    pimg.save((save_path + "p" + filename).c_str());
+    pimg.save((save_path + "p" + filename).c_str());*/
     constexpr uint32_t spac = 8;
     constexpr uint32_t iters = 8000;
     constexpr double chngc = .003;
-    cimg_library::CImg<unsigned char> pelimg(n, n, 1, 3, 0);
+    /*cimg_library::CImg<unsigned char> pelimg(n, n, 1, 3, 0);
     for (uint32_t y = spac / 2; y < n; y += spac)
     {
         for (uint32_t x = spac / 2; x < n; x += spac)
@@ -76,7 +76,7 @@ void save(const Simulator& s, const std::string& filename)
             }
         }
     }
-    pelimg.save((save_path + "pel" + filename).c_str());
+    pelimg.save((save_path + "pel" + filename).c_str());*/
     cimg_library::CImg<unsigned char> ufimg(n, n, 1, 3, 0);
     for (uint32_t y = spac / 2; y < n; y += spac)
     {
@@ -99,7 +99,7 @@ void save(const Simulator& s, const std::string& filename)
         }
     }
     ufimg.save((save_path + "uf" + filename).c_str());
-    cimg_library::CImg<unsigned char> uyimg(n, n, 1, 3, 0);
+    /*cimg_library::CImg<unsigned char> uyimg(n, n, 1, 3, 0);
     for (uint32_t x = 0; x < n; x++)
     {
         for (uint32_t y = 0; y < n; y++)
@@ -118,7 +118,7 @@ void save(const Simulator& s, const std::string& filename)
             uximg(x, y, 0) = uximg(x, y, 1) = uximg(x, y, 2) = clamp(val);
         }
     }
-    uximg.save((save_path + "ux" + filename).c_str());
+    uximg.save((save_path + "ux" + filename).c_str());*/
 }
 
 }

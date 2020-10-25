@@ -1,2 +1,3 @@
 CImg.h
-.png
+*.png
+*.swp

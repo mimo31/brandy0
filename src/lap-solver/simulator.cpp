@@ -13,6 +13,10 @@
 namespace brandy0
 {
 
+constexpr double dt = .00244;
+
+constexpr double u0 = 5;
+
 double to_coor(const uint32_t cor)
 {
     return cor / double(n - 1);
