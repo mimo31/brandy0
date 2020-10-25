@@ -18,12 +18,12 @@ using std::endl;
 namespace brandy0
 {
 
-constexpr uint32_t n = 64;
+constexpr uint32_t n = 129;
+constexpr double dx = 2 / double(n - 1);
+constexpr double dt = .00002;
 
-constexpr double penv = 1;
-constexpr vec2d uenv(0, -.1);
-
-constexpr double midr = .1143;
+constexpr double u0 = 48;
+constexpr double nu = .1;
 
 }
 

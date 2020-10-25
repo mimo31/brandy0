@@ -23,28 +23,12 @@
 namespace brandy0
 {
 
-constexpr double dx = 1 / 512.0; // space step
-constexpr double dt = .000001;     // time step
-constexpr double rho = 1;
-constexpr double mu = 10;
-
 class Simulator
 {
 
 private:
 
-    Grid<bool> safepoints;
-    Grid<uint32_t> pointnums;
-    Point* point_list;
-    uint32_t freecount = 0;
-    std::vector<LinearVar>* vardependence;
-
-    std::vector<Eigen::Triplet<double>> nonzeros;
-    Eigen::VectorXd f;
-    Eigen::VectorXd jacsol;
-    Eigen::SparseMatrix<double, Eigen::RowMajor> jac;
-    Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>> solver;
-    uint32_t nexteq;
+    Grid<double> f;
 
     double var_value(const State& st, const uint32_t var);
     double dependent_var_value(const State& st, const int32_t x, const int32_t y, const VarType vtype);
@@ -61,16 +45,18 @@ private:
     void init_var_dependencies();
     void init_linear_algebra();
 
+    void enforce_p_boundary();
+    void enforce_u_boundary();
+    void enforce_boundary();
+
     std::vector<LinearVar>& vdep(const int32_t x, const int32_t y, const VarType vtype) const;
 
 public:
 
     void init()
     {
-        init_free_safe_indicators();
-        init_var_dependencies();
-        init_linear_algebra();
         init_values();
+        enforce_boundary();
     }
     void iter();
     State s0, s1;

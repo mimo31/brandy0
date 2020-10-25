@@ -53,7 +53,7 @@ void save(const Simulator& s, const std::string& filename)
             }
         }
     }
-    pimg.save(("p" + filename).c_str());
+    pimg.save(("pn" + filename).c_str());
     cimg_library::CImg<unsigned char> uyimg(n, n, 1, 3, 0);
     for (uint32_t x = 0; x < n; x++)
     {
@@ -61,7 +61,7 @@ void save(const Simulator& s, const std::string& filename)
         {
             if (s.freepoints(x, y))
             {
-                const int val = 127 + (-s.s0.u(x, y).y + uenv.y) * 30000;
+                const int val = 127 - s.s0.u(x, y).y * 1000;
                 uyimg(x, y, 0) = uyimg(x, y, 1) = uyimg(x, y, 2) = clamp(val);
             }
             else
@@ -70,7 +70,7 @@ void save(const Simulator& s, const std::string& filename)
             }
         }
     }
-    uyimg.save(("uy" + filename).c_str());
+    uyimg.save(("uyn" + filename).c_str());
     cimg_library::CImg<unsigned char> uximg(n, n, 1, 3, 0);
     for (uint32_t x = 0; x < n; x++)
     {
@@ -78,7 +78,7 @@ void save(const Simulator& s, const std::string& filename)
         {
             if (s.freepoints(x, y))
             {
-                const int val = 127 + s.s0.u(x, y).x * 30000;
+                const int val = 127 + s.s0.u(x, y).x * 1000;
                 uximg(x, y, 0) = uximg(x, y, 1) = uximg(x, y, 2) = clamp(val);
             }
             else
@@ -87,7 +87,7 @@ void save(const Simulator& s, const std::string& filename)
             }
         }
     }
-    uximg.save(("ux" + filename).c_str());
+    uximg.save(("uxn" + filename).c_str());
 }
 
 }

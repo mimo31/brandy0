@@ -18,18 +18,6 @@ inline vec2d tocoor(const int32_t x, const int32_t y)
     return vec2d((x + .5) / double(n) - .5, (y + .5) / double(n) - .5);
 }
 
-void Simulator::init_values()
-{
-    for (int32_t y = 0; y < n; y++)
-    {
-        for (int32_t x = 0; x < n; x++)
-        {
-            s0.u(x, y) = s1.u(x, y) = uenv;
-            s0.p(x, y) = s1.p(x, y) = penv;
-        }
-    }
-}
-
 void Simulator::init_free_safe_indicators()
 {
     for (int32_t y = 0; y < n; y++)
@@ -63,29 +51,39 @@ void Simulator::init_free_safe_indicators()
     }
 }
 
-uint32_t var_id(const uint32_t x, const uint32_t y, const VarType vtype)
-{
-    return x + n * y + n * n * vtype;
-}
-
 void Simulator::init_var_dependencies()
 {
     vardependence = new std::vector<LinearVar>[(n + 2) * (n + 2) * 3];
     for (int32_t cor = 0; cor < n; cor++)
     {
         vdep(cor, -1, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
+
         vdep(cor, n, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
+
         vdep(cor, -1, VarType::Uy).push_back(LinearVar(uenv.y, CONST_VAR));
         //vdep(cor, -1, VarType::Uy).push_back(LinearVar(2, pointnums(0, cor) + freecount));
         //vdep(cor, -1, VarType::Uy).push_back(LinearVar(-1, pointnums(1, cor) + freecount));
+
         vdep(cor, n, VarType::Uy).push_back(LinearVar(uenv.y, CONST_VAR));
+
         vdep(cor, -1, VarType::P).push_back(LinearVar(penv, CONST_VAR));
+
         vdep(cor, n, VarType::P).push_back(LinearVar(penv, CONST_VAR));
-        vdep(-1, cor, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
-        vdep(n, cor, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
+
+        //vdep(-1, cor, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
+        vdep(-1, cor, VarType::Ux).push_back(LinearVar(2, pointnums(0, cor)));
+        vdep(-1, cor, VarType::Ux).push_back(LinearVar(-1, pointnums(1, cor)));
+
+        //vdep(n, cor, VarType::Ux).push_back(LinearVar(uenv.x, CONST_VAR));
+        vdep(n, cor, VarType::Ux).push_back(LinearVar(2, pointnums(n - 1, cor)));
+        vdep(n, cor, VarType::Ux).push_back(LinearVar(-1, pointnums(n - 2, cor)));
+
         vdep(-1, cor, VarType::Uy).push_back(LinearVar(uenv.y, CONST_VAR));
+
         vdep(n, cor, VarType::Uy).push_back(LinearVar(uenv.y, CONST_VAR));
+
         vdep(-1, cor, VarType::P).push_back(LinearVar(penv, CONST_VAR));
+
         vdep(n, cor, VarType::P).push_back(LinearVar(penv, CONST_VAR));
     }
     for (int32_t y = 1; y < n - 1; y++)
@@ -122,6 +120,88 @@ void Simulator::init_var_dependencies()
     }
 }
 
+void push_var(const int eq, const int var, const double val, std::vector<Eigen::Triplet<double>>& nz)
+{
+    nz.push_back(Eigen::Triplet<double>(eq, var, val));
+}
+
+void Simulator::init_add_var(const uint32_t eq, const double coeff, const int32_t x, const int32_t y, const VarType vtype, Eigen::VectorXd& b, std::vector<Eigen::Triplet<double>>& nz)
+{
+    if (x >= 0 && x < n && y >= 0 && y < n && freepoints(x, y))
+    {
+        //if (vtype == VarType::Ux)
+        //{
+            push_var(eq, pointnums(x, y) + vtype * freecount, coeff, nz);
+        //}
+        /*else if (vtype == VarType::Uy)
+        {
+            b[eq] -= coeff * uenv.y;
+        }*/
+    }
+    else
+    {
+        for (const LinearVar lv : vdep(x, y, vtype))
+        {
+            if (lv.var == CONST_VAR)
+            {
+                b[eq] -= coeff * lv.mult;
+            }
+            else// if (lv.var < freecount)
+            {
+                push_var(eq, lv.var, coeff * lv.mult, nz);
+            }
+            /*else // lv.var < 2 * freecount
+            {
+                push_var
+                //b[eq] -= coeff * lv.mult * uenv.y;
+            }*/
+        }   
+    }
+}
+
+void Simulator::init_values()
+{
+    Eigen::VectorXd b(2 * freecount);
+    for (uint32_t i = 0; i < freecount; i++)
+    {
+        b[i] = 0;
+    }
+    Eigen::VectorXd y(2 * freecount);
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A(2 * freecount, 2 * freecount);
+    std::vector<Eigen::Triplet<double>> nz;
+    for (int32_t y = 0; y < n; y++)
+    {
+        for (int32_t x = 0; x < n; x++)
+        {
+            if (!freepoints(x, y))
+                continue;
+            const uint32_t eq = pointnums(x, y);
+            init_add_var(eq, 1, x + 1, y, VarType::Ux, b, nz);
+            init_add_var(eq, -1, x - 1, y, VarType::Ux, b, nz);
+            init_add_var(eq, 1, x, y + 1, VarType::Uy, b, nz);
+            init_add_var(eq, -1, x, y - 1, VarType::Uy, b, nz);
+        }
+    }
+    A.setFromTriplets(nz.begin(), nz.end());
+    solver.compute(A * A.transpose());
+    y = solver.solve(b);
+    Eigen::VectorXd sol = A.transpose() * y;
+    for (uint32_t i = 0; i < freecount; i++)
+    {
+        s0.u(point_list[i]).x = s1.u(point_list[i]).x = sol[i];
+        s0.u(point_list[i]).y = s1.u(point_list[i]).y = sol[i + freecount];
+        //cout << sol[i] << endl;
+    }
+    for (int32_t y = 0; y < n; y++)
+    {
+        for (int32_t x = 0; x < n; x++)
+        {
+            //s0.u(x, y).y = s1.u(x, y).y = uenv.y;
+            s0.p(x, y) = s1.p(x, y) = penv;
+        }
+    }
+}
+
 void Simulator::init_linear_algebra()
 {
     f = Eigen::VectorXd(freecount * 3);
@@ -129,7 +209,7 @@ void Simulator::init_linear_algebra()
     jac = Eigen::SparseMatrix<double, Eigen::RowMajor>(freecount * 3, freecount * 3); 
 }
 
-std::vector<LinearVar>& Simulator::vdep(const int32_t x, const int32_t y, const VarType vtype)
+std::vector<LinearVar>& Simulator::vdep(const int32_t x, const int32_t y, const VarType vtype) const
 {
     return vardependence[x + 1 + (n + 2) * (y + 1) + (n + 2) * (n + 2) * vtype];
 }
@@ -382,7 +462,7 @@ void Simulator::iter()
     return;*/
     // let state 1 be the current best approximation of the next state (assumed)
     //double* original = new double[3 * freecount];
-    for (uint32_t i = 0; i < 2; i++)
+    for (uint32_t i = 0; i < 4; i++)
     {
         nonzeros.clear();
         push_safes();
