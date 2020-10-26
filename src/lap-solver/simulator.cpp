@@ -13,9 +13,9 @@
 namespace brandy0
 {
 
-constexpr double dt = .00244;
+constexpr double dt = .000865;
 
-constexpr double u0 = 5;
+constexpr double u0 = 23;
 
 double to_coor(const uint32_t cor)
 {
