@@ -13,10 +13,6 @@
 namespace brandy0
 {
 
-constexpr double dt = .00608;
-
-constexpr double u0 = 9.5;
-
 double to_coor(const uint32_t cor)
 {
     return cor / double(n - 1);
@@ -90,7 +86,7 @@ void Simulator::iter()
             fl1 += abs(f(x, y));
         }
     }
-    cout << "f L1 norm = " << fl1 << endl;
+    //cout << "f L1 norm = " << fl1 << endl;
     //for (uint32_t i = 0; i < possion_iterations; i++)
     //{
     uint32_t i = 0;
@@ -106,8 +102,13 @@ void Simulator::iter()
                 dl1 += abs(s0.p(x, y) - s1.p(x, y));
             }
         }
-        if (i % 1000 == 0)
-            cout << "dp L1 norm = " << dl1 << endl;
+        /*if (i % 1000 == 0)
+            cout << "dp L1 norm = " << dl1 << endl;*/
+        if (std::isnan(dl1))
+        {
+            collapsed = true;
+            return;
+        }
         enforce_p_boundary();
         if (dl1 < .1)
             break;
@@ -132,6 +133,50 @@ void Simulator::iter()
         }
     }
     enforce_boundary();
+}
+
+bool Simulator::has_collapsed()
+{
+    if (collapsed)
+        return true;
+    for (uint32_t y = 0; y < n; y++)
+    {
+        for (uint32_t x = 0; x < n; x++)
+        {
+            if (std::isnan(s0.u(x, y).x) || std::isnan(s0.u(x, y).y) || std::isnan(s0.p(x, y)))
+                return true;
+        }
+    }
+    return false;
+}
+
+double Simulator::step_change()
+{
+    double l2 = 0;
+    for (uint32_t y = 0; y < n; y++)
+    {
+        for (uint32_t x = 0; x < n; x++)
+        {
+            const double dp = abs(s0.p(x, y) - s1.p(x, y));
+            l2 += dp * dp;
+        }
+    }
+    return l2;
+}
+
+double Simulator::max_abs_u()
+{
+    double mx = 0;
+    for (uint32_t y = 0; y < n; y++)
+    {
+        for (uint32_t x = 0; x < n; x++)
+        {
+            const double v = std::max(s0.u(x, y).x, s0.u(x, y).y);
+            if (v > mx)
+                mx = v;
+        }
+    }
+    return mx;
 }
 
 }
