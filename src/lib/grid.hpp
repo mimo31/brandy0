@@ -1,14 +1,16 @@
 /**
- * grid.h
+ * grid.hpp
  * 
  * Author: Viktor Fukala
  * Created on 2020/10/2
  */
-#ifndef GRID_H
-#define GRID_H
+#ifndef GRID_HPP
+#define GRID_HPP
 
-#include "global.h"
-#include "point.h"
+#include <algorithm>
+#include <cstdint>
+
+#include "point.hpp"
 
 namespace brandy0
 {
@@ -16,35 +18,52 @@ namespace brandy0
 template <typename T>
 struct Grid
 {
-    T *data;
+	T *data;
+	uint32_t w, h;
 
-    Grid()
-    {
-        data = new T[n * n];
-    }
+	Grid(const uint32_t w, const uint32_t h) : w(w), h(h)
+	{
+		data = new T[w * h];
+	}
 
-    ~Grid()
-    {
-        delete[] data;
-    }
+	Grid(const Grid& g) : Grid(g.w, g.h)
+	{
+		std::copy_n(g.data, w * h, data);
+	}
 
-    T &operator()(const uint32_t x, const uint32_t y) const
-    {
-        return data[x + y * n];
-    }
+	~Grid()
+	{
+		delete[] data;
+	}
 
-    T &operator()(const Point& p) const
-    {
-        return data[p.x + p.y * n];
-    }
+	T &operator()(const uint32_t x, const uint32_t y) const
+	{
+		return data[x + y * w];
+	}
 
-    Grid &operator=(const Grid &other)
-    {
-        std::copy_n(other.data, n * n, data);
-        return *this;
-    }
+	T &operator()(const Point& p) const
+	{
+		return data[p.x + p.y * w];
+	}
+
+	Grid &operator=(const Grid &other)
+	{
+		std::copy_n(other.data, w * h, data);
+		return *this;
+	}
+
+	void set_all(const T val)
+	{
+		for (uint32_t y = 0; y < h; y++)
+		{
+			for (uint32_t x = 0; x < w; x++)
+			{
+				data[x + y * w] = val;
+			}
+		}
+	}
 };
 
 }
 
-#endif // GRID_H
+#endif // GRID_HPP

@@ -1,13 +1,13 @@
 /**
- * point.h
+ * point.hpp
  * 
  * Author: Viktor Fukala
  * Created on 2020/10/3
  */
-#ifndef POINT_H
-#define POINT_H
+#ifndef POINT_HPP
+#define POINT_HPP
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace brandy0
 {
@@ -17,18 +17,18 @@ namespace brandy0
  */
 struct Point
 {
-    int32_t x;
-    int32_t y;
+	int32_t x;
+	int32_t y;
 
-    Point()
-    {
-    }
+	Point()
+	{
+	}
 
-    constexpr Point(const int32_t x, const int32_t y) : x(x), y(y)
-    {
-    }
+	constexpr Point(const int32_t x, const int32_t y) : x(x), y(y)
+	{
+	}
 };
 
 }
 
-#endif // POINT_H
+#endif // POINT_HPP

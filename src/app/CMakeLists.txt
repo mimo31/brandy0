@@ -5,4 +5,6 @@ link_directories(../lib)
 
 project(brandy0)
 
-add_executable(brandy0 main.cpp)
+file(GLOB all_SRC "*.cpp")
+
+add_executable(brandy0 ${all_SRC})
