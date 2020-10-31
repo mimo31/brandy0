@@ -16,9 +16,9 @@ using std::endl;
 
 Simulator::Simulator(const SimulatorParams& params)
 	: bcx0(params.bcx0), bcx1(params.bcx1), bcy0(params.bcy0), bcy1(params.bcy1),
-	solid(params.solid), indep(params.w, params.h),
-	u0(params.w, params.h), u1(params.w, params.h),
-	p0(params.w, params.h), p1(params.w, params.h)
+	solid(params.solid), indep(params.wp, params.hp),
+	u0(params.wp, params.hp), u1(params.wp, params.hp),
+	p0(params.wp, params.hp), p1(params.wp, params.hp)
 {
 	w = params.w;
 	h = params.h;
@@ -30,12 +30,6 @@ Simulator::Simulator(const SimulatorParams& params)
 	rho = params.rho;
 	mu = params.mu;
 	nu = rho / mu;
-	/*bcx0 = params.bcx0;
-	bcx1 = params.bcx1;
-	bcy0 = params.bcy0;
-	bcy1 = params.bcy1;*/
-
-	//solid = params.solid;
 
 	for (uint32_t x = 0; x < wp; x++)
 	{
@@ -53,13 +47,28 @@ Simulator::Simulator(const SimulatorParams& params)
 				|| solid(x - 1, y) || solid(x, y + 1) || solid(x, y - 1));
 		}
 	}
+}
 
-	//u0 = u1 = Grid<vec2d>(w, h);
-	//p0 = p1 = Grid<double>(w, h);
+vec2d Simulator::to_coor(const Point& p)
+{
+	return vec2d(p.x * w / (wp - 1), p.y * h / (hp - 1));
+}
+
+vec2d Simulator::to_coor(const int32_t x, const int32_t y)
+{
+	return to_coor(Point(x, y));
 }
 
 void Simulator::iter()
 {
+	for (uint32_t y = 0; y < hp; y++)
+	{
+		for (uint32_t x = 0; x < wp; x++)
+		{
+			const vec2d coor = to_coor(x, y);
+			u1(x, y) = (coor - vec2d(w / 2, h / 2)).get_lrot();
+		}
+	}
 	cout << "iter" << endl;
 }
 
