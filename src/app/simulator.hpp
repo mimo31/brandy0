@@ -7,6 +7,8 @@
 #ifndef SIMULATOR_HPP
 #define SIMULATOR_HPP
 
+#include "glob.hpp"
+
 #include "grid.hpp"
 #include "simulator-params.hpp"
 

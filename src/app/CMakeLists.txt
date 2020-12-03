@@ -26,6 +26,11 @@ add_custom_target(
 add_executable(${PROJECT_NAME}
 	main.cpp
 	simulator.cpp
+	start-state.cpp
+	start-window.cpp
+	application.cpp
+	config-state.cpp
+	config-window.cpp
 	${CMAKE_CURRENT_BINARY_DIR}/${GRESOURCE_C}
 )
 set_source_files_properties(

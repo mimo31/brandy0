@@ -10,6 +10,8 @@
 #include "simulator.hpp"
 #include "vec2d.hpp"
 
+#include "application.hpp"
+
 namespace brandy0
 {
 
@@ -392,8 +394,12 @@ void GLAreaWindow::draw_lines()
 
 void run()
 {
+	Application app;
+	app.run();
+	return;
 	// ---
 	// mock
+	/*
 	cout << "brandy0 started" << endl;
 	w = h = 1;
 	wp = hp = 32;
@@ -415,6 +421,7 @@ void run()
 	win.set_u(s.u1);
 
 	app->run(win);
+	*/
 	// ---
 }
 

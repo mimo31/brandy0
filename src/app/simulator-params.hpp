@@ -7,6 +7,8 @@
 #ifndef SIMULATOR_PARAMS_HPP
 #define SIMULATOR_PARAMS_HPP
 
+#include "glob.hpp"
+
 #include "boundary-cond.hpp"
 #include "grid.hpp"
 

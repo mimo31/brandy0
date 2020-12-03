@@ -7,6 +7,8 @@
 #ifndef BOUNDARY_COND_HPP
 #define BOUNDARY_COND_HPP
 
+#include "glob.hpp"
+
 #include "vec2d.hpp"
 
 namespace brandy0
