@@ -31,9 +31,6 @@ class ConfigWindow : public Gtk::Window
 private:
 	Gtk::Label descriptionLabel;
 
-	Gtk::Button backHomeButton;
-	Gtk::Button startSimButton;
-
 	AnnotatedEntry rhoEntry, muEntry;
 
 	AnnotatedEntry gridWidthEntry, gridHeightEntry, dtEntry, stepsPerFrameEntry, frameCapacityEntry;
@@ -42,11 +39,14 @@ private:
 
 	Gtk::Grid rootGrid;
 
+	Gtk::Frame physFrame;
+	Gtk::Grid physGrid;
+
 	Gtk::Frame compFrame;
 	Gtk::Grid compGrid;
 
-	Gtk::Frame physFrame;
-	Gtk::Grid physGrid;
+	Gtk::Button backHomeButton;
+	Gtk::Button startSimButton;
 
 	SimulatorParams* params;
 

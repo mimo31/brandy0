@@ -21,8 +21,8 @@ enum PressureBoundaryCond
 
 struct BoundaryCond
 {
-	PressureBoundaryCond p;
 	vec2d u;
+	PressureBoundaryCond p;
 
 	BoundaryCond(const vec2d u, const PressureBoundaryCond p) : u(u), p(p)
 	{

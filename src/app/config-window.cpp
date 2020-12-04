@@ -13,17 +13,17 @@ namespace brandy0
 
 ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback)
 	: descriptionLabel("Configure your simulation."),
-	compFrame("computation configuration"),
-	physFrame("physics configuration"),
-	backHomeButton("back to home"),
-	startSimButton("start simulation"),
 	rhoEntry("rho (density):"),
 	muEntry("mu (viscosity):"),
 	gridWidthEntry("grid width:"),
 	gridHeightEntry("grid height:"),
 	dtEntry("dt (time step):"),
 	stepsPerFrameEntry("steps per frame:"),
-	frameCapacityEntry("frame capacity:")
+	frameCapacityEntry("frame capacity:"),
+	physFrame("physics configuration"),
+	compFrame("computation configuration"),
+	backHomeButton("back to home"),
+	startSimButton("start simulation")
 {
 	set_title("brandy0");
 	set_border_width(12);
