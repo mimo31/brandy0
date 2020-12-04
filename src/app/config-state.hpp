@@ -23,11 +23,17 @@ class Application;
 class ConfigState : public State
 {
 private:
-	Application* app;
-	ConfigWindow* win;
+	Application *app;
+	ConfigWindow *win;
+	SimulatorParams *params;
+
+	void setDefaultParams();
+	void setParams(const SimulatorParams&);
+	void showWindow();
 public:
 	ConfigState(Application *const);
 	void activate();
+	void activate(const SimulatorParams&);
 	void deactivate();
 	~ConfigState();
 };

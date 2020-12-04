@@ -14,7 +14,8 @@ namespace brandy0
 StartWindow::StartWindow(const std::function<void()>& newSimCallback,
 			const std::function<void(std::string)>& loadSimCallback)
 	: newButton("new simulation"),
-	loadButton("load simulation")
+	loadButton("load simulation"),
+	descriptionLabel("Welcome to brandy0, a fluid dynamics simulator!")
 {
 	set_title("brandy0");
 	set_border_width(12);
@@ -23,6 +24,7 @@ StartWindow::StartWindow(const std::function<void()>& newSimCallback,
 
 	layoutGrid.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
+	layoutGrid.add(descriptionLabel);
 	layoutGrid.add(newButton);
 	layoutGrid.add(loadButton);
 

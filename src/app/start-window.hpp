@@ -11,6 +11,7 @@
 
 #include <gtkmm/button.h>
 #include <gtkmm/grid.h>
+#include <gtkmm/label.h>
 #include <gtkmm/window.h>
 
 #include "glob.hpp"
@@ -22,14 +23,13 @@ class StartWindow : public Gtk::Window
 {
 private:
 	Gtk::Button newButton, loadButton;
+	Gtk::Label descriptionLabel;
 	Gtk::Grid layoutGrid;
 
 public:
 	StartWindow(const std::function<void()>& newSimCallback,
 			const std::function<void(std::string)>& loadSimCallback);
 	~StartWindow() override;
-	//void show();
-	//void hide();
 };
 
 }

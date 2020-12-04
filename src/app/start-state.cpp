@@ -6,8 +6,6 @@
  */
 #include "start-state.hpp"
 
-#include <iostream>
-
 namespace brandy0
 {
 
