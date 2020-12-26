@@ -11,7 +11,7 @@
 namespace brandy0
 {
 
-ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback)
+ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback, const std::function<void()>& startSimulationCallback)
 	: descriptionLabel("Configure your simulation."),
 	rhoEntry("rho (density):"),
 	muEntry("mu (viscosity):"),
@@ -29,6 +29,7 @@ ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback)
 	set_border_width(12);
 
 	backHomeButton.signal_clicked().connect(backHomeCallback);
+	startSimButton.signal_clicked().connect(startSimulationCallback);
 
 	rhoEntry.hookInputHandler([this]()
 			{

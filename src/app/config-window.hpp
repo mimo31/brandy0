@@ -54,7 +54,7 @@ private:
 	void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double minVal, const double maxVal);
 	void updateSubmitSensitivity();
 public:
-	ConfigWindow(const std::function<void()>& backHomeCallback);
+	ConfigWindow(const std::function<void()>& backHomeCallback, const std::function<void()>& startSimulationCallback);
 	~ConfigWindow() override;
 	void setParamsLocation(SimulatorParams *const params);
 	void setEntryFields();

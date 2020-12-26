@@ -14,12 +14,14 @@ Application::Application()
 	gtkapp = Gtk::Application::create("");
 	startSt = new StartState(this);
 	configSt = new ConfigState(this);
+	simulationSt = new SimulationState(this);
 }
 
 Application::~Application()
 {
 	delete startSt;
 	delete configSt;
+	delete simulationSt;
 }
 
 void Application::run()
@@ -28,18 +30,34 @@ void Application::run()
 	startSt->run();
 }
 
-void Application::enterNewConfig()
+void Application::switchStates(State *const newSt)
 {
 	activeSt->deactivate();
-	activeSt = configSt;
+	activeSt = newSt;
+}
+
+void Application::enterNewConfig()
+{
+	switchStates(configSt);
 	configSt->activate();
+}
+
+void Application::enterExistingConfig(const SimulatorParams& params)
+{
+	switchStates(configSt);
+	configSt->activate(params);
 }
 
 void Application::enterHome()
 {
-	activeSt->deactivate();
-	activeSt = startSt;
+	switchStates(startSt);
 	startSt->activate();
+}
+
+void Application::enterNewSimulation(const SimulatorParams& params)
+{
+	switchStates(simulationSt);
+	simulationSt->activate(params);
 }
 
 }

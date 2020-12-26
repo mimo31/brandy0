@@ -28,8 +28,12 @@ add_executable(${PROJECT_NAME}
 	application.cpp
 	config-state.cpp
 	config-window.cpp
+	display-area.cpp
 	main.cpp
+	simulation-state.cpp
+	simulation-window.cpp
 	simulator.cpp
+	simulator-classic.cpp
 	start-state.cpp
 	start-window.cpp
 	validity-indicator.cpp

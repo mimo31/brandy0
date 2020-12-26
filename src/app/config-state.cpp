@@ -9,12 +9,13 @@
 namespace brandy0
 {
 
-ConfigState::ConfigState(Application *const app) : app(app)
+ConfigState::ConfigState(Application *const app) : app(app), params(nullptr)
 {
 	win = new ConfigWindow([=](){
 			app->enterHome();
+		}, [=](){
+			app->enterNewSimulation(*params);
 		});
-	params = nullptr;
 }
 
 ConfigState::~ConfigState()

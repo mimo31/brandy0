@@ -10,6 +10,7 @@
 #include "glob.hpp"
 
 #include "grid.hpp"
+#include "sim-frame.hpp"
 #include "simulator-params.hpp"
 
 namespace brandy0
@@ -20,11 +21,10 @@ class Simulator
 public:
 	double w, h;
 	Simulator(const SimulatorParams& params);
-	void iter();
-	Grid<double> p0, p1;
-	Grid<vec2d> u0, u1;
+	virtual void iter() = 0;
+	SimFrame f0, f1;
 
-private:
+protected:
 	double dt;
 	double dx, dy;
 	uint32_t wp, hp;
