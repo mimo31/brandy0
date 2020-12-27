@@ -31,9 +31,14 @@ void SimulationWindow::setParams(const SimulatorParams *const params)
 	dArea.setParams(params);
 }
 
-void SimulationWindow::setCurFrame(const SimFrame *const curFrame)
+void SimulationWindow::setCurFrame(const SimFrame& curFrame)
 {
 	dArea.setCurFrame(curFrame);
+}
+
+void SimulationWindow::redraw()
+{
+	dArea.redraw();
 }
 
 

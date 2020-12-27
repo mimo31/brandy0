@@ -16,6 +16,14 @@ namespace brandy0
 
 class SimulatorClassic : public Simulator
 {
+private:
+    Grid<double> field;
+
+    double lapL1limit;
+
+    void enforcePBoundary(SimFrame& f);
+    void enforceUBoundary(SimFrame& f);
+    void enforceBoundary(SimFrame& f);
 public:
 	SimulatorClassic(const SimulatorParams& params);
     void iter();

@@ -15,6 +15,7 @@ Simulator::Simulator(const SimulatorParams& params)
 	f0(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp)),
 	f1(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp))
 {
+	cout << bcx0.u << endl;
 	w = params.w;
 	h = params.h;
 	wp = params.wp;
@@ -42,6 +43,10 @@ Simulator::Simulator(const SimulatorParams& params)
 				|| solid(x - 1, y) || solid(x, y + 1) || solid(x, y - 1));
 		}
 	}
+	f0.p.set_all(0);
+	f1.p.set_all(0);
+	f0.u.set_all(vec2d(0, 0));
+	f1.u.set_all(vec2d(0, 0));
 }
 
 vec2d Simulator::to_coor(const Point& p)

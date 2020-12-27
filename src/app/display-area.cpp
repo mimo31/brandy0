@@ -1,5 +1,7 @@
 #include "display-area.hpp"
 
+#include <chrono>
+
 #include "point.hpp"
 
 namespace brandy0
@@ -9,7 +11,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-DisplayArea::DisplayArea()
+DisplayArea::DisplayArea() : curFrame(nullptr)
 {
 	set_hexpand(true);
 	set_vexpand(true);
@@ -22,8 +24,12 @@ DisplayArea::DisplayArea()
 
 bool DisplayArea::render(const Glib::RefPtr<Gdk::GLContext>& /* context */)
 {
-	get_width();
-	get_height();
+	//get_width();
+	//get_height();
+	make_current();
+
+	if (glContext)
+		glContext->make_current();
 
 	cout << "now render" << endl;
 	try
@@ -266,6 +272,9 @@ void DisplayArea::computeMat(float *mat)
 
 void DisplayArea::drawContent()
 {
+	if (curFrame == nullptr)
+		return;
+	
 	constexpr double line_d = .202;
 
 	std::vector<LineSegment> segs;
@@ -284,6 +293,12 @@ void DisplayArea::drawContent()
 		for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
 			addStreamLine(segs, vec2d(x, y));
 	}
+	/*std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	for (int i = 0; i < ms.count() % 1000; i++)
+	{
+		const double y = i / 1000.0 * 2 - 1;
+		segs.push_back(LineSegment(vec2d(-1, y), vec2d(1, y)));
+	}*/
 
 	GLfloat *vertex_data = new GLfloat[segs.size() * 8];
 
@@ -314,7 +329,6 @@ void DisplayArea::drawContent()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	cout << "drawing " << segs.size() << " segments" << endl;
-	cout << segs[10].p0 << segs[10].p1 << endl;
 
 	glDrawArrays(GL_LINES, 0, segs.size() * 2);
 }
@@ -324,9 +338,17 @@ void DisplayArea::setParams(const SimulatorParams *const params)
 	this->params = params;
 }
 
-void DisplayArea::setCurFrame(const SimFrame *const curFrame)
+void DisplayArea::setCurFrame(const SimFrame& curFrame)
 {
-	this->curFrame = curFrame;
+	if (this->curFrame == nullptr)
+		this->curFrame = new SimFrame(curFrame);
+	else
+		*(this->curFrame) = curFrame;
+}
+
+void DisplayArea::redraw()
+{
+	queue_render();
 }
 
 }

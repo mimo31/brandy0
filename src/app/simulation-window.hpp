@@ -37,7 +37,8 @@ private:
 public:
 	SimulationWindow(const std::function<void()>& backToConfigCallback);
 	void setParams(const SimulatorParams *const);
-	void setCurFrame(const SimFrame *const);
+	void setCurFrame(const SimFrame&);
+	void redraw();
 };
 
 }

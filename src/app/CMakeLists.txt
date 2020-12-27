@@ -46,7 +46,7 @@ set_source_files_properties(
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 
-target_link_libraries(${PROJECT_NAME} brandy0-lib)
+target_link_libraries(${PROJECT_NAME} -pthread brandy0-lib) 
 
 add_dependencies(${PROJECT_NAME} brandy0-gresources)
 

@@ -35,7 +35,7 @@ private:
 	Glib::RefPtr<Gdk::GLContext> glContext;
 
 	const SimulatorParams *params;
-	const SimFrame *curFrame;
+	SimFrame *curFrame;
 
 	GLuint glProgram = 0;
 	GLuint glVao = 0;
@@ -59,7 +59,8 @@ private:
 public:
 	DisplayArea();
 	void setParams(const SimulatorParams *const);
-	void setCurFrame(const SimFrame *const);
+	void setCurFrame(const SimFrame& curFrame);
+	void redraw();
 };
 
 }
