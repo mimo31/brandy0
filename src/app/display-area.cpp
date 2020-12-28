@@ -109,7 +109,7 @@ void DisplayArea::initBuffers()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-static GLuint createShader(int type, const char *src)
+static GLuint createShader(int type, const char *src, const std::string& name)
 {
 	auto shader = glCreateShader(type);
 	glShaderSource(shader, 1, &src, nullptr);
@@ -125,7 +125,7 @@ static GLuint createShader(int type, const char *src)
 		std::string log_space(log_len + 1, ' ');
 		glGetShaderInfoLog(shader, log_len, nullptr, (GLchar*)log_space.c_str());
 
-		cerr << "Compile failure in " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader: " << log_space << endl;
+		cerr << "Compile failure in " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader " << name << ": " << log_space << endl;
 
 		glDeleteShader(shader);
 	}
@@ -133,75 +133,83 @@ static GLuint createShader(int type, const char *src)
 	return shader;
 }
 
-void DisplayArea::initShaders()
+GLuint loadProgram(const std::string& vshaderName, const std::string& fshaderName, const UniformLocVec& uniforms)
 {
-	const std::string vertex_path = "/shaders/main.vs.glsl";
-	const std::string fragment_path = "/shaders/main.fs.glsl";
+	const std::string vertex_path = "/shaders/" + vshaderName + ".vs.glsl";
+	const std::string fragment_path = "/shaders/" + fshaderName + ".fs.glsl";
 
 	auto vshader_bytes = Gio::Resource::lookup_data_global(vertex_path);
 	if (!vshader_bytes)
 	{
 		cerr << "Failed fetching vertex shader resource" << endl;
-		glProgram = 0;
-		return;
+		return 0;
 	}
 	gsize vshader_size {vshader_bytes->get_size()};
-	auto vshader = createShader(GL_VERTEX_SHADER, (const char*)vshader_bytes->get_data(vshader_size));
+	auto vshader = createShader(GL_VERTEX_SHADER, (const char*)vshader_bytes->get_data(vshader_size), vshaderName);
 
 	if (vshader == 0)
 	{
-		glProgram = 0;
-		return;
+		return 0;
 	}
 
 	auto fshader_bytes = Gio::Resource::lookup_data_global(fragment_path);
 	if (!fshader_bytes)
 	{
 		cerr << "Failed fetching fragment shader resource" << endl;
-		glProgram = 0;
-		return;
+		return 0;
 	}
 	gsize fshader_size {fshader_bytes->get_size()};
-	auto fshader = createShader(GL_FRAGMENT_SHADER, (const char*)fshader_bytes->get_data(fshader_size));
+	auto fshader = createShader(GL_FRAGMENT_SHADER, (const char*)fshader_bytes->get_data(fshader_size), fshaderName);
 
 	if (fshader == 0)
 	{
 		glDeleteShader(vshader);
-		glProgram = 0;
-		return;
+		return 0;
 	}
 
-	glProgram = glCreateProgram();
-	glAttachShader(glProgram, vshader);
-	glAttachShader(glProgram, fshader);
+	GLuint program = glCreateProgram();
+	glAttachShader(program, vshader);
+	glAttachShader(program, fshader);
 
-	glLinkProgram(glProgram);
+	glLinkProgram(program);
 
 	int status;
-	glGetProgramiv(glProgram, GL_LINK_STATUS, &status);
+	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
 		int log_len;
-		glGetProgramiv(glProgram, GL_INFO_LOG_LENGTH, &log_len);
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
 
 		std::string log_space(log_len + 1, ' ');
 
-		glGetProgramInfoLog(glProgram, log_len, nullptr, (GLchar*)log_space.c_str());
+		glGetProgramInfoLog(program, log_len, nullptr, (GLchar*)log_space.c_str());
 
 		cerr << "Linking failure: " << log_space << endl;
 
-		glDeleteProgram(glProgram);
-		glProgram = 0;
+		glDeleteProgram(program);
+		program = 0;
 	}
 	else
 	{
-		glMat = glGetUniformLocation(glProgram, "mat");
+		for (const UniformLoc uloc : uniforms)
+		{
+			*uloc.pos = glGetUniformLocation(program, uloc.name.c_str());
+		}
+		//glMat = glGetUniformLocation(program, "mat");
 		
-		glDetachShader(glProgram, vshader);
-		glDetachShader(glProgram, fshader);
+		glDetachShader(program, vshader);
+		glDetachShader(program, fshader);
 	}
 	glDeleteShader(vshader);
 	glDeleteShader(fshader);
+
+	return program;
+}
+
+void DisplayArea::initShaders()
+{
+	glWhiteProgram = loadProgram("plain", "white", { UniformLoc("mat", &glWhiteMat) });
+	glPaintProgram = loadProgram("plain-float", "rainbow", { UniformLoc("mat", &glPaintMat) });
 }
 
 Point DisplayArea::to_poi(const vec2d& v)
@@ -364,9 +372,9 @@ void DisplayArea::drawContent()
 
 	computeMat(mat);
 
-	glUseProgram(glProgram);
+	glUseProgram(glWhiteProgram);
 
-	glUniformMatrix4fv(glMat, 1, GL_FALSE, mat);
+	glUniformMatrix4fv(glWhiteMat, 1, GL_FALSE, mat);
 
 	glBindBuffer(GL_ARRAY_BUFFER, glVbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * segs.size() * 8, vertex_data, GL_STREAM_DRAW);

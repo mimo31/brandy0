@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<gresources>
-	<gresource prefix="/shaders">
-		<file>main.vs.glsl</file>
-		<file>main.fs.glsl</file>
-	</gresource>
-</gresources>

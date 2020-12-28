@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/shaders">
+		<file>plain.vs.glsl</file>
+		<file>plain-float.vs.glsl</file>
+		<file>rainbow.fs.glsl</file>
+		<file>white.fs.glsl</file>
+	</gresource>
+</gresources>

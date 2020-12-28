@@ -29,6 +29,18 @@ struct LineSegment
 	}
 };
 
+struct UniformLoc
+{
+	std::string name;
+	GLuint *pos;
+
+	UniformLoc(const std::string& name, GLuint *const pos) : name(name), pos(pos)
+	{
+	}
+};
+
+typedef std::vector<UniformLoc> UniformLocVec;
+
 class DisplayArea : public Gtk::GLArea
 {
 private:
@@ -37,16 +49,19 @@ private:
 	const SimulatorParams *params;
 	SimFrame *curFrame;
 
-	GLuint glProgram = 0;
+	GLuint glWhiteProgram = 0;
+	GLuint glWhiteMat = 0;
+	GLuint glPaintProgram = 0;
+	GLuint glPaintMat = 0;
 	GLuint glVao = 0;
 	GLuint glVbo = 0;
-	GLuint glMat = 0;
 
 	void realize();
 	void unrealize();
 	bool render(const Glib::RefPtr<Gdk::GLContext>& context);
 
 	void initBuffers();
+	//GLuint loadProgram(const std::string& vshaderName, const std::string& fshaderName);
 	void initShaders();
 
 	Point to_poi(const vec2d& v);
