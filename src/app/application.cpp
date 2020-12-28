@@ -19,6 +19,7 @@ Application::Application()
 
 Application::~Application()
 {
+	activeSt->deactivate();
 	delete startSt;
 	delete configSt;
 	delete simulationSt;

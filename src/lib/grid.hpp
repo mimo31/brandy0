@@ -48,6 +48,18 @@ struct Grid
 
 	Grid &operator=(const Grid &other)
 	{
+		if (w * h != other.w * other.h)
+		{
+			delete[] data;
+			w = other.w;
+			h = other.h;
+			data = new T[w * h];
+		}
+		else if (w != other.w || h != other.h)
+		{
+			w = other.w;
+			h = other.h;
+		}
 		std::copy_n(other.data, w * h, data);
 		return *this;
 	}

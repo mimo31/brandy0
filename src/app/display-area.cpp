@@ -372,6 +372,8 @@ void DisplayArea::drawContent()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * segs.size() * 8, vertex_data, GL_STREAM_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	delete [] vertex_data;
+
 	glDrawArrays(GL_LINES, 0, segs.size() * 2);
 }
 

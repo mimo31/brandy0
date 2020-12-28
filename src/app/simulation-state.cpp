@@ -36,7 +36,6 @@ void SimulationState::activate(const SimulatorParams& params)
 	frameCount = 0;
 	frameStepSize = 1;
 	time = 0;
-	//drawFrame = 0;
 	frames.clear();
 	setParams(params);
 	win->setParams(this->params);

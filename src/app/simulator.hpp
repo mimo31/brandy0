@@ -20,9 +20,10 @@ class Simulator
 {
 public:
 	double w, h;
+	SimFrame f0, f1;
+	
 	Simulator(const SimulatorParams& params);
 	virtual void iter() = 0;
-	SimFrame f0, f1;
 
 protected:
 	double dt;

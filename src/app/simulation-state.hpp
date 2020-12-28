@@ -45,7 +45,6 @@ private:
 	uint32_t frameCount;
 	uint32_t frameStepSize;
 	double time;
-	//uint32_t drawFrame;
 	sigc::connection redrawConnection;
 
 	void setParams(const SimulatorParams&);
@@ -56,7 +55,7 @@ private:
 	void runComputeThread();
 	void startComputeThread();
 	bool update();
-	
+
 public:
 	SimulationState(Application *const);
 	void activate(const SimulatorParams&);

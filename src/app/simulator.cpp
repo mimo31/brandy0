@@ -10,22 +10,16 @@ namespace brandy0
 {
 
 Simulator::Simulator(const SimulatorParams& params)
-	: bcx0(params.bcx0), bcx1(params.bcx1), bcy0(params.bcy0), bcy1(params.bcy1),
-	solid(params.solid), indep(params.wp, params.hp),
+	: w(params.w), h(params.h),
 	f0(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp)),
-	f1(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp))
+	f1(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp)),
+	dt(params.dt),
+	dx(w / (params.wp - 1)), dy(h / (params.hp - 1)),
+	wp(params.wp), hp(params.hp),
+	rho(params.rho), mu(params.mu), nu(params.rho / params.mu),
+	solid(params.solid), indep(params.wp, params.hp),
+	bcx0(params.bcx0), bcx1(params.bcx1), bcy0(params.bcy0), bcy1(params.bcy1)
 {
-	w = params.w;
-	h = params.h;
-	wp = params.wp;
-	hp = params.hp;
-	dx = w / (wp - 1);
-	dy = h / (hp - 1);
-	dt = params.dt;
-	rho = params.rho;
-	mu = params.mu;
-	nu = rho / mu;
-
 	for (uint32_t x = 0; x < wp; x++)
 	{
 		indep(x, 0) = indep(x, hp - 1) = false;
