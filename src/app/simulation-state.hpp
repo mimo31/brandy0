@@ -42,9 +42,11 @@ private:
 	bool stopComputingSignal = false;
 	std::mutex computingMutex;
 	std::mutex framesMutex;
-	uint32_t frameCount = 0;
-	uint32_t frameStepSize = 1;
-	uint32_t drawFrame = 0;
+	uint32_t frameCount;
+	uint32_t frameStepSize;
+	double time;
+	//uint32_t drawFrame;
+	sigc::connection redrawConnection;
 
 	void setParams(const SimulatorParams&);
 	void showWindow();
@@ -53,8 +55,8 @@ private:
 	double getTime(const uint32_t frame);
 	void runComputeThread();
 	void startComputeThread();
-	bool runRedrawThread();
-	void startRedrawThread();
+	bool update();
+	
 public:
 	SimulationState(Application *const);
 	void activate(const SimulatorParams&);

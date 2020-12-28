@@ -64,7 +64,6 @@ void SimulatorClassic::enforceUBoundary(SimFrame& f)
 	{
 		f.u(0, y) = bcx0.u;
 		f.u(wp - 1, y) = bcx1.u;
-		//cout << " " << bcx0.u << endl;
 	}
 	for (uint32_t x = 0; x < wp; x++)
 	{
@@ -92,7 +91,6 @@ void SimulatorClassic::iter()
                 + (f0.u(x, y + 1).y - f0.u(x, y - 1).y) * (f0.u(x, y + 1).y - f0.u(x, y - 1).y) / 4 / (dx * dx);
 		}
 	}
-	cout << "start lap solve" << endl;
 	while (true)
 	{
 		f0.p = f1.p;
@@ -109,7 +107,6 @@ void SimulatorClassic::iter()
 		if (dl1 < lapL1limit)
 			break;
 	}
-	cout << "end lap solve" << endl;
 	for (uint32_t y = 1; y < hp - 1; y++)
     {
         for (uint32_t x = 1; x < wp - 1; x++)

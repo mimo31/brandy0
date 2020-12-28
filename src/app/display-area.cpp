@@ -31,7 +31,6 @@ bool DisplayArea::render(const Glib::RefPtr<Gdk::GLContext>& /* context */)
 	if (glContext)
 		glContext->make_current();
 
-	cout << "now render" << endl;
 	try
 	{
 		throw_if_error();
@@ -250,13 +249,44 @@ void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini
 	}
 }
 
+void DisplayArea::addArrow(std::vector<LineSegment>& segs, const vec2d& pos)
+{
+	constexpr double a = .004;
+
+	const Point poi = to_poi(pos);
+	if (!poi.inside(0, 0, params->wp - 1, params->hp - 1))
+		return;
+	const vec2d u = curFrame->u(poi);
+	if (u.is_zero())
+	{
+		const vec2d v0 = pos + vec2d(a, a);
+		const vec2d v1 = pos + vec2d(a, -a);
+		const vec2d v2 = pos + vec2d(-a, -a);
+		const vec2d v3 = pos + vec2d(-a, a);
+		segs.push_back(LineSegment(v0, v1));
+		segs.push_back(LineSegment(v1, v2));
+		segs.push_back(LineSegment(v2, v3));
+		segs.push_back(LineSegment(v3, v0));
+	}
+	else
+	{
+		const double mlt = .1;
+		segs.push_back(LineSegment(pos, pos + u * mlt));
+		const vec2d uu = u.get_unit();
+		const vec2d av = uu * a;
+		const vec2d avp = av.get_lrot();
+		segs.push_back(LineSegment(pos + u * mlt - avp, pos + u * mlt + avp));
+		segs.push_back(LineSegment(pos + u * mlt - avp, pos + u * mlt + av));
+		segs.push_back(LineSegment(pos + u * mlt + avp, pos + u * mlt + av));
+	}
+}
+
 void DisplayArea::computeMat(float *mat)
 {
 	mat[0] = 2 / params->w;	mat[4] = 0;		mat[8] = 0;		mat[12] = -1;
 	mat[1] = 0;		mat[5] = 2 / params->h;	mat[9] = 0;		mat[13] = -1;
 	mat[2] = 0;		mat[6] = 0;		mat[10] = 1;	mat[14] = 0;
 	mat[3] = 0;		mat[7] = 0;		mat[11] = 0;	mat[15] = 1;
-	cout << "gla width = " << get_width() << ", gla height = " << get_height() << endl;
 	float mlt = float(get_height()) * params->w / (float(get_width()) * params->h);
 	if (mlt < 1)
 	{
@@ -275,10 +305,26 @@ void DisplayArea::drawContent()
 	if (curFrame == nullptr)
 		return;
 	
-	constexpr double line_d = .202;
+	constexpr double line_d = .0141;
 
 	std::vector<LineSegment> segs;
 
+	for (double x = params->w / 2; x < params->w; x += line_d)
+	{
+		for (double y = params->h / 2; y < params->h; y += line_d)
+			addArrow(segs, vec2d(x, y));
+		for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
+			addArrow(segs, vec2d(x, y));
+	}
+	for (double x = params->w / 2 - line_d; x > 0; x -= line_d)
+	{
+		for (double y = params->h / 2; y < params->h; y += line_d)
+			addArrow(segs, vec2d(x, y));
+		for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
+			addArrow(segs, vec2d(x, y));
+	}
+
+	/*
 	for (double x = params->w / 2; x >= 0; x -= line_d)
 	{
 		for (double y = params->h / 2; y >= 0; y -= line_d)
@@ -292,7 +338,7 @@ void DisplayArea::drawContent()
 			addStreamLine(segs, vec2d(x, y));
 		for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
 			addStreamLine(segs, vec2d(x, y));
-	}
+	}*/
 	/*std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	for (int i = 0; i < ms.count() % 1000; i++)
 	{
@@ -320,15 +366,11 @@ void DisplayArea::drawContent()
 
 	glUseProgram(glProgram);
 
-	cout << glProgram << endl;
-
 	glUniformMatrix4fv(glMat, 1, GL_FALSE, mat);
 
 	glBindBuffer(GL_ARRAY_BUFFER, glVbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * segs.size() * 8, vertex_data, GL_STREAM_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	cout << "drawing " << segs.size() << " segments" << endl;
 
 	glDrawArrays(GL_LINES, 0, segs.size() * 2);
 }

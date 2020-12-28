@@ -53,6 +53,7 @@ private:
 	void computeMat(float *mat);
 
 	void addStreamLine(std::vector<LineSegment>&, const vec2d&);
+	void addArrow(std::vector<LineSegment>& segs, const vec2d& pos);
 	void drawContent();
 
 

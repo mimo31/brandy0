@@ -32,13 +32,20 @@ class SimulationWindow : public Gtk::Window
 private:
 	DisplayArea dArea;
 	Gtk::Grid mainGrid;
+	Gtk::Grid panelGrid;
 	Gtk::Button toConfigButton;
+	Gtk::Label timeLabel;
+	Gtk::Label simulatedToTimeLabel;
+	Gtk::Label storedFramesLabel;
 
 public:
 	SimulationWindow(const std::function<void()>& backToConfigCallback);
 	void setParams(const SimulatorParams *const);
 	void setCurFrame(const SimFrame&);
 	void redraw();
+	void setTime(const double time, const double of);
+	void setSimulatedToTime(const double simulatedTo);
+	void setStoredFrames(const uint32_t stored, const uint32_t capacity);
 };
 
 }

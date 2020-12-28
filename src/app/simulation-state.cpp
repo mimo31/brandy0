@@ -33,19 +33,28 @@ SimulationState::~SimulationState()
 
 void SimulationState::activate(const SimulatorParams& params)
 {
-	SimulatorParams p = params;
-	p.bcx0.u.y = .01;
-	setParams(p);
+	frameCount = 0;
+	frameStepSize = 1;
+	time = 0;
+	//drawFrame = 0;
+	frames.clear();
+	setParams(params);
 	win->setParams(this->params);
 	addLastFrame();
 	win->setCurFrame(sim->f1);
 	startComputeThread();
-	Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::runRedrawThread), 40);
+	redrawConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::update), 40);
 	showWindow();
 }
 
 void SimulationState::deactivate()
 {
+	computingMutex.lock();
+	if (computing)
+		stopComputingSignal = true;
+	computingMutex.unlock();
+	computeThread.join();
+	redrawConnection.disconnect();
 	win->hide();
 }
 
@@ -61,8 +70,9 @@ void SimulationState::setParams(const SimulatorParams& params)
 		this->params = new SimulatorParams(params);
 	else
 		*(this->params) = params;
-	if (this->sim == nullptr)
-		this->sim = new SimulatorClassic(params);
+	if (this->sim != nullptr)
+		delete this->sim;
+	this->sim = new SimulatorClassic(params);
 }
 
 void SimulationState::checkCapacity()
@@ -76,6 +86,7 @@ void SimulationState::checkCapacity()
 			if (i % 2 == 0)
 				frames.push_back(oldframes[i]);
 		}
+		frameStepSize *= 2;
 	}
 }
 
@@ -105,14 +116,20 @@ void SimulationState::runComputeThread()
 		framesMutex.lock();
 		addLastFrame();
 		if (params->stopAfter >= 0 && getTime(frameCount) >= params->stopAfter && getTime(frameCount - 1) < params->stopAfter)
+		{
+			framesMutex.unlock();
 			break;
+		}
 		checkCapacity();
 		framesMutex.unlock();
+		computingMutex.lock();
 		if (stopComputingSignal)
 		{
 			stopComputingSignal = false;
+			computingMutex.unlock();
 			break;
 		}
+		computingMutex.unlock();
 	}
 	computingMutex.lock();
 	computing = false;
@@ -126,30 +143,31 @@ void SimulationState::startComputeThread()
 	});
 }
 
-bool SimulationState::runRedrawThread()
+bool SimulationState::update()
 {
-	//while (true)
-	//{
-		framesMutex.lock();
-		const uint32_t frame = uint32_t(drawFrame / frameStepSize + .5);
-		win->setCurFrame(frames[frame]);
-		cout << "set frame " << frame << endl;
-		drawFrame++;
-		if (drawFrame >= frameCount)
-			drawFrame = 0;
-		framesMutex.unlock();
-		win->redraw();
-		cout << "redrawn" << endl;
-		return true;
-		//std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	//}
-}
+	framesMutex.lock();
+	uint32_t frame = uint32_t(time / (params->stepsPerFrame * params->dt) / frameStepSize + .5);
+	if (frame >= frames.size())
+	{
+		frame = 0;
+		time = 0;
+	}
+	win->setCurFrame(frames[frame]);
 
-void SimulationState::startRedrawThread()
-{
-	redrawThread = std::thread([=](){
-		runRedrawThread();
-	});
+	const double timeToSet = time;
+	const uint32_t storedFramesToSet = frames.size();
+	const uint32_t capacityToSet = params->frameCapacity;
+	const double simulatedTimeToSet = (storedFramesToSet - 1) * frameStepSize * params->stepsPerFrame * params->dt;
+	
+	time += params->stepsPerFrame * params->dt;
+	framesMutex.unlock();
+
+	win->setTime(timeToSet, simulatedTimeToSet);
+	win->setSimulatedToTime(simulatedTimeToSet);
+	win->setStoredFrames(storedFramesToSet, capacityToSet);
+
+	win->redraw();
+	return true;
 }
 
 }

@@ -55,10 +55,10 @@ void ConfigState::deactivate()
 
 void ConfigState::setDefaultParams()
 {
-	Grid<bool> solid(64, 64);
+	Grid<bool> solid(SimulatorParams::DEFAULT_WP, SimulatorParams::DEFAULT_HP);
 	solid.set_all(false);
-	const BoundaryCond bc(vec2d(0, 0), PressureBoundaryCond::VON_NEUMANN);
-	setParams(SimulatorParams(SimulatorParams::DEFAULT_W, SimulatorParams::DEFAULT_H, SimulatorParams::DEFAULT_WP, SimulatorParams::DEFAULT_WP,
+	const BoundaryCond bc(vec2d(SimulatorParams::DEFAULT_U, SimulatorParams::DEFAULT_U), SimulatorParams::DEFAULT_PRESSURE_BC);
+	setParams(SimulatorParams(SimulatorParams::DEFAULT_W, SimulatorParams::DEFAULT_H, SimulatorParams::DEFAULT_WP, SimulatorParams::DEFAULT_HP,
 			   	SimulatorParams::DEFAULT_DT, bc, bc, bc, bc, SimulatorParams::DEFAULT_RHO, SimulatorParams::DEFAULT_MU, solid, SimulatorParams::DEFAULT_STOP_AFTER,
 				SimulatorParams::DEFAULT_STEPS_PER_FRAME, SimulatorParams::DEFAULT_FRAME_CAPACITY));
 }

@@ -26,8 +26,10 @@ add_custom_target(
 add_executable(${PROJECT_NAME}
 	annotated-entry.cpp
 	application.cpp
+	bc-selector.cpp
 	config-state.cpp
 	config-window.cpp
+	conv-utils.cpp
 	display-area.cpp
 	main.cpp
 	simulation-state.cpp

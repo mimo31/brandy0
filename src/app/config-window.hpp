@@ -21,6 +21,7 @@
 #include "glob.hpp"
 
 #include "annotated-entry.hpp"
+#include "bc-selector.hpp"
 #include "simulator-params.hpp"
 
 namespace brandy0
@@ -32,6 +33,7 @@ private:
 	Gtk::Label descriptionLabel;
 
 	AnnotatedEntry rhoEntry, muEntry;
+	BCSelector x0sel, x1sel, y0sel, y1sel;
 
 	AnnotatedEntry gridWidthEntry, gridHeightEntry, dtEntry, stepsPerFrameEntry, frameCapacityEntry;
 
