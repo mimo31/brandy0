@@ -16,18 +16,18 @@
 #include <gtkmm/grid.h>
 #include <gtkmm/image.h>
 #include <gtkmm/label.h>
-#include <gtkmm/window.h>
 
 #include "glob.hpp"
 
 #include "annotated-entry.hpp"
 #include "bc-selector.hpp"
+#include "brandy-window.hpp"
 #include "simulator-params.hpp"
 
 namespace brandy0
 {
 
-class ConfigWindow : public Gtk::Window
+class ConfigWindow : public BrandyWindow
 {
 private:
 	Gtk::Label descriptionLabel;

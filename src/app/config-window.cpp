@@ -31,9 +31,6 @@ ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback, const 
 	backHomeButton("back to home"),
 	startSimButton("start simulation")
 {
-	set_title("brandy0");
-	set_border_width(12);
-
 	backHomeButton.signal_clicked().connect(backHomeCallback);
 	startSimButton.signal_clicked().connect(startSimulationCallback);
 

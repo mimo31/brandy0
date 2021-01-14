@@ -6,17 +6,35 @@
  */
 #include "simulation-window.hpp"
 
+#include "display-modes.hpp"
+
 namespace brandy0
 {
 
 SimulationWindow::SimulationWindow(const std::function<void()>& backToConfigCallback)
-	: toConfigButton("back to config")
+	: BrandyWindow(1280, 720), toConfigButton("back to config"), viewFrame("view setup")
 {
-	set_title("brandy0");
-	set_default_size(1280, 720);
-	set_border_width(12);
-
 	mainGrid.attach(dArea, 0, 0, 1, 1);
+
+	for (uint32_t i = 0; i < BACK_DISPLAY_MODE_COUNT; i++)
+		backDisplaySelector.append(BACK_DISPLAY_MODES[i].name);
+	backDisplaySelector.set_active(BACK_DISPLAY_MODE_DEFAULT);
+	backDisplaySelector.signal_changed().connect([this]()
+	{
+		dArea.setBackDisplayMode(backDisplaySelector.get_active_row_number());
+	});
+
+	for (uint32_t i = 0; i < FRONT_DISPLAY_MODE_COUNT; i++)
+		frontDisplaySelector.append(FRONT_DISPLAY_MODES[i].name);
+	frontDisplaySelector.set_active(FRONT_DISPLAY_MODE_DEFAULT);
+	frontDisplaySelector.signal_changed().connect([this]()
+	{
+		dArea.setFrontDisplayMode(frontDisplaySelector.get_active_row_number());
+	});
+
+	viewGrid.attach(backDisplaySelector, 0, 0);
+	viewGrid.attach(frontDisplaySelector, 0, 1);
+	viewFrame.add(viewGrid);
 
 	toConfigButton.signal_clicked().connect(backToConfigCallback);
 
@@ -24,6 +42,7 @@ SimulationWindow::SimulationWindow(const std::function<void()>& backToConfigCall
 	panelGrid.attach(timeLabel, 1, 0, 1, 1);
 	panelGrid.attach(simulatedToTimeLabel, 1, 1, 1, 1);
 	panelGrid.attach(storedFramesLabel, 1, 2, 1, 1);
+	panelGrid.attach(viewFrame, 2, 0, 1, 3);
 
 	mainGrid.attach(panelGrid, 0, 1, 1, 1);
 

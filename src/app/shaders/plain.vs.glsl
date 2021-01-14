@@ -1,9 +1,9 @@
 #version 330
 
-layout(location = 0) in vec4 pos;
+layout(location = 0) in vec2 pos;
 uniform mat4 mat;
 
 void main()
 {
-	gl_Position = mat * pos;
+	gl_Position = mat * vec4(pos, 0.0, 1.0);
 }

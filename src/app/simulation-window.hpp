@@ -10,16 +10,17 @@
 #include <functional>
 
 #include <gtkmm/button.h>
+#include <gtkmm/comboboxtext.h>
 #include <gtkmm/checkbutton.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/frame.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/image.h>
 #include <gtkmm/label.h>
-#include <gtkmm/window.h>
 
 #include "glob.hpp"
 
+#include "brandy-window.hpp"
 #include "display-area.hpp"
 #include "sim-frame.hpp"
 #include "simulator-params.hpp"
@@ -27,7 +28,7 @@
 namespace brandy0
 {
 
-class SimulationWindow : public Gtk::Window
+class SimulationWindow : public BrandyWindow
 {
 private:
 	DisplayArea dArea;
@@ -37,6 +38,11 @@ private:
 	Gtk::Label timeLabel;
 	Gtk::Label simulatedToTimeLabel;
 	Gtk::Label storedFramesLabel;
+
+	Gtk::Frame viewFrame;
+	Gtk::Grid viewGrid;
+	Gtk::ComboBoxText backDisplaySelector;
+	Gtk::ComboBoxText frontDisplaySelector;
 
 public:
 	SimulationWindow(const std::function<void()>& backToConfigCallback);

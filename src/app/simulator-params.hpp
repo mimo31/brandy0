@@ -50,6 +50,16 @@ struct SimulatorParams
 	{
 	}
 
+	double get_dx() const
+	{
+		return w / (wp - 1);
+	}
+
+	double get_dy() const
+	{
+		return h / (hp - 1);
+	}
+
 };
 
 }

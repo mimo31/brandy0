@@ -97,14 +97,29 @@ void DisplayArea::unrealize()
 
 void DisplayArea::initBuffers()
 {
-	glGenVertexArrays(1, &glVao);
-	glBindVertexArray(glVao);
+	glGenVertexArrays(1, &glWhiteVao);
+	glBindVertexArray(glWhiteVao);
 
-	glGenBuffers(1, &glVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, glVbo);
+	glGenBuffers(1, &glWhiteVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, glWhiteVbo);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	
+	glGenVertexArrays(1, &glPaintVao);
+	glBindVertexArray(glPaintVao);
+
+	glGenBuffers(1, &glPaintVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, glPaintVbo);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)(2 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -220,6 +235,16 @@ Point DisplayArea::to_poi(const vec2d& v)
 	return res;
 }
 
+vec2d DisplayArea::to_coor(const uint32_t x, const uint32_t y)
+{
+	return vec2d(x / double(params->wp - 1), y / double(params->hp - 1));
+}
+
+vec2d DisplayArea::to_coor(const Point p)
+{
+	return to_coor(p.x, p.y);
+}
+
 void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini)
 {
 	Point ipoi = to_poi(ini);
@@ -227,7 +252,7 @@ void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini
 		return;
 
 	constexpr double step_size = .005;
-	constexpr double max_steps = 3000;
+	constexpr double max_steps = 300;
 
 	vec2d nxt = ini;
 	for (int i = 0; i < max_steps; i++)
@@ -312,77 +337,229 @@ void DisplayArea::drawContent()
 {
 	if (curFrame == nullptr)
 		return;
+
+	// draw back graphics
+	if (backDisplayMode != BACK_DISPLAY_NONE)
+	{
+		std::function<double(uint32_t, uint32_t)> scfield = [this](const uint32_t x, const uint32_t y){
+			if (backDisplayMode == BACK_DISPLAY_VELOCITY_MAGNITUDE)
+			{
+				return curFrame->u(x, y).len();
+			}
+			else if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL || backDisplayMode == BACK_DISPLAY_VELOCITY_RELATIVE_CURL)
+			{
+				if (x == 0 || x == params->wp - 1 || y == 0 || y == params->hp - 1)
+					return 0.0;
+				const double curl = (curFrame->u(x + 1, y).y - curFrame->u(x - 1, y).y) / params->get_dx() - (curFrame->u(x, y + 1).x - curFrame->u(x, y - 1).x) / params->get_dy();
+				if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL)
+					return curl;
+				const double vel = (4 * curFrame->u(x, y).len() + curFrame->u(x - 1, y).len() + curFrame->u(x + 1, y).len() + curFrame->u(x, y - 1).len() + curFrame->u(x, y + 1).len()) / 8;
+				return vel == 0 ? 0.0 : curl / vel;
+			}
+			else if (backDisplayMode == BACK_DISPLAY_PRESSURE)
+			{
+				return curFrame->p(x, y);
+			}
+			return 0.0;
+		};
+
+		double mn = scfield(0, 0);
+		double mx = scfield(0, 0);
+		for (uint32_t y = 0; y < params->hp; y++)
+		{
+			for (uint32_t x = 0; x < params->wp; x++)
+			{
+				const double val = scfield(x, y);
+				mn = std::min(mn, val);
+				mx = std::max(mx, val);
+			}
+		}
+		//cout << mn << " " << mx << endl;
+		if (mn != mx)
+		{
+			const uint32_t pointCount = (params->wp - 1) * (params->hp - 1) * 12;
+			const uint32_t arsize = pointCount * 3;
+			GLfloat *vertex_data = new GLfloat[arsize];
+			for (uint32_t y = 0; y < params->hp - 1; y++)
+			{
+				for (uint32_t x = 0; x < params->wp - 1; x++)
+				{
+					const vec2d v00 = to_coor(x, y);
+					const double c00 = (scfield(x, y) - mn) / (mx - mn);
+					const vec2d v10 = to_coor(x + 1, y);
+					const double c10 = (scfield(x + 1, y) - mn) / (mx - mn);
+					const vec2d v01 = to_coor(x, y + 1);
+					const double c01 = (scfield(x, y + 1) - mn) / (mx - mn);
+					const vec2d v11 = to_coor(x + 1, y + 1);
+					const double c11 = (scfield(x + 1, y + 1) - mn) / (mx - mn);
+					const vec2d vcen = (v00 + v01 + v10 + v11) / 4;
+					const double ccen = (c00 + c01 + c10 + c11) / 4;
+					const uint32_t ind = 36 *  ((params->wp - 1) * y + x);
+					vertex_data[ind + 9 * 0 + 3 * 0 + 0] = vcen.x;
+					vertex_data[ind + 9 * 0 + 3 * 0 + 1] = vcen.y;
+					vertex_data[ind + 9 * 0 + 3 * 0 + 2] = ccen;
+					vertex_data[ind + 9 * 0 + 3 * 1 + 0] = v00.x;
+					vertex_data[ind + 9 * 0 + 3 * 1 + 1] = v00.y;
+					vertex_data[ind + 9 * 0 + 3 * 1 + 2] = c00;
+					vertex_data[ind + 9 * 0 + 3 * 2 + 0] = v01.x;
+					vertex_data[ind + 9 * 0 + 3 * 2 + 1] = v01.y;
+					vertex_data[ind + 9 * 0 + 3 * 2 + 2] = c01;
+
+					vertex_data[ind + 9 * 1 + 3 * 0 + 0] = vcen.x;
+					vertex_data[ind + 9 * 1 + 3 * 0 + 1] = vcen.y;
+					vertex_data[ind + 9 * 1 + 3 * 0 + 2] = ccen;
+					vertex_data[ind + 9 * 1 + 3 * 1 + 0] = v01.x;
+					vertex_data[ind + 9 * 1 + 3 * 1 + 1] = v01.y;
+					vertex_data[ind + 9 * 1 + 3 * 1 + 2] = c01;
+					vertex_data[ind + 9 * 1 + 3 * 2 + 0] = v11.x;
+					vertex_data[ind + 9 * 1 + 3 * 2 + 1] = v11.y;
+					vertex_data[ind + 9 * 1 + 3 * 2 + 2] = c11;
+
+					vertex_data[ind + 9 * 2 + 3 * 0 + 0] = vcen.x;
+					vertex_data[ind + 9 * 2 + 3 * 0 + 1] = vcen.y;
+					vertex_data[ind + 9 * 2 + 3 * 0 + 2] = ccen;
+					vertex_data[ind + 9 * 2 + 3 * 1 + 0] = v11.x;
+					vertex_data[ind + 9 * 2 + 3 * 1 + 1] = v11.y;
+					vertex_data[ind + 9 * 2 + 3 * 1 + 2] = c11;
+					vertex_data[ind + 9 * 2 + 3 * 2 + 0] = v10.x;
+					vertex_data[ind + 9 * 2 + 3 * 2 + 1] = v10.y;
+					vertex_data[ind + 9 * 2 + 3 * 2 + 2] = c10;
+
+					vertex_data[ind + 9 * 3 + 3 * 0 + 0] = vcen.x;
+					vertex_data[ind + 9 * 3 + 3 * 0 + 1] = vcen.y;
+					vertex_data[ind + 9 * 3 + 3 * 0 + 2] = ccen;
+					vertex_data[ind + 9 * 3 + 3 * 1 + 0] = v10.x;
+					vertex_data[ind + 9 * 3 + 3 * 1 + 1] = v10.y;
+					vertex_data[ind + 9 * 3 + 3 * 1 + 2] = c10;
+					vertex_data[ind + 9 * 3 + 3 * 2 + 0] = v00.x;
+					vertex_data[ind + 9 * 3 + 3 * 2 + 1] = v00.y;
+					vertex_data[ind + 9 * 3 + 3 * 2 + 2] = c00;
+					/*vertex_data[ind + 3 * 0 + 0] = v00.x;
+					vertex_data[ind + 3 * 0 + 1] = v00.y;
+					vertex_data[ind + 3 * 0 + 2] = c00;
+					vertex_data[ind + 3 * 1 + 0] = v01.x;
+					vertex_data[ind + 3 * 1 + 1] = v01.y;
+					vertex_data[ind + 3 * 1 + 2] = c01;
+					vertex_data[ind + 3 * 2 + 0] = v10.x;
+					vertex_data[ind + 3 * 2 + 1] = v10.y;
+					vertex_data[ind + 3 * 2 + 2] = c10;
+					vertex_data[ind + 3 * 3 + 0] = v11.x;
+					vertex_data[ind + 3 * 3 + 1] = v11.y;
+					vertex_data[ind + 3 * 3 + 2] = c11;
+					vertex_data[ind + 3 * 4 + 0] = v01.x;
+					vertex_data[ind + 3 * 4 + 1] = v01.y;
+					vertex_data[ind + 3 * 4 + 2] = c01;
+					vertex_data[ind + 3 * 5 + 0] = v10.x;
+					vertex_data[ind + 3 * 5 + 1] = v10.y;
+					vertex_data[ind + 3 * 5 + 2] = c10;*/
+					//cout << v11 << endl;
+				}
+			}
+			for (uint32_t i = 0; i < arsize; i++)
+			{
+				if (vertex_data[i] > 1.0 || vertex_data[i] < 0.0)
+					cout << vertex_data[i] << endl;
+			}
+
+			float mat[16];
+
+			computeMat(mat);
+
+			glUseProgram(glPaintProgram);
+			//cout << glPaintProgram << endl;
+
+			glUniformMatrix4fv(glPaintMat, 1, GL_FALSE, mat);
+			
+			glBindVertexArray(glPaintVao);
+
+			glBindBuffer(GL_ARRAY_BUFFER, glPaintVbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * arsize, vertex_data, GL_STREAM_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			delete[] vertex_data;
+
+			glDrawArrays(GL_TRIANGLES, 0, pointCount);
+		}
+	}
+
+	// draw front graphics
+	if (frontDisplayMode != FRONT_DISPLAY_NONE)
+	{
+
+		std::vector<LineSegment> segs;
+
+		constexpr double line_d = .0147;
+
+		if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_ARROWS)
+		{
+			for (double x = params->w / 2; x < params->w; x += line_d)
+			{
+				for (double y = params->h / 2; y < params->h; y += line_d)
+					addArrow(segs, vec2d(x, y));
+				for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
+					addArrow(segs, vec2d(x, y));
+			}
+			for (double x = params->w / 2 - line_d; x > 0; x -= line_d)
+			{
+				for (double y = params->h / 2; y < params->h; y += line_d)
+					addArrow(segs, vec2d(x, y));
+				for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
+					addArrow(segs, vec2d(x, y));
+			}
+		}
+
+		if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_STREAMLINES)
+		{
+			for (double x = params->w / 2; x >= 0; x -= line_d)
+			{
+				for (double y = params->h / 2; y >= 0; y -= line_d)
+					addStreamLine(segs, vec2d(x, y));
+				for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
+					addStreamLine(segs, vec2d(x, y));
+			}
+			for (double x = params->w / 2 + line_d; x <= params->w; x += line_d)
+			{
+				for (double y = params->h / 2; y >= 0; y -= line_d)
+					addStreamLine(segs, vec2d(x, y));
+				for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
+					addStreamLine(segs, vec2d(x, y));
+			}
+		}
+		/*std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+		for (int i = 0; i < ms.count() % 1000; i++)
+		{
+			const double y = i / 1000.0 * 2 - 1;
+			segs.push_back(LineSegment(vec2d(-1, y), vec2d(1, y)));
+		}*/
+
+		GLfloat *vertex_data = new GLfloat[segs.size() * 4];
+
+		for (int i = 0; i < segs.size(); i++)
+		{
+			vertex_data[i * 4] = segs[i].p0.x;
+			vertex_data[i * 4 + 1] = segs[i].p0.y;
+			vertex_data[i * 4 + 2] = segs[i].p1.x;
+			vertex_data[i * 4 + 3] = segs[i].p1.y;
+		}
+
+		float mat[16];
+
+		computeMat(mat);
+
+		glUseProgram(glWhiteProgram);
+
+		glUniformMatrix4fv(glWhiteMat, 1, GL_FALSE, mat);
 	
-	constexpr double line_d = .0141;
+		glBindVertexArray(glWhiteVao);
 
-	std::vector<LineSegment> segs;
+		glBindBuffer(GL_ARRAY_BUFFER, glWhiteVbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * segs.size() * 4, vertex_data, GL_STREAM_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	for (double x = params->w / 2; x < params->w; x += line_d)
-	{
-		for (double y = params->h / 2; y < params->h; y += line_d)
-			addArrow(segs, vec2d(x, y));
-		for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
-			addArrow(segs, vec2d(x, y));
+		delete[] vertex_data;
+
+		glDrawArrays(GL_LINES, 0, segs.size() * 2);
 	}
-	for (double x = params->w / 2 - line_d; x > 0; x -= line_d)
-	{
-		for (double y = params->h / 2; y < params->h; y += line_d)
-			addArrow(segs, vec2d(x, y));
-		for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
-			addArrow(segs, vec2d(x, y));
-	}
-
-	/*
-	for (double x = params->w / 2; x >= 0; x -= line_d)
-	{
-		for (double y = params->h / 2; y >= 0; y -= line_d)
-			addStreamLine(segs, vec2d(x, y));
-		for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
-			addStreamLine(segs, vec2d(x, y));
-	}
-	for (double x = params->w / 2 + line_d; x <= params->w; x += line_d)
-	{
-		for (double y = params->h / 2; y >= 0; y -= line_d)
-			addStreamLine(segs, vec2d(x, y));
-		for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
-			addStreamLine(segs, vec2d(x, y));
-	}*/
-	/*std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	for (int i = 0; i < ms.count() % 1000; i++)
-	{
-		const double y = i / 1000.0 * 2 - 1;
-		segs.push_back(LineSegment(vec2d(-1, y), vec2d(1, y)));
-	}*/
-
-	GLfloat *vertex_data = new GLfloat[segs.size() * 8];
-
-	for (int i = 0; i < segs.size(); i++)
-	{
-		vertex_data[i * 8] = segs[i].p0.x;
-		vertex_data[i * 8 + 1] = segs[i].p0.y;
-		vertex_data[i * 8 + 2] = 0.0f;
-		vertex_data[i * 8 + 3] = 1.0f;
-		vertex_data[i * 8 + 4] = segs[i].p1.x;
-		vertex_data[i * 8 + 5] = segs[i].p1.y;
-		vertex_data[i * 8 + 6] = 0.0f;
-		vertex_data[i * 8 + 7] = 1.0f;
-	}
-
-	float mat[16];
-
-	computeMat(mat);
-
-	glUseProgram(glWhiteProgram);
-
-	glUniformMatrix4fv(glWhiteMat, 1, GL_FALSE, mat);
-
-	glBindBuffer(GL_ARRAY_BUFFER, glVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * segs.size() * 8, vertex_data, GL_STREAM_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	delete [] vertex_data;
-
-	glDrawArrays(GL_LINES, 0, segs.size() * 2);
 }
 
 void DisplayArea::setParams(const SimulatorParams *const params)
@@ -396,6 +573,16 @@ void DisplayArea::setCurFrame(const SimFrame& curFrame)
 		this->curFrame = new SimFrame(curFrame);
 	else
 		*(this->curFrame) = curFrame;
+}
+
+void DisplayArea::setBackDisplayMode(const uint32_t backMode)
+{
+	backDisplayMode = backMode;
+}
+
+void DisplayArea::setFrontDisplayMode(const uint32_t frontMode)
+{
+	frontDisplayMode = frontMode;
 }
 
 void DisplayArea::redraw()

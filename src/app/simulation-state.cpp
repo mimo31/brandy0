@@ -17,7 +17,8 @@ namespace brandy0
 
 SimulationState::SimulationState(Application *const app) : app(app), params(nullptr), sim(nullptr)
 {
-	win = new SimulationWindow([=](){
+	win = new SimulationWindow([=]()
+	{
 		app->enterExistingConfig(*params);
 	});
 }
