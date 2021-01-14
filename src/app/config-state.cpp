@@ -16,6 +16,7 @@ ConfigState::ConfigState(Application *const app) : app(app), params(nullptr)
 		}, [=](){
 			app->enterNewSimulation(*params);
 		});
+	shapeWin = new ShapeConfigWindow();
 }
 
 ConfigState::~ConfigState()
@@ -23,13 +24,14 @@ ConfigState::~ConfigState()
 	if (params != nullptr)
 		delete params;
 	delete win;
+	delete shapeWin;
 }
 
 void ConfigState::activate()
 {
 	setDefaultParams();
 	win->setEntryFields();
-	showWindow();
+	showWindows();
 }
 
 void ConfigState::activate(const SimulatorParams& params)
@@ -39,18 +41,22 @@ void ConfigState::activate(const SimulatorParams& params)
 	else
 		*(this->params) = params;
 	win->setEntryFields();
-	showWindow();
+	showWindows();
 }
 
-void ConfigState::showWindow()
+void ConfigState::showWindows()
 {
 	app->gtkapp->add_window(*win);
 	win->show();
+	app->gtkapp->add_window(*shapeWin);
+	shapeWin->show();
+
 }
 
 void ConfigState::deactivate()
 {
 	win->hide();
+	shapeWin->hide();
 }
 
 void ConfigState::setDefaultParams()

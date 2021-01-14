@@ -4,11 +4,15 @@ add_executable(${PROJECT_NAME}
 	annotated-entry.cpp
 	application.cpp
 	bc-selector.cpp
+	brandy-window.cpp
 	config-state.cpp
 	config-window.cpp
 	conv-utils.cpp
 	display-area.cpp
 	main.cpp
+	obstacle-shape.cpp
+	shape-config-widget.cpp
+	shape-config-window.cpp
 	simulation-state.cpp
 	simulation-window.cpp
 	simulator.cpp
