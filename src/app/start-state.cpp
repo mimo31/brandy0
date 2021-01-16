@@ -9,7 +9,7 @@
 namespace brandy0
 {
 
-StartState::StartState(Application *const app) : app(app)
+StartState::StartState(ApplicationAbstr *const app) : app(app)
 {
 	win = new StartWindow([=](){
 			app->enterNewConfig();
@@ -26,7 +26,7 @@ StartState::~StartState()
 void StartState::activate()
 {
 	win->show();
-	app->gtkapp->add_window(*win);
+	app->addWindow(*win);
 }
 
 void StartState::deactivate()
@@ -37,7 +37,7 @@ void StartState::deactivate()
 void StartState::run()
 {
 	win->show();
-	app->gtkapp->run(*win);
+	app->run(*win);
 }
 
 }

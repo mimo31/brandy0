@@ -18,15 +18,13 @@
 namespace brandy0
 {
 
-class Application;
-
 class StartState : public State
 {
 private:
-	Application* app;
+	ApplicationAbstr* app;
 	StartWindow* win;
 public:
-	StartState(Application *const);
+	StartState(ApplicationAbstr *const);
 	void activate();
 	void deactivate();
 	void run();

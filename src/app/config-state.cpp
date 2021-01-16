@@ -9,67 +9,50 @@
 namespace brandy0
 {
 
-ConfigState::ConfigState(Application *const app) : app(app), params(nullptr)
+ConfigState::ConfigState(ApplicationAbstr *const app) : app(app)
 {
-	win = new ConfigWindow([=](){
-			app->enterHome();
-		}, [this](){
-			shapeWin->writeObstaclesToParams();
-			this->app->enterNewSimulation(*params);
-		}, [this](){
-			shapeWin->refreshGridSize();
-		});
-	shapeWin = new ShapeConfigWindow([this](const bool shapeConfigValid) {
-		win->setShapeConfigValid(shapeConfigValid);
-	});
+	mainWin = new ConfigWindow(this);
+	shapeWin = new ShapeConfigWindow(this);
 }
 
 ConfigState::~ConfigState()
 {
-	if (params != nullptr)
-		delete params;
-	delete win;
+	delete mainWin;
 	delete shapeWin;
 }
 
 void ConfigState::activate()
 {
 	setDefaultParams();
-	win->setEntryFields();
-	shapeWin->setFromParams();
+	paramsSwapListeners.invoke();
 	showWindows();
 }
 
 void ConfigState::activate(const SimulatorParams& params)
 {
-	if (this->params == nullptr)
-		this->params = new SimulatorParams(params);
-	else
-		*(this->params) = params;
-	win->setEntryFields();
-	shapeWin->setFromParams();
+	setParams(params);
+	paramsSwapListeners.invoke();
 	showWindows();
 }
 
 void ConfigState::showWindows()
 {
-	app->gtkapp->add_window(*win);
-	win->show();
-	app->gtkapp->add_window(*shapeWin);
+	app->addWindow(*mainWin);
+	mainWin->show();
+	app->addWindow(*shapeWin);
 	shapeWin->show();
 
 }
 
 void ConfigState::deactivate()
 {
-	win->hide();
+	mainWin->hide();
 	shapeWin->hide();
+	params = nullptr;
 }
 
 void ConfigState::setDefaultParams()
 {
-	/*Grid<bool> solid(SimulatorParams::DEFAULT_WP, SimulatorParams::DEFAULT_HP);
-	solid.set_all(false);*/
 	const BoundaryCond bc(vec2d(SimulatorParams::DEFAULT_U, SimulatorParams::DEFAULT_U), SimulatorParams::DEFAULT_PRESSURE_BC);
 	setParams(SimulatorParams(SimulatorParams::DEFAULT_W, SimulatorParams::DEFAULT_H, SimulatorParams::DEFAULT_WP, SimulatorParams::DEFAULT_HP,
 			   	SimulatorParams::DEFAULT_DT, bc, bc, bc, bc, SimulatorParams::DEFAULT_RHO, SimulatorParams::DEFAULT_MU, ObstacleShapeStack(), SimulatorParams::DEFAULT_STOP_AFTER,
@@ -78,14 +61,17 @@ void ConfigState::setDefaultParams()
 
 void ConfigState::setParams(const SimulatorParams& params)
 {
-	if (this->params == nullptr)
-	{
-		this->params = new SimulatorParams(params);
-		win->setParamsLocation(this->params);
-		shapeWin->setParamsLocation(this->params);
-	}
-	else
-		*(this->params) = params;
+	this->params = std::make_unique<SimulatorParams>(params);
+}
+
+void ConfigState::submitAll()
+{
+	app->enterNewSimulation(*params);
+}
+
+void ConfigState::goBackHome()
+{
+	app->enterHome();
 }
 
 }

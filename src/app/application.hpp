@@ -11,6 +11,7 @@
 
 #include "glob.hpp"
 
+#include "application-abstr.hpp"
 #include "config-state.hpp"
 #include "simulation-state.hpp"
 #include "simulator-params.hpp"
@@ -24,21 +25,23 @@ class StartState;
 class ConfigState;
 class SimulationState;
 
-class Application
+class Application : public ApplicationAbstr
 {
 private:
+	Glib::RefPtr<Gtk::Application> gtkapp;
 	StartState* startSt;
 	ConfigState* configSt;
 	SimulationState* simulationSt;
 	State* activeSt;
 	void switchStates(State *const newSt);
 public:
-	Glib::RefPtr<Gtk::Application> gtkapp;
 	Application();
-	void enterNewConfig();
-	void enterExistingConfig(const SimulatorParams&);
-	void enterHome();
-	void enterNewSimulation(const SimulatorParams&);
+	void enterNewConfig() override;
+	void enterExistingConfig(const SimulatorParams) override;
+	void enterHome() override;
+	void enterNewSimulation(const SimulatorParams) override;
+	void addWindow(Gtk::Window& win) override;
+	void run(Gtk::Window& win) override;
 	void run();
 	~Application();
 };

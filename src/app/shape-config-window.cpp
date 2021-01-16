@@ -13,46 +13,66 @@ namespace brandy0
 
 void ShapeConfigWindow::updateUndoRedoSensitivity()
 {
-	undoButton.set_sensitive(shapeWidget.canUndo());
-	redoButton.set_sensitive(shapeWidget.canRedo());
+	undoButton.set_sensitive(parent->params->shapeStack.canUndo());
+	redoButton.set_sensitive(parent->params->shapeStack.canRedo());
 }
 
-ShapeConfigWindow::ShapeConfigWindow(const std::function<void(bool)>& scalarsValidityChangedCallback)
+void ShapeConfigWindow::setEntryFields()
+{
+	std::unique_ptr<SimulatorParams>& params = parent->params;
+	widthEntry.setText(std::to_string(params->w));
+	heightEntry.setText(std::to_string(params->h));
+}
+
+ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
     : BrandyWindow(1280, 720),
     widthEntry("width"),
     heightEntry("height"),
     undoButton("undo"),
     redoButton("redo"),
 	polygonDoneButton("done"),
-	shapeWidget([this](){ updateUndoRedoSensitivity(); })
+	shapeWidget(parent),
+	parent(parent)
 {
-	widthEntry.hookInputHandler([this, scalarsValidityChangedCallback]()
+	widthEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(widthEntry, params->w, SimulatorParams::DEFAULT_W, SimulatorParams::MIN_W, SimulatorParams::MAX_W);
-			scalarsValidityChangedCallback(widthEntry.hasValidInput() && heightEntry.hasValidInput());
-			if (widthEntry.hasValidInput())
-			{
-				shapeWidget.setW(params->w);
-				shapeWidget.refresh();
-			}
+			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulatorParams::DEFAULT_W, SimulatorParams::MIN_W, SimulatorParams::MAX_W);
+			parent->validityChangeListeners.invoke();
+			parent->dimensionsChangeListeners.invoke();
 			}
 			);
-	heightEntry.hookInputHandler([this, scalarsValidityChangedCallback]()
+	heightEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(heightEntry, params->h, SimulatorParams::DEFAULT_H, SimulatorParams::MIN_H, SimulatorParams::MAX_H);
-			scalarsValidityChangedCallback(widthEntry.hasValidInput() && heightEntry.hasValidInput());
-			if (heightEntry.hasValidInput())
-			{
-				shapeWidget.setH(params->h);
-				shapeWidget.refresh();
-			}
+			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulatorParams::DEFAULT_H, SimulatorParams::MIN_H, SimulatorParams::MAX_H);
+			parent->validityChangeListeners.invoke();
+			parent->dimensionsChangeListeners.invoke();
 			}
 			);
+	
+	undoButton.signal_clicked().connect([parent](){
+		parent->params->shapeStack.undo();
+		parent->shapeStackChangeListeners.invoke();
+	});
+	redoButton.signal_clicked().connect([parent](){
+		parent->params->shapeStack.redo();
+		parent->shapeStackChangeListeners.invoke();
+	});
+	
+	parent->shapeStackChangeListeners.plug([this](){
+		updateUndoRedoSensitivity();
+	});
+	parent->paramsSwapListeners.plug([this](){
+		updateUndoRedoSensitivity();
+		setEntryFields();
+	});
+	parent->inputValidators.plug([this](){
+		return widthEntry.hasValidInput() && heightEntry.hasValidInput();
+	});
 
     widthEntry.attachTo(rootGrid, 0, 0);
     heightEntry.attachTo(rootGrid, 3, 0);
 
-	polygonDoneButton.signal_clicked().connect([this](){ shapeWidget.submitCurrentPolygon(); shapeWidget.refresh(); });
+	polygonDoneButton.signal_clicked().connect([this](){ shapeWidget.submitCurrentPolygon(); });
 
     rootGrid.attach(undoButton, 6, 0);
     rootGrid.attach(redoButton, 7, 0);
@@ -64,35 +84,6 @@ ShapeConfigWindow::ShapeConfigWindow(const std::function<void(bool)>& scalarsVal
     add(rootGrid);
 
     show_all_children();
-
-	updateUndoRedoSensitivity();
-}
-
-void ShapeConfigWindow::setParamsLocation(SimulatorParams *const params)
-{
-	this->params = params;
-}
-
-void ShapeConfigWindow::setFromParams()
-{
-	widthEntry.setText(std::to_string(params->w));
-	heightEntry.setText(std::to_string(params->h));
-	shapeWidget.setW(params->w);
-	shapeWidget.setH(params->h);
-	shapeWidget.setWp(params->wp);
-	shapeWidget.setHp(params->hp);
-}
-
-void ShapeConfigWindow::writeObstaclesToParams()
-{
-	shapeWidget.writeShapeStack(params);
-}
-
-void ShapeConfigWindow::refreshGridSize()
-{
-	shapeWidget.setWp(params->wp);
-	shapeWidget.setHp(params->hp);
-	shapeWidget.refresh();
 }
 
 }

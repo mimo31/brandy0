@@ -20,7 +20,7 @@ Simulator::Simulator(const SimulatorParams& params)
 	solid(params.wp, params.hp), indep(params.wp, params.hp),
 	bcx0(params.bcx0), bcx1(params.bcx1), bcy0(params.bcy0), bcy1(params.bcy1)
 {
-	setFromObstacleShapeStack(solid, params.shapeStack);
+	params.shapeStack.set(solid);
 	for (uint32_t x = 0; x < wp; x++)
 	{
 		indep(x, 0) = indep(x, hp - 1) = false;

@@ -23,15 +23,13 @@
 namespace brandy0
 {
 
-class Application;
-
 template<typename T>
 using vec = std::vector<T>;
 
 class SimulationState : public State
 {
 private:
-	Application *app;
+	ApplicationAbstr *app;
 	SimulationWindow *win;
 	SimulatorParams *params;
 	Simulator *sim;
@@ -57,7 +55,7 @@ private:
 	bool update();
 
 public:
-	SimulationState(Application *const);
+	SimulationState(ApplicationAbstr *const);
 	void activate(const SimulatorParams&);
 	void deactivate();
 	~SimulationState();

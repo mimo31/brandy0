@@ -12,6 +12,7 @@
 
 #include "annotated-entry.hpp"
 #include "brandy-window.hpp"
+#include "config-state-abstr.hpp"
 #include "shape-config-widget.hpp"
 #include "simulator-params.hpp"
 
@@ -25,17 +26,13 @@ private:
     AnnotatedEntry widthEntry, heightEntry;
     Gtk::Button undoButton, redoButton, polygonDoneButton;
     ShapeConfigWidget shapeWidget;
-	SimulatorParams *params;
+	ConfigStateAbstr *parent;
 
 	void updateUndoRedoSensitivity();
+    void setEntryFields();
 
 public:
-    ShapeConfigWindow(const std::function<void(bool)>& scalarsValidityChangedCallback);
-
-    void setParamsLocation(SimulatorParams *const);
-    void setFromParams();
-	void writeObstaclesToParams();
-	void refreshGridSize();
+    ShapeConfigWindow(ConfigStateAbstr *parent);
 };
 
 }

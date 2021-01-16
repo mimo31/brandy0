@@ -571,7 +571,7 @@ void DisplayArea::setParams(const SimulatorParams *const params)
 {
 	this->params = params;
 	solid = Grid<bool>(params->wp, params->hp);
-	setFromObstacleShapeStack(solid, params->shapeStack);
+	params->shapeStack.set(solid);
 }
 
 void DisplayArea::setCurFrame(const SimFrame& curFrame)

@@ -12,11 +12,13 @@
 namespace brandy0
 {
 
-BCSelector::BCSelector(const std::string& atDescriptor, const std::function<void()>& validityChangeHandler)
+BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputChangeHandler)//const std::function<void()>& validityChangeHandler)
     : Gtk::Frame("boundary c. at " + atDescriptor),
     pressureLabel("pressure (type):"),
     uxEntry("velocity.x:"),
-    uyEntry("velocity.y:")
+    uyEntry("velocity.y:"),
+	inputChangeHandler(inputChangeHandler),
+	bc(vec2d(SimulatorParams::DEFAULT_U, SimulatorParams::DEFAULT_U), SimulatorParams::DEFAULT_PRESSURE_BC)
 {
     pressureSelector.append("Dirichlet");
     pressureSelector.append("von Neumann");
@@ -34,24 +36,20 @@ BCSelector::BCSelector(const std::string& atDescriptor, const std::function<void
     pressureSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onPressureTypeChange));
     uxEntry.hookInputHandler([=]()
     {
-        ConvUtils::updateRealIndicator(uxEntry, data->u.x, SimulatorParams::DEFAULT_U, SimulatorParams::MAX_U);
-        validityChangeHandler();
+        ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulatorParams::DEFAULT_U, SimulatorParams::MAX_U);
+        inputChangeHandler();
     });
     uyEntry.hookInputHandler([=]()
     {
-        ConvUtils::updateRealIndicator(uyEntry, data->u.y, SimulatorParams::DEFAULT_U, SimulatorParams::MAX_U);
-        validityChangeHandler();
+        ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulatorParams::DEFAULT_U, SimulatorParams::MAX_U);
+        inputChangeHandler();
     });
 }
 
 void BCSelector::onPressureTypeChange()
 {
-    data->p = pressureSelector.get_active_row_number() == 0 ? PressureBoundaryCond::DIRICHLET : PressureBoundaryCond::VON_NEUMANN;
-}
-
-void BCSelector::setDataLocation(BoundaryCond *const data)
-{
-    this->data = data;
+    bc.p = pressureSelector.get_active_row_number() == 0 ? PressureBoundaryCond::DIRICHLET : PressureBoundaryCond::VON_NEUMANN;
+	inputChangeHandler();
 }
 
 bool BCSelector::hasValidInput() const
@@ -62,12 +60,23 @@ bool BCSelector::hasValidInput() const
 void BCSelector::setEntryFields()
 {
     using std::to_string;
-    if (data->p == PressureBoundaryCond::DIRICHLET)
+    if (bc.p == PressureBoundaryCond::DIRICHLET)
         pressureSelector.set_active(0);
     else
         pressureSelector.set_active(1);
-    uxEntry.setText(to_string(data->u.x));
-    uyEntry.setText(to_string(data->u.y));
+    uxEntry.setText(to_string(bc.u.x));
+    uyEntry.setText(to_string(bc.u.y));
+}
+
+BoundaryCond BCSelector::getBc() const
+{
+	return bc;
+}
+
+void BCSelector::setBc(const BoundaryCond& bc)
+{
+	this->bc = bc;
+	setEntryFields();
 }
 
 }

@@ -22,6 +22,7 @@
 #include "annotated-entry.hpp"
 #include "bc-selector.hpp"
 #include "brandy-window.hpp"
+#include "config-state-abstr.hpp"
 #include "simulator-params.hpp"
 
 namespace brandy0
@@ -50,20 +51,15 @@ private:
 	Gtk::Button backHomeButton;
 	Gtk::Button startSimButton;
 
-	SimulatorParams* params;
-
-	bool shapeConfigValid = true;
+	ConfigStateAbstr *parent;
 
 	void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, const uint32_t defaultVal, const uint32_t maxVal);
 	void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double minVal, const double maxVal);
-	void updateSubmitSensitivity();
-public:
-	ConfigWindow(const std::function<void()>& backHomeCallback, const std::function<void()>& startSimulationCallback,
-		const std::function<void()>& gridSizeChangedCallback);
-	~ConfigWindow() override;
-	void setParamsLocation(SimulatorParams *const params);
+	bool areInputsValid();
 	void setEntryFields();
-	void setShapeConfigValid(const bool shapeConfigValid);
+public:
+	ConfigWindow(ConfigStateAbstr *const parent);
+	~ConfigWindow() override;
 };
 
 }

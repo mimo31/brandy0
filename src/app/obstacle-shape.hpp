@@ -54,12 +54,14 @@ public:
 	void push(const std::shared_ptr<ObstacleShape> shape);
 	void undo();
 	void redo();
+	void clear();
 	bool canUndo() const;
 	bool canRedo() const;
-};
+	bool empty() const;
 
-void fillFromObstacleShapeStack(Grid<bool>& grid, const ObstacleShapeStack& stack);
-void setFromObstacleShapeStack(Grid<bool>& grid, const ObstacleShapeStack& stack);
+	void fill(Grid<bool>& grid) const;
+	void set(Grid<bool>& grid) const;
+};
 
 class ObstacleEllipse : public ObstacleShape
 {

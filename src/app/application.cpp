@@ -43,7 +43,7 @@ void Application::enterNewConfig()
 	configSt->activate();
 }
 
-void Application::enterExistingConfig(const SimulatorParams& params)
+void Application::enterExistingConfig(const SimulatorParams params)
 {
 	switchStates(configSt);
 	configSt->activate(params);
@@ -55,10 +55,20 @@ void Application::enterHome()
 	startSt->activate();
 }
 
-void Application::enterNewSimulation(const SimulatorParams& params)
+void Application::enterNewSimulation(const SimulatorParams params)
 {
 	switchStates(simulationSt);
 	simulationSt->activate(params);
+}
+
+void Application::addWindow(Gtk::Window& win)
+{
+	gtkapp->add_window(win);
+}
+
+void Application::run(Gtk::Window& win)
+{
+	gtkapp->run(win);
 }
 
 }

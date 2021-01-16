@@ -58,6 +58,12 @@ void ObstacleShapeStack::redo()
 		shownPointer++;
 }
 
+void ObstacleShapeStack::clear()
+{
+	shapes.clear();
+	shownPointer = 0;
+}
+
 bool ObstacleShapeStack::canUndo() const
 {
 	return shownPointer != 0;
@@ -68,16 +74,21 @@ bool ObstacleShapeStack::canRedo() const
 	return shownPointer != shapes.size();
 }
 
-void fillFromObstacleShapeStack(Grid<bool>& grid, const ObstacleShapeStack& stack)
+bool ObstacleShapeStack::empty() const
 {
-	for (const std::shared_ptr<ObstacleShape>& shape : stack)
+	return shapes.size() == 0;
+}
+
+void ObstacleShapeStack::fill(Grid<bool>& grid) const
+{
+	for (const std::shared_ptr<ObstacleShape>& shape : *this)
 		shape->fill(grid);
 }
 
-void setFromObstacleShapeStack(Grid<bool>& grid, const ObstacleShapeStack& stack)
+void ObstacleShapeStack::set(Grid<bool>& grid) const
 {
 	grid.set_all(false);
-	for (const std::shared_ptr<ObstacleShape>& shape : stack)
+	for (const std::shared_ptr<ObstacleShape>& shape : *this)
 		shape->fill(grid);
 }
 

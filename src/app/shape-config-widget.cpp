@@ -11,12 +11,15 @@
 namespace brandy0
 {
 
-ShapeConfigWidget::ShapeConfigWidget(const std::function<void()> shapeStackChangedCallback)
-	: shapeStackChangedCallback(shapeStackChangedCallback)
+ShapeConfigWidget::ShapeConfigWidget(ConfigStateAbstr *parent)
+	: parent(parent)
 {
 	set_has_window();
 	set_hexpand();
 	set_vexpand();
+
+	parent->shapeStackChangeListeners.plug([this](){ refresh(); });
+	parent->dimensionsChangeListeners.plug([this](){ refresh(); });
 }
 
 constexpr uint32_t MINIMUM_WIDTH = 32;
@@ -36,13 +39,13 @@ void ShapeConfigWidget::get_preferred_height_vfunc(int& minimum_height, int& nat
 	natural_height = NATURAL_HEIGHT;
 }
 
-void ShapeConfigWidget::get_preferred_height_for_width_vfunc(int width, int& minimum_height, int& natural_height) const
+void ShapeConfigWidget::get_preferred_height_for_width_vfunc(int /* width */, int& minimum_height, int& natural_height) const
 {
 	minimum_height = MINIMUM_HEIGHT;
 	natural_height = NATURAL_HEIGHT;
 }
 
-void ShapeConfigWidget::get_preferred_width_for_height_vfunc(int height, int& minimum_width, int& natural_width) const
+void ShapeConfigWidget::get_preferred_width_for_height_vfunc(int /* height */, int& minimum_width, int& natural_width) const
 {
 	minimum_width = MINIMUM_WIDTH;
 	natural_width = NATURAL_WIDTH;
@@ -106,11 +109,12 @@ uint32_t ShapeConfigWidget::getHeight() const
 
 bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-	//Gdk::Cairo::set_source_rgba(cr, Gdk::RGBA("light pink").);
 	cr->set_source_rgba(1, .9, .9, 1);
 	cr->paint();
 
 	const uint32_t sw = getWidth(), sh = getHeight();
+	const double w = parent->params->w, h = parent->params->h;
+	const uint32_t wp = parent->params->wp, hp = parent->params->hp;
 
 	cr->move_to(0, 0);
 	cr->line_to(sw, sh);
@@ -146,7 +150,7 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	cr->fill();
 
 	Grid<bool> solid(wp, hp);
-	setFromObstacleShapeStack(solid, shapeStack);
+	parent->params->shapeStack.set(solid);
 
 	const double dx = 1 / double(wp - 1) / 2;
 	const double dy = 1 / double(hp - 1) / 2;
@@ -180,10 +184,8 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
 	Gdk::Cairo::set_source_rgba(cr, Gdk::RGBA("black"));
 
-	for (const std::shared_ptr<ObstacleShape>& shape : shapeStack)
-	{
+	for (const std::shared_ptr<ObstacleShape>& shape : parent->params->shapeStack)
 		shape->draw(cr);
-	}
 
 	return true;
 }
@@ -191,9 +193,8 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 bool ShapeConfigWidget::clickHandler(GdkEventButton *event)
 {
 	const uint32_t sw = getWidth(), sh = getHeight();
+	const double w = parent->params->w, h = parent->params->h;
 	double rx = event->x / sw, ry = 1 - event->y / sh;
-	cout << "click" << endl;
-	cout << "wig coors: x = " << rx << ", ry = " << ry << endl;
 	if (sw * h > sh * w)
 	{
 		const double fac = sh * w / (sw * h);
@@ -206,7 +207,6 @@ bool ShapeConfigWidget::clickHandler(GdkEventButton *event)
 		ry /= fac;
 		ry -= (1 / fac - 1) / 2;
 	}
-	cout << "area coors: x = " << rx << ", ry = " << ry << endl;
 	if (rx >= 0 && rx <= 1 && ry >= 0 && ry <= 1)
 		nextPolygonVertices.push_back(vec2d(rx, ry));
 	return true;
@@ -214,59 +214,14 @@ bool ShapeConfigWidget::clickHandler(GdkEventButton *event)
 
 void ShapeConfigWidget::submitCurrentPolygon()
 {
-	shapeStack.push(std::make_shared<ObstaclePolygon>(false, nextPolygonVertices));
+	parent->params->shapeStack.push(std::make_shared<ObstaclePolygon>(false, nextPolygonVertices));
 	nextPolygonVertices.clear();
-	shapeStackChangedCallback();
-}
-
-void ShapeConfigWidget::undo()
-{
-	shapeStack.undo();
-}
-
-void ShapeConfigWidget::redo()
-{
-	shapeStack.redo();
-}
-
-bool ShapeConfigWidget::canUndo() const
-{
-	shapeStack.canUndo();
-}
-
-bool ShapeConfigWidget::canRedo() const
-{
-	shapeStack.canRedo();
-}
-
-void ShapeConfigWidget::setWp(const uint32_t wp)
-{
-	this->wp = wp;
-}
-
-void ShapeConfigWidget::setHp(const uint32_t hp)
-{
-	this->hp = hp;
-}
-
-void ShapeConfigWidget::setW(const double w)
-{
-	this->w = w;
-}
-
-void ShapeConfigWidget::setH(const double h)
-{
-	this->h = h;
+	parent->shapeStackChangeListeners.invoke();
 }
 
 void ShapeConfigWidget::refresh()
 {
 	queue_draw();
-}
-
-void ShapeConfigWidget::writeShapeStack(SimulatorParams *const params) const
-{
-	params->shapeStack = shapeStack;
 }
 
 }

@@ -15,7 +15,7 @@
 namespace brandy0
 {
 
-SimulationState::SimulationState(Application *const app) : app(app), params(nullptr), sim(nullptr)
+SimulationState::SimulationState(ApplicationAbstr *const app) : app(app), params(nullptr), sim(nullptr)
 {
 	win = new SimulationWindow([=]()
 	{
@@ -60,7 +60,7 @@ void SimulationState::deactivate()
 
 void SimulationState::showWindow()
 {
-	app->gtkapp->add_window(*win);
+	app->addWindow(*win);
 	win->show();
 }
 

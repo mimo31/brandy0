@@ -19,6 +19,7 @@
 
 #include "annotated-entry.hpp"
 #include "boundary-cond.hpp"
+#include "func-utils.hpp"
 
 namespace brandy0
 {
@@ -32,19 +33,21 @@ private:
     AnnotatedEntry uxEntry;
     AnnotatedEntry uyEntry;
 
-    BoundaryCond *data;
+    BoundaryCond bc;
+
+	VoidFunc inputChangeHandler;
 
     void onPressureTypeChange();
+    void setEntryFields();
 
 public:
     PressureBoundaryCond selectedPressure;
 
-    BCSelector(const std::string& atDescriptor, const std::function<void()>& validityChangeHandler);
+    BCSelector(const std::string& atDescriptor, const VoidFunc& inputChangeHandler);//const std::function<void()>& validityChangeHandler);
     
-    void setDataLocation(BoundaryCond *const);
-
     bool hasValidInput() const;
-    void setEntryFields();
+	BoundaryCond getBc() const;
+	void setBc(const BoundaryCond& bc);
 };
 
 }
