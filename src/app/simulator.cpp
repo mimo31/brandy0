@@ -16,10 +16,11 @@ Simulator::Simulator(const SimulatorParams& params)
 	dt(params.dt),
 	dx(w / (params.wp - 1)), dy(h / (params.hp - 1)),
 	wp(params.wp), hp(params.hp),
-	rho(params.rho), mu(params.mu), nu(params.rho / params.mu),
-	solid(params.solid), indep(params.wp, params.hp),
+	rho(params.rho), mu(params.mu), nu(params.mu / params.rho), /* shouldn't nu be mu / rho, not rho / mu ??? */
+	solid(params.wp, params.hp), indep(params.wp, params.hp),
 	bcx0(params.bcx0), bcx1(params.bcx1), bcy0(params.bcy0), bcy1(params.bcy1)
 {
+	setFromObstacleShapeStack(solid, params.shapeStack);
 	for (uint32_t x = 0; x < wp; x++)
 	{
 		indep(x, 0) = indep(x, hp - 1) = false;

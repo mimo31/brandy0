@@ -11,6 +11,7 @@
 
 #include "boundary-cond.hpp"
 #include "grid.hpp"
+#include "obstacle-shape.hpp"
 
 namespace brandy0
 {
@@ -33,7 +34,8 @@ struct SimulatorParams
 	double dt;
 	BoundaryCond bcx0, bcx1, bcy0, bcy1;
 	double rho, mu;
-	Grid<bool> solid;
+	// Grid<bool> solid;
+	ObstacleShapeStack shapeStack;
 	// < 0 iff simulation should not automatically stop
 	double stopAfter;
 	uint32_t stepsPerFrame;
@@ -43,9 +45,9 @@ struct SimulatorParams
 
 	SimulatorParams(const double w, const double h, const uint32_t wp, const uint32_t hp, const double dt,
 			const BoundaryCond& bcx0, const BoundaryCond& bcx1, const BoundaryCond& bcy0, const BoundaryCond& bcy1,
-			const double rho, const double mu, const Grid<bool>& solid, const double stopAfter, const uint32_t stepsPerFrame,
+			const double rho, const double mu, const ObstacleShapeStack& shapeStack, const double stopAfter, const uint32_t stepsPerFrame,
 			const uint32_t frameCapacity)
-		: w(w), h(h), wp(wp), hp(hp), dt(dt), bcx0(bcx0), bcx1(bcx1), bcy0(bcy0), bcy1(bcy1), rho(rho), mu(mu), solid(solid),
+		: w(w), h(h), wp(wp), hp(hp), dt(dt), bcx0(bcx0), bcx1(bcx1), bcy0(bcy0), bcy1(bcy1), rho(rho), mu(mu), shapeStack(shapeStack),
 		stopAfter(stopAfter), stepsPerFrame(stepsPerFrame), frameCapacity(frameCapacity)
 	{
 	}

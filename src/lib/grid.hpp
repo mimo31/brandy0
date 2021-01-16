@@ -23,17 +23,22 @@ struct Grid
 
 	Grid(const uint32_t w, const uint32_t h) : w(w), h(h)
 	{
-		data = new T[w * h];
+		if (w == 0 && h == 0)
+			data = nullptr;
+		else
+			data = new T[w * h];
 	}
 
 	Grid(const Grid& g) : Grid(g.w, g.h)
 	{
-		std::copy_n(g.data, w * h, data);
+		if (w != 0 || h != 0)
+			std::copy_n(g.data, w * h, data);
 	}
 
 	~Grid()
 	{
-		delete[] data;
+		if (w != 0 || h != 0)
+			delete[] data;
 	}
 
 	T &operator()(const uint32_t x, const uint32_t y) const
@@ -50,17 +55,20 @@ struct Grid
 	{
 		if (w * h != other.w * other.h)
 		{
-			delete[] data;
+			if (w != 0 || h != 0)
+				delete[] data;
 			w = other.w;
 			h = other.h;
-			data = new T[w * h];
+			if (w != 0 || h != 0)
+				data = new T[w * h];
 		}
 		else if (w != other.w || h != other.h)
 		{
 			w = other.w;
 			h = other.h;
 		}
-		std::copy_n(other.data, w * h, data);
+		if (w != 0 || h != 0)
+			std::copy_n(other.data, w * h, data);
 		return *this;
 	}
 

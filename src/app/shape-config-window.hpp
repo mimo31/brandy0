@@ -25,12 +25,17 @@ private:
     AnnotatedEntry widthEntry, heightEntry;
     Gtk::Button undoButton, redoButton, polygonDoneButton;
     ShapeConfigWidget shapeWidget;
+	SimulatorParams *params;
+
+	void updateUndoRedoSensitivity();
 
 public:
-    ShapeConfigWindow();
+    ShapeConfigWindow(const std::function<void(bool)>& scalarsValidityChangedCallback);
 
     void setParamsLocation(SimulatorParams *const);
     void setFromParams();
+	void writeObstaclesToParams();
+	void refreshGridSize();
 };
 
 }

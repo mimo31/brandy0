@@ -48,6 +48,7 @@ private:
 	Glib::RefPtr<Gdk::GLContext> glContext;
 
 	const SimulatorParams *params;
+	Grid<bool> solid;
 	SimFrame *curFrame;
 
 	GLuint glWhiteProgram = 0;
@@ -70,6 +71,7 @@ private:
 	//GLuint loadProgram(const std::string& vshaderName, const std::string& fshaderName);
 	void initShaders();
 
+	Point to_poi(const double x, const double y);
 	Point to_poi(const vec2d& v);
 	vec2d to_coor(const uint32_t x, const uint32_t y);
 	vec2d to_coor(const Point p);

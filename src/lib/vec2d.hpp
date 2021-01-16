@@ -93,6 +93,11 @@ struct vec2d
 		return x * other.x + y * other.y;
 	}
 
+	double cross(const vec2d &other) const
+	{
+		return x * other.y - y * other.x;
+	}
+
 	bool is_zero() const
 	{
 		return x == 0 && y == 0;

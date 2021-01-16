@@ -14,6 +14,7 @@
 
 #include "glob.hpp"
 
+#include "grid.hpp"
 #include "vec2d.hpp"
 
 namespace brandy0
@@ -21,14 +22,44 @@ namespace brandy0
 
 class ObstacleShape
 {
-public:
-	virtual void draw(const Cairo::RefPtr<Cairo::Context>& cr) const = 0;
+protected:
+	ObstacleShape(const bool negative);
 
-/* TODO add method for selecting squares in the discretization */
+public:
+	bool negative;
+
+	virtual void draw(const Cairo::RefPtr<Cairo::Context>& cr) const = 0;
+	virtual void fill(Grid<bool>& grid) const = 0;
 
 };
 
-typedef std::vector<std::shared_ptr<ObstacleShape>> ObstacleShapeStack;
+typedef std::vector<std::shared_ptr<ObstacleShape>>::iterator ObstacleShapeStackIterator;
+typedef std::vector<std::shared_ptr<ObstacleShape>>::const_iterator ObstacleShapeStackConstIterator;
+
+class ObstacleShapeStack
+{
+private:
+	uint32_t shownPointer;
+
+public:
+	std::vector<std::shared_ptr<ObstacleShape>> shapes;
+
+	ObstacleShapeStack();
+
+	ObstacleShapeStackIterator begin();
+	ObstacleShapeStackIterator end();
+	ObstacleShapeStackConstIterator begin() const;
+	ObstacleShapeStackConstIterator end() const;
+
+	void push(const std::shared_ptr<ObstacleShape> shape);
+	void undo();
+	void redo();
+	bool canUndo() const;
+	bool canRedo() const;
+};
+
+void fillFromObstacleShapeStack(Grid<bool>& grid, const ObstacleShapeStack& stack);
+void setFromObstacleShapeStack(Grid<bool>& grid, const ObstacleShapeStack& stack);
 
 class ObstacleEllipse : public ObstacleShape
 {
@@ -36,11 +67,10 @@ private:
     vec2d p0, p1;
 
 public:
-    ObstacleEllipse(const vec2d& p0, const vec2d& p1);
+    ObstacleEllipse(const bool negative, const vec2d& p0, const vec2d& p1);
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
-
-    /* TODO add draw overriden draw methods */
+	void fill(Grid<bool>& grid) const override;
 };
 
 /*class ObstacleCircle : public ObstacleEllipse
@@ -56,11 +86,10 @@ private:
     std::vector<vec2d> ps;
 
 public:
-    ObstaclePolygon(const std::vector<vec2d>& ps);
+    ObstaclePolygon(const bool negative, const std::vector<vec2d>& ps);
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
-
-    /* TODO add draw overriden draw methods */
+	void fill(Grid<bool>& grid) const override;
 };
 
 }

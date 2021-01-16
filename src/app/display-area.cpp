@@ -7,11 +7,7 @@
 namespace brandy0
 {
 
-using std::cout;
-using std::cerr;
-using std::endl;
-
-DisplayArea::DisplayArea() : curFrame(nullptr)
+DisplayArea::DisplayArea() : curFrame(nullptr), solid(0, 0)
 {
 	set_hexpand(true);
 	set_vexpand(true);
@@ -227,17 +223,22 @@ void DisplayArea::initShaders()
 	glPaintProgram = loadProgram("plain-float", "rainbow", { UniformLoc("mat", &glPaintMat) });
 }
 
-Point DisplayArea::to_poi(const vec2d& v)
+Point DisplayArea::to_poi(const double x, const double y)
 {
-	const double relx = v.x / params->w;
-	const double rely = v.y / params->h;
+	const double relx = x / params->w;
+	const double rely = y / params->h;
 	const Point res(round(relx * (params->wp - 1)), round(rely * (params->hp - 1)));
 	return res;
 }
 
+Point DisplayArea::to_poi(const vec2d& v)
+{
+	return to_poi(v.x, v.y);
+}
+
 vec2d DisplayArea::to_coor(const uint32_t x, const uint32_t y)
 {
-	return vec2d(x / double(params->wp - 1), y / double(params->hp - 1));
+	return vec2d(x * params->w / double(params->wp - 1), y * params->h / double(params->hp - 1));
 }
 
 vec2d DisplayArea::to_coor(const Point p)
@@ -248,7 +249,7 @@ vec2d DisplayArea::to_coor(const Point p)
 void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini)
 {
 	Point ipoi = to_poi(ini);
-	if (!ipoi.inside(0, 0, params->wp - 1, params->hp - 1) || params->solid(ipoi))
+	if (!ipoi.inside(0, 0, params->wp - 1, params->hp - 1) || solid(ipoi))
 		return;
 
 	constexpr double step_size = .005;
@@ -263,7 +264,7 @@ void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini
 			break;
 		const vec2d nnxt = nxt + step_size * u.get_unit();
 		const Point npoi = to_poi(nnxt);
-		if (!npoi.inside(0, 0, params->wp - 1, params->hp - 1) || params->solid(npoi))
+		if (!npoi.inside(0, 0, params->wp - 1, params->hp - 1) || solid(npoi))
 			break;
 		segs.push_back(LineSegment(nxt, nnxt));
 		nxt = nnxt;
@@ -275,7 +276,7 @@ void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini
 		const Point cpoi = to_poi(nxt);
 		const vec2d nnxt = nxt - step_size * curFrame->u(cpoi).get_unit();
 		const Point npoi = to_poi(nnxt);
-		if (!npoi.inside(0, 0, params->wp - 1, params->hp - 1) || params->solid(npoi))
+		if (!npoi.inside(0, 0, params->wp - 1, params->hp - 1) || solid(npoi))
 			break;
 		segs.push_back(LineSegment(nxt, nnxt));
 		nxt = nnxt;
@@ -320,7 +321,7 @@ void DisplayArea::computeMat(float *mat)
 	mat[1] = 0;		mat[5] = 2 / params->h;	mat[9] = 0;		mat[13] = -1;
 	mat[2] = 0;		mat[6] = 0;		mat[10] = 1;	mat[14] = 0;
 	mat[3] = 0;		mat[7] = 0;		mat[11] = 0;	mat[15] = 1;
-	float mlt = float(get_height()) * params->w / (float(get_width()) * params->h);
+	const float mlt = float(get_height()) * params->w / (float(get_width()) * params->h);
 	if (mlt < 1)
 	{
 		mat[0] *= mlt;
@@ -328,7 +329,7 @@ void DisplayArea::computeMat(float *mat)
 	}
 	else
 	{
-		mat[1] /= mlt;
+		mat[5] /= mlt;
 		mat[13] /= mlt;
 	}
 }
@@ -374,7 +375,6 @@ void DisplayArea::drawContent()
 				mx = std::max(mx, val);
 			}
 		}
-		//cout << mn << " " << mx << endl;
 		if (mn != mx)
 		{
 			const uint32_t pointCount = (params->wp - 1) * (params->hp - 1) * 12;
@@ -452,13 +452,7 @@ void DisplayArea::drawContent()
 					vertex_data[ind + 3 * 5 + 0] = v10.x;
 					vertex_data[ind + 3 * 5 + 1] = v10.y;
 					vertex_data[ind + 3 * 5 + 2] = c10;*/
-					//cout << v11 << endl;
 				}
-			}
-			for (uint32_t i = 0; i < arsize; i++)
-			{
-				if (vertex_data[i] > 1.0 || vertex_data[i] < 0.0)
-					cout << vertex_data[i] << endl;
 			}
 
 			float mat[16];
@@ -466,7 +460,6 @@ void DisplayArea::drawContent()
 			computeMat(mat);
 
 			glUseProgram(glPaintProgram);
-			//cout << glPaintProgram << endl;
 
 			glUniformMatrix4fv(glPaintMat, 1, GL_FALSE, mat);
 			
@@ -495,16 +488,28 @@ void DisplayArea::drawContent()
 			for (double x = params->w / 2; x < params->w; x += line_d)
 			{
 				for (double y = params->h / 2; y < params->h; y += line_d)
-					addArrow(segs, vec2d(x, y));
+				{
+					if (!solid(to_poi(x, y)))
+						addArrow(segs, vec2d(x, y));
+				}
 				for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
-					addArrow(segs, vec2d(x, y));
+				{
+					if (!solid(to_poi(x, y)))
+						addArrow(segs, vec2d(x, y));
+				}
 			}
 			for (double x = params->w / 2 - line_d; x > 0; x -= line_d)
 			{
 				for (double y = params->h / 2; y < params->h; y += line_d)
-					addArrow(segs, vec2d(x, y));
+				{
+					if (!solid(to_poi(x, y)))
+						addArrow(segs, vec2d(x, y));
+				}
 				for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
-					addArrow(segs, vec2d(x, y));
+				{
+					if (!solid(to_poi(x, y)))
+						addArrow(segs, vec2d(x, y));
+				}
 			}
 		}
 
@@ -565,6 +570,8 @@ void DisplayArea::drawContent()
 void DisplayArea::setParams(const SimulatorParams *const params)
 {
 	this->params = params;
+	solid = Grid<bool>(params->wp, params->hp);
+	setFromObstacleShapeStack(solid, params->shapeStack);
 }
 
 void DisplayArea::setCurFrame(const SimFrame& curFrame)

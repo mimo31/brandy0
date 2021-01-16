@@ -12,6 +12,7 @@
 #include "glob.hpp"
 
 #include "obstacle-shape.hpp"
+#include "simulator-params.hpp"
 
 namespace brandy0
 {
@@ -19,14 +20,16 @@ namespace brandy0
 class ShapeConfigWidget : public Gtk::Widget
 {
 private:
-	uint32_t wp = 64, hp = 64;
-	double w = 1, h = 1;
+	uint32_t wp, hp;
+	double w, h;
 
     ObstacleShapeStack shapeStack;
 
 	std::vector<vec2d> nextPolygonVertices;
 
     Glib::RefPtr<Gdk::Window> win;
+
+	std::function<void()> shapeStackChangedCallback;
 
     void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
     void get_preferred_height_vfunc(int& minimum_height, int& natural_height) const override;
@@ -38,7 +41,7 @@ private:
     void on_size_allocate(Gdk::Rectangle& allocation) override;
     void on_realize() override;
     void on_unrealize() override;
-    bool on_draw(const ::Cairo::RefPtr< ::Cairo::Context>& cr) override;
+    bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
 	uint32_t getWidth() const;
 	uint32_t getHeight() const;
@@ -46,9 +49,13 @@ private:
 	bool clickHandler(GdkEventButton *event);
 
 public:
-    ShapeConfigWidget();
+    ShapeConfigWidget(const std::function<void()> shapeStackChangedCallback);
 
 	void submitCurrentPolygon();
+	void undo();
+	void redo();
+	bool canUndo() const;
+	bool canRedo() const;
 
 	void setWp(const uint32_t wp);
 	void setHp(const uint32_t hp);
@@ -56,6 +63,8 @@ public:
 	void setH(const double h);
 
 	void refresh();
+
+	void writeShapeStack(SimulatorParams *const) const;
 };
 
 }

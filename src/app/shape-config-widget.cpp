@@ -11,7 +11,8 @@
 namespace brandy0
 {
 
-ShapeConfigWidget::ShapeConfigWidget()
+ShapeConfigWidget::ShapeConfigWidget(const std::function<void()> shapeStackChangedCallback)
+	: shapeStackChangedCallback(shapeStackChangedCallback)
 {
 	set_has_window();
 	set_hexpand();
@@ -105,7 +106,8 @@ uint32_t ShapeConfigWidget::getHeight() const
 
 bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-	Gdk::Cairo::set_source_rgba(cr, Gdk::RGBA("light blue"));
+	//Gdk::Cairo::set_source_rgba(cr, Gdk::RGBA("light pink").);
+	cr->set_source_rgba(1, .9, .9, 1);
 	cr->paint();
 
 	const uint32_t sw = getWidth(), sh = getHeight();
@@ -143,6 +145,39 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	cr->close_path();
 	cr->fill();
 
+	Grid<bool> solid(wp, hp);
+	setFromObstacleShapeStack(solid, shapeStack);
+
+	const double dx = 1 / double(wp - 1) / 2;
+	const double dy = 1 / double(hp - 1) / 2;
+	for (uint32_t x = 0; x < wp; x++)
+	{
+		for (uint32_t y = 0; y < hp; y++)
+		{
+			if (!solid(x, y) && (x & 1) == (y & 1))
+				continue;
+			if (solid(x, y))
+				if ((x & 1) == (y & 1))
+					cr->set_source_rgba(.75, .8, 1, 1);
+				else
+					cr->set_source_rgba(.8, .75, 1, 1);
+			else
+				Gdk::Cairo::set_source_rgba(cr, Gdk::RGBA("light yellow"));
+			const double xc = x / double(wp - 1);
+			const double yc = y / double(hp - 1);
+			const double x0 = x == 0 ? xc : xc - dx;
+			const double x1 = x == wp - 1 ? xc : xc + dx;
+			const double y0 = y == 0 ? yc : yc - dy;
+			const double y1 = y == hp - 1 ? yc : yc + dy;
+			cr->move_to(x0, y0);
+			cr->line_to(x0, y1);
+			cr->line_to(x1, y1);
+			cr->line_to(x1, y0);
+			cr->close_path();
+			cr->fill();
+		}
+	}
+
 	Gdk::Cairo::set_source_rgba(cr, Gdk::RGBA("black"));
 
 	for (const std::shared_ptr<ObstacleShape>& shape : shapeStack)
@@ -172,14 +207,36 @@ bool ShapeConfigWidget::clickHandler(GdkEventButton *event)
 		ry -= (1 / fac - 1) / 2;
 	}
 	cout << "area coors: x = " << rx << ", ry = " << ry << endl;
-	nextPolygonVertices.push_back(vec2d(rx, ry));
+	if (rx >= 0 && rx <= 1 && ry >= 0 && ry <= 1)
+		nextPolygonVertices.push_back(vec2d(rx, ry));
 	return true;
 }
 
 void ShapeConfigWidget::submitCurrentPolygon()
 {
-	shapeStack.push_back(std::make_shared<ObstaclePolygon>(nextPolygonVertices));
+	shapeStack.push(std::make_shared<ObstaclePolygon>(false, nextPolygonVertices));
 	nextPolygonVertices.clear();
+	shapeStackChangedCallback();
+}
+
+void ShapeConfigWidget::undo()
+{
+	shapeStack.undo();
+}
+
+void ShapeConfigWidget::redo()
+{
+	shapeStack.redo();
+}
+
+bool ShapeConfigWidget::canUndo() const
+{
+	shapeStack.canUndo();
+}
+
+bool ShapeConfigWidget::canRedo() const
+{
+	shapeStack.canRedo();
 }
 
 void ShapeConfigWidget::setWp(const uint32_t wp)
@@ -205,6 +262,11 @@ void ShapeConfigWidget::setH(const double h)
 void ShapeConfigWidget::refresh()
 {
 	queue_draw();
+}
+
+void ShapeConfigWidget::writeShapeStack(SimulatorParams *const params) const
+{
+	params->shapeStack = shapeStack;
 }
 
 }

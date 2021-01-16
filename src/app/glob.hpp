@@ -10,6 +10,7 @@
 #include <iostream>
 
 using std::cout;
+using std::cerr;
 using std::endl;
 
 #endif // GLOB_HPP

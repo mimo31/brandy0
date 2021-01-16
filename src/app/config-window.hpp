@@ -52,14 +52,18 @@ private:
 
 	SimulatorParams* params;
 
+	bool shapeConfigValid = true;
+
 	void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, const uint32_t defaultVal, const uint32_t maxVal);
 	void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double minVal, const double maxVal);
 	void updateSubmitSensitivity();
 public:
-	ConfigWindow(const std::function<void()>& backHomeCallback, const std::function<void()>& startSimulationCallback);
+	ConfigWindow(const std::function<void()>& backHomeCallback, const std::function<void()>& startSimulationCallback,
+		const std::function<void()>& gridSizeChangedCallback);
 	~ConfigWindow() override;
 	void setParamsLocation(SimulatorParams *const params);
 	void setEntryFields();
+	void setShapeConfigValid(const bool shapeConfigValid);
 };
 
 }

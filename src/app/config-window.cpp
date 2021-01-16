@@ -13,7 +13,8 @@
 namespace brandy0
 {
 
-ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback, const std::function<void()>& startSimulationCallback)
+ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback, const std::function<void()>& startSimulationCallback,
+	const std::function<void()>& gridSizeChangedCallback)
 	: descriptionLabel("Configure your simulation."),
 	rhoEntry("rho (density):"),
 	muEntry("mu (viscosity):"),
@@ -47,16 +48,18 @@ ConfigWindow::ConfigWindow(const std::function<void()>& backHomeCallback, const 
 			}
 			);
 
-	gridWidthEntry.hookInputHandler([this]()
+	gridWidthEntry.hookInputHandler([this, gridSizeChangedCallback]()
 			{
 			ConvUtils::updatePosIntIndicator(gridWidthEntry, params->wp, SimulatorParams::DEFAULT_WP, SimulatorParams::MAX_WP);
 			updateSubmitSensitivity();
+			gridSizeChangedCallback();
 			}
 			);
-	gridHeightEntry.hookInputHandler([this]()
+	gridHeightEntry.hookInputHandler([this, gridSizeChangedCallback]()
 			{
 			ConvUtils::updatePosIntIndicator(gridHeightEntry, params->hp, SimulatorParams::DEFAULT_HP, SimulatorParams::MAX_HP);
 			updateSubmitSensitivity();
+			gridSizeChangedCallback();
 			}
 			);
 	stepsPerFrameEntry.hookInputHandler([this]()
@@ -129,7 +132,8 @@ void ConfigWindow::updateSubmitSensitivity()
 			&& x0sel.hasValidInput()
 			&& x1sel.hasValidInput()
 			&& y0sel.hasValidInput()
-			&& y1sel.hasValidInput());
+			&& y1sel.hasValidInput()
+			&& shapeConfigValid);
 }
 
 void ConfigWindow::setParamsLocation(SimulatorParams *const params)
@@ -159,6 +163,11 @@ void ConfigWindow::setEntryFields()
 	x1sel.setEntryFields();
 	y0sel.setEntryFields();
 	y1sel.setEntryFields();
+}
+
+void ConfigWindow::setShapeConfigValid(const bool shapeConfigValid)
+{
+	this->shapeConfigValid = shapeConfigValid;
 }
 
 }
