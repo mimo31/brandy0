@@ -24,6 +24,7 @@ public:
 	
 	Simulator(const SimulatorParams& params);
 	virtual void iter() = 0;
+	virtual ~Simulator() {}
 
 protected:
 	double dt;

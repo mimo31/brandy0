@@ -7,7 +7,7 @@
 namespace brandy0
 {
 
-DisplayArea::DisplayArea() : curFrame(nullptr), solid(0, 0)
+DisplayArea::DisplayArea() : solid(0, 0), curFrame(nullptr)
 {
 	set_hexpand(true);
 	set_vexpand(true);
@@ -539,7 +539,7 @@ void DisplayArea::drawContent()
 
 		GLfloat *vertex_data = new GLfloat[segs.size() * 4];
 
-		for (int i = 0; i < segs.size(); i++)
+		for (uint32_t i = 0; i < segs.size(); i++)
 		{
 			vertex_data[i * 4] = segs[i].p0.x;
 			vertex_data[i * 4 + 1] = segs[i].p0.y;

@@ -136,14 +136,14 @@ bool intersects(const vec2d a0, const vec2d a1, const vec2d b0, const vec2d b1)
 	const vec2d b1p = b1 - a0;
 	const double sab0 = a.cross(b0p);
 	const double sab1 = a.cross(b1p);
-	if (sab0 > 0 && sab1 > 0 || sab0 < 0 && sab1 < 0)
+	if ((sab0 > 0 && sab1 > 0) || (sab0 < 0 && sab1 < 0))
 		return false;
 	const vec2d b = b1 - b0;
 	const vec2d a0p = a0 - b0;
 	const vec2d a1p = a1 - b0;
 	const double sba0 = b.cross(a0p);
 	const double sba1 = b.cross(a1p);
-	return !(sba0 > 0 && sba1 > 0 || sba0 < 0 && sba1 < 0);
+	return !((sba0 > 0 && sba1 > 0) || (sba0 < 0 && sba1 < 0));
 }
 
 void ObstaclePolygon::fill(Grid<bool>& grid) const
@@ -156,10 +156,10 @@ void ObstaclePolygon::fill(Grid<bool>& grid) const
 		{
 			const vec2d crs(x / double(grid.w - 1), y / double(grid.h - 1));
 			bool inside = false;
-			for (int i = 0; i < ps.size(); i++)
+			for (uint32_t i = 0; i < ps.size(); i++)
 			{
 				const vec2d v0 = ps[i];
-				const vec2d v1 = i != ps.size() - 1 ? ps[i + 1] : ps[0];
+				const vec2d v1 = i + 1 != ps.size() ? ps[i + 1] : ps[0];
 				inside = inside ^ intersects(vec2d(-1, -1.3), crs, v0, v1);
 			}
 			grid(x, y) = grid(x, y) || inside;

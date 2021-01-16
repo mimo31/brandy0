@@ -12,13 +12,13 @@
 namespace brandy0
 {
 
-BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputChangeHandler)//const std::function<void()>& validityChangeHandler)
+BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputChangeHandler)
     : Gtk::Frame("boundary c. at " + atDescriptor),
     pressureLabel("pressure (type):"),
     uxEntry("velocity.x:"),
     uyEntry("velocity.y:"),
-	inputChangeHandler(inputChangeHandler),
-	bc(vec2d(SimulatorParams::DEFAULT_U, SimulatorParams::DEFAULT_U), SimulatorParams::DEFAULT_PRESSURE_BC)
+	bc(vec2d(SimulatorParams::DEFAULT_U, SimulatorParams::DEFAULT_U), SimulatorParams::DEFAULT_PRESSURE_BC),
+	inputChangeHandler(inputChangeHandler)
 {
     pressureSelector.append("Dirichlet");
     pressureSelector.append("von Neumann");
