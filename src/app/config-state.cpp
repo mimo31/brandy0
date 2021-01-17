@@ -24,30 +24,29 @@ ConfigState::~ConfigState()
 void ConfigState::activate()
 {
 	setDefaultParams();
-	paramsSwapListeners.invoke();
+	initListeners.invoke();
 	showWindows();
 }
 
 void ConfigState::activate(const SimulatorParams& params)
 {
 	setParams(params);
-	paramsSwapListeners.invoke();
+	initListeners.invoke();
 	showWindows();
 }
 
 void ConfigState::showWindows()
 {
-	app->addWindow(*mainWin);
-	mainWin->show();
 	app->addWindow(*shapeWin);
 	shapeWin->show();
-
+	app->addWindow(*mainWin);
+	mainWin->show();
 }
 
 void ConfigState::deactivate()
 {
-	mainWin->hide();
 	shapeWin->hide();
+	mainWin->hide();
 	params = nullptr;
 }
 
@@ -67,11 +66,13 @@ void ConfigState::setParams(const SimulatorParams& params)
 void ConfigState::submitAll()
 {
 	app->enterNewSimulation(*params);
+	closeListeners.invoke();
 }
 
 void ConfigState::goBackHome()
 {
 	app->enterHome();
+	closeListeners.invoke();
 }
 
 }

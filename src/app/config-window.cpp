@@ -26,7 +26,7 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 		parent->validityChangeListeners.invoke();
 		}),
 	y0sel("y = 0 (bottom)", [this, parent](){
-		parent->params->bcx0 = y0sel.getBc();
+		parent->params->bcy0 = y0sel.getBc();
 		parent->validityChangeListeners.invoke();
 		}),
 	y1sel("y = h (top)", [this, parent](){
@@ -98,7 +98,7 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 		startSimButton.set_sensitive(parent->inputValidators.isAllValid());
 	});
 
-	parent->paramsSwapListeners.plug([this]() {
+	parent->initListeners.plug([this]() {
 		setEntryFields();
 	});
 

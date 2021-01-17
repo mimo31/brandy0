@@ -93,18 +93,34 @@ void ObstacleShapeStack::set(Grid<bool>& grid) const
 }
 
 ObstacleEllipse::ObstacleEllipse(const bool negative, const vec2d& p0, const vec2d& p1)
-    : ObstacleShape(negative), p0(p0), p1(p1)
+    : ObstacleShape(negative), center((p0 + p1) / 2),
+	xhaxis((std::max(p0.x, p1.x) - std::min(p0.x, p1.x)) / 2),
+	yhaxis((std::max(p0.y, p1.y) - std::min(p0.y, p1.y)) / 2)
 {
 }
 
 void ObstacleEllipse::fill(Grid<bool>& grid) const
 {
-	// TODO: implement
+	for (uint32_t y = 0; y < grid.h; y++)
+	{
+		for (uint32_t x = 0; x < grid.w; x++)
+		{
+			const vec2d crs(x / (grid.w - 1), y / (grid.h - 1));
+			const vec2d rel = crs - center;
+			const bool inside = (rel.x / xhaxis) * (rel.x / xhaxis) + (rel.y / yhaxis) * (rel.y / yhaxis) < 1;
+			grid(x, y) = grid(x, y) || inside;
+		}
+	}
 }
 
 void ObstacleEllipse::draw(const Cairo::RefPtr<Cairo::Context>& cr) const
 {
-	// TODO: implement
+	const cairo_matrix_t origMat = cr->get_matrix();
+	cr->translate(center.x, center.y);
+	cr->scale(xhaxis, yhaxis);
+	cr->arc(0, 0, 1, 0, 2 * M_PI);
+	cr->fill();
+	cr->set_matrix(origMat);
 }
 
 /*
@@ -150,6 +166,7 @@ void ObstaclePolygon::fill(Grid<bool>& grid) const
 {
 	// TODO: potentially room for improvement (current algorithm may produce incorrect results
 	// e.g. when the ray goes through a vertex)
+	// TODO: fix discrepancy between polygon fill and draw methods (when two parts of the polygon overlap, fill does not fill that intersection, but it should)
 	for (uint32_t y = 0; y < grid.h; y++)
 	{
 		for (uint32_t x = 0; x < grid.w; x++)

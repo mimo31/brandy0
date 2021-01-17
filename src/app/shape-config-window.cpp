@@ -61,7 +61,7 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	parent->shapeStackChangeListeners.plug([this](){
 		updateUndoRedoSensitivity();
 	});
-	parent->paramsSwapListeners.plug([this](){
+	parent->initListeners.plug([this](){
 		updateUndoRedoSensitivity();
 		setEntryFields();
 	});

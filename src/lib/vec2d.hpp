@@ -102,6 +102,11 @@ struct vec2d
 	{
 		return x == 0 && y == 0;
 	}
+
+	bool inside(const double x0, const double y0, const double x1, const double y1) const
+	{
+		return x0 <= x && x <= x1 && y0 <= y && y <= y1;
+	}
 };
 
 vec2d operator*(const double a, const vec2d& v);

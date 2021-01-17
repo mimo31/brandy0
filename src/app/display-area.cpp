@@ -349,9 +349,10 @@ void DisplayArea::drawContent()
 			}
 			else if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL || backDisplayMode == BACK_DISPLAY_VELOCITY_RELATIVE_CURL)
 			{
+				// TODO: do not evaluate at solid points
 				if (x == 0 || x == params->wp - 1 || y == 0 || y == params->hp - 1)
 					return 0.0;
-				const double curl = (curFrame->u(x + 1, y).y - curFrame->u(x - 1, y).y) / params->get_dx() - (curFrame->u(x, y + 1).x - curFrame->u(x, y - 1).x) / params->get_dy();
+				const double curl = (curFrame->u(x + 1, y).y - curFrame->u(x - 1, y).y) / params->get_dx() / 2 - (curFrame->u(x, y + 1).x - curFrame->u(x, y - 1).x) / params->get_dy() / 2;
 				if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL)
 					return curl;
 				const double vel = (4 * curFrame->u(x, y).len() + curFrame->u(x - 1, y).len() + curFrame->u(x + 1, y).len() + curFrame->u(x, y - 1).len() + curFrame->u(x, y + 1).len()) / 8;
@@ -361,6 +362,15 @@ void DisplayArea::drawContent()
 			{
 				return curFrame->p(x, y);
 			}
+			else if (backDisplayMode == BACK_DISPLAY_VELOCITY_DIV)
+			{
+				// TODO: do not evaluate at solid points
+				if (x == 0 || x == params->wp - 1 || y == 0 || y == params->hp - 1)
+					return 0.0;
+				const double div = (curFrame->u(x + 1, y).x - curFrame->u(x - 1, y).x) / params->get_dx() / 2 + (curFrame->u(x, y + 1).y - curFrame->u(x, y - 1).y) / params->get_dy() / 2;
+				return div;
+			}
+			
 			return 0.0;
 		};
 

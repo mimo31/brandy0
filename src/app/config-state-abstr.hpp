@@ -21,7 +21,8 @@ class ConfigStateAbstr
 public:
 	std::unique_ptr<SimulatorParams> params;
 
-	ListenerManager paramsSwapListeners;
+	ListenerManager initListeners;
+	ListenerManager closeListeners;
 	ListenerManager dimensionsChangeListeners;
 	ListenerManager shapeStackChangeListeners;
 	ListenerManager validityChangeListeners;

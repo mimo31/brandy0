@@ -21,17 +21,19 @@ struct BackDisplayMode
 	}
 };
 
-constexpr uint32_t BACK_DISPLAY_MODE_COUNT = 5;
+constexpr uint32_t BACK_DISPLAY_MODE_COUNT = 6;
 const BackDisplayMode BACK_DISPLAY_MODES[BACK_DISPLAY_MODE_COUNT] = { 
 	BackDisplayMode("none"), BackDisplayMode("velocity magnitude"),
 	BackDisplayMode("vorticity"), BackDisplayMode("relative vorticity"),
-    BackDisplayMode("pressure")
+    BackDisplayMode("pressure"),
+	BackDisplayMode("velocity divergence")
 	};
 constexpr uint32_t BACK_DISPLAY_NONE = 0;
 constexpr uint32_t BACK_DISPLAY_VELOCITY_MAGNITUDE = 1;
 constexpr uint32_t BACK_DISPLAY_VELOCITY_CURL = 2;
 constexpr uint32_t BACK_DISPLAY_VELOCITY_RELATIVE_CURL = 3;
 constexpr uint32_t BACK_DISPLAY_PRESSURE = 4;
+constexpr uint32_t BACK_DISPLAY_VELOCITY_DIV = 5;
 constexpr uint32_t BACK_DISPLAY_MODE_DEFAULT = BACK_DISPLAY_VELOCITY_MAGNITUDE;
 
 struct FrontDisplayMode

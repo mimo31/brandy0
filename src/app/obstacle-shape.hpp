@@ -66,7 +66,8 @@ public:
 class ObstacleEllipse : public ObstacleShape
 {
 private:
-    vec2d p0, p1;
+	vec2d center;
+	double xhaxis, yhaxis;
 
 public:
     ObstacleEllipse(const bool negative, const vec2d& p0, const vec2d& p1);

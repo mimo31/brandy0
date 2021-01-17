@@ -27,6 +27,11 @@ private:
 
 	ConfigStateAbstr *parent;
 
+	sigc::connection redrawConnection;
+
+	vec2d mouseCoors;
+	bool mouseInside;
+
     void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
     void get_preferred_height_vfunc(int& minimum_height, int& natural_height) const override;
     void get_preferred_height_for_width_vfunc(int width, int& minimum_height, int& natural_height) const override;
@@ -39,7 +44,14 @@ private:
 	uint32_t getWidth() const;
 	uint32_t getHeight() const;
 
+	vec2d widgetToUnitCoors(const vec2d wCoors);
+
 	bool clickHandler(GdkEventButton *event);
+	bool motionHandler(GdkEventMotion *event);
+	bool leaveHandler(GdkEventCrossing *event);
+
+	void activateRefresher();
+	void deactivateRefresher();
 
 	void refresh();
 
