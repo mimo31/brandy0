@@ -20,6 +20,25 @@
 namespace brandy0
 {
 
+struct AddShapeMode
+{
+	std::string name;
+
+	AddShapeMode(const std::string name) : name(name)
+	{
+	}
+};
+
+constexpr uint32_t ADD_SHAPE_MODE_COUNT = 4;
+const AddShapeMode ADD_SHAPE_MODES[ADD_SHAPE_MODE_COUNT] = {
+	AddShapeMode("rectangle"), AddShapeMode("polygon"), AddShapeMode("circle"), AddShapeMode("ellipse")
+};
+constexpr uint32_t ADD_SHAPE_RECTANGLE = 0;
+constexpr uint32_t ADD_SHAPE_POLYGON = 1;
+constexpr uint32_t ADD_SHAPE_CIRCLE = 2;
+constexpr uint32_t ADD_SHAPE_ELLIPSE = 3;
+constexpr uint32_t ADD_SHAPE_MODE_DEFAULT = ADD_SHAPE_RECTANGLE;
+
 class ObstacleShape
 {
 protected:
@@ -71,17 +90,11 @@ private:
 
 public:
     ObstacleEllipse(const bool negative, const vec2d& p0, const vec2d& p1);
+	ObstacleEllipse(const bool negative, const vec2d& center, const double xhaxis, const double yhaxis);
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
 	void fill(Grid<bool>& grid) const override;
 };
-
-/*class ObstacleCircle : public ObstacleEllipse
-{
-
-public:
-    ObstacleCircle(const vec2d& center, const double r);
-};*/
 
 class ObstaclePolygon : public ObstacleShape
 {
@@ -93,6 +106,18 @@ public:
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
 	void fill(Grid<bool>& grid) const override;
+};
+
+class ObstacleRectangle : public ObstaclePolygon
+{
+public:
+	ObstacleRectangle(const bool negative, const vec2d v0, const vec2d v1);
+};
+
+class ObstacleCircle : public ObstacleEllipse
+{
+public:
+	ObstacleCircle(const bool negative, const vec2d center, const vec2d v1, const double physW, const double physH);
 };
 
 }

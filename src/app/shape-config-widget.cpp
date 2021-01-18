@@ -13,8 +13,8 @@
 namespace brandy0
 {
 
-ShapeConfigWidget::ShapeConfigWidget(ConfigStateAbstr *parent)
-	: parent(parent), mouseInside(false)
+ShapeConfigWidget::ShapeConfigWidget(ConfigStateAbstr *const parent, ShapeConfigWindowAbstr *const parentWindow)
+	: parent(parent), parentWindow(parentWindow), mouseInside(false)
 {
 	set_has_window();
 	set_hexpand();
@@ -24,6 +24,7 @@ ShapeConfigWidget::ShapeConfigWidget(ConfigStateAbstr *parent)
 	parent->closeListeners.plug([this](){ deactivateRefresher(); });
 	parent->shapeStackChangeListeners.plug([this](){ refresh(); });
 	parent->dimensionsChangeListeners.plug([this](){ refresh(); });
+	parentWindow->nextShapeChangeListeners.plug([this](){ refresh(); });
 }
 
 constexpr uint32_t MINIMUM_WIDTH = 32;
@@ -123,11 +124,34 @@ void lineTo(const Cairo::RefPtr<Cairo::Context>& cr, const vec2d v)
 	cr->line_to(v.x, v.y);
 }
 
+void ShapeConfigWidget::markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const std::vector<vec2d> ps) const
+{
+	const cairo_matrix_t fullCoors = cr->get_matrix();
+	cairo_matrix_t baseInv = baseCoors;
+	cairo_matrix_invert(&baseInv);
+	cairo_matrix_t transMat;
+	cairo_matrix_multiply(&transMat, &fullCoors, &baseInv);
+	cr->set_matrix(baseCoors);
+	const double rad = std::min(getWidth(), getHeight()) / 128.0;
+	for (vec2d p : ps)
+	{
+		cairo_matrix_transform_point(&transMat, &p.x, &p.y);
+		cr->move_to(p.x + rad, p.y + rad / 2);
+		cr->line_to(p.x + rad, p.y - rad / 2);
+		cr->line_to(p.x - rad, p.y + rad / 2);
+		cr->line_to(p.x - rad, p.y - rad / 2);
+		cr->close_path();
+		cr->fill();
+	}
+}
+
+void ShapeConfigWidget::markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec2d p) const
+{
+	markPoints(cr, baseCoors, std::vector<vec2d>{ p });
+}
+
 bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-	cr->set_source_rgba(1, .9, .9, 1);
-	cr->paint();
-
 	const uint32_t sw = getWidth(), sh = getHeight();
 	const double w = parent->params->w, h = parent->params->h;
 	const uint32_t wp = parent->params->wp, hp = parent->params->hp;
@@ -169,13 +193,20 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	Grid<bool> solid(wp, hp);
 	parent->params->shapeStack.set(solid);
 
-	std::vector<vec2d> tempPoly = nextPolygonVertices;
+	std::vector<vec2d> tempShape = parentWindow->nextShapeClicks;
 	if (mouseInside)
-		tempPoly.push_back(mouseCoors);
+		tempShape.push_back(mouseCoors);
 	Grid<bool> tempSolid(wp, hp);
 	tempSolid.set_all(false);
-	if (tempPoly.size() >= 3)
-		ObstaclePolygon(false, tempPoly).fill(tempSolid);
+	const uint32_t mode = parentWindow->addShapeMode;
+	if (mode == ADD_SHAPE_RECTANGLE && tempShape.size() == 2)
+		ObstacleRectangle(false, tempShape[0], tempShape[1]).fill(tempSolid);
+	else if (mode == ADD_SHAPE_POLYGON && tempShape.size() >= 3)
+		ObstaclePolygon(false, tempShape).fill(tempSolid);
+	else if (mode == ADD_SHAPE_CIRCLE && tempShape.size() == 2)
+		ObstacleCircle(false, tempShape[0], tempShape[1], w, h).fill(tempSolid);
+	else if (mode == ADD_SHAPE_ELLIPSE && tempShape.size() == 2)
+		ObstacleEllipse(false, tempShape[0], tempShape[1]).fill(tempSolid);
 
 	const double dx = 1 / double(wp - 1) / 2;
 	const double dy = 1 / double(hp - 1) / 2;
@@ -231,54 +262,125 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	
 	cr->set_source_rgba(.5, .5, .5, .5);
 
-	if (tempPoly.size() >= 3)
+	if (mode == ADD_SHAPE_RECTANGLE)
 	{
-		const vec2d v0 = tempPoly[0];
-		cr->move_to(v0.x, v0.y);
-		for (uint32_t i = 0; i < tempPoly.size(); i++)
+		if (tempShape.size() == 2)
 		{
-			const vec2d v = tempPoly[i];
-			cr->line_to(v.x, v.y);
+			const vec2d v0 = tempShape[0], v2 = tempShape[1];
+			const vec2d v1(v0.x, v2.y), v3(v2.x, v0.y);
+			moveTo(cr, v0);
+			lineTo(cr, v1);
+			lineTo(cr, v2);
+			lineTo(cr, v3);
+			cr->close_path();
+			cr->fill();
 		}
+		else if (tempShape.size() == 1)
+			markPoint(cr, baseCoors, tempShape[0]);
+	}
+	else if (mode == ADD_SHAPE_POLYGON)
+	{
+		if (tempShape.size() >= 3)
+		{
+			const vec2d v0 = tempShape[0];
+			cr->move_to(v0.x, v0.y);
+			for (uint32_t i = 0; i < tempShape.size(); i++)
+			{
+				const vec2d v = tempShape[i];
+				cr->line_to(v.x, v.y);
+			}
+			cr->close_path();
+			cr->fill();
+		}
+		else
+		{
+			const cairo_matrix_t fullCoors = cr->get_matrix();
+			cairo_matrix_t baseInv = baseCoors;
+			cairo_matrix_invert(&baseInv);
+			cairo_matrix_t transMat;
+			cairo_matrix_multiply(&transMat, &fullCoors, &baseInv);
+			cr->set_matrix(baseCoors);
+			const double rad = std::min(sw, sh) / 128.0;
+			for (vec2d v : tempShape)
+			{
+				cairo_matrix_transform_point(&transMat, &v.x, &v.y);
+				cr->move_to(v.x + rad, v.y + rad / 2);
+				cr->line_to(v.x + rad, v.y - rad / 2);
+				cr->line_to(v.x - rad, v.y + rad / 2);
+				cr->line_to(v.x - rad, v.y - rad / 2);
+				cr->close_path();
+				cr->fill();
+			}
+			if (tempShape.size() == 2)
+			{
+				vec2d v0 = tempShape[0], v1 = tempShape[1];
+				cairo_matrix_transform_point(&transMat, &v0.x, &v0.y);
+				cairo_matrix_transform_point(&transMat, &v1.x, &v1.y);
+				const vec2d w = v1 - v0;
+				if (!w.is_zero())
+				{
+					const vec2d sh = w.get_unit().get_lrot() * rad / 8;
+					moveTo(cr, v0 + sh);
+					lineTo(cr, v1 + sh);
+					lineTo(cr, v1 - sh);
+					lineTo(cr, v0 - sh);
+					cr->close_path();
+					cr->fill();
+				}
+			}
+		}
+	}
+	else if (mode == ADD_SHAPE_CIRCLE || mode == ADD_SHAPE_ELLIPSE)
+	{
+		if (tempShape.size() == 2)
+		{
+			const vec2d v0 = tempShape[0], v1 = tempShape[1];
+			const ObstacleEllipse ell = mode == ADD_SHAPE_CIRCLE 
+				? ObstacleCircle(false, v0, v1, w, h)
+				: ObstacleEllipse(false, v0, v1);
+			ell.draw(cr);
+		}
+		if (tempShape.size() >= 1)
+			markPoints(cr, baseCoors, tempShape);
+	}
+
+	cr->set_source_rgba(1, .9, .9, 1);
+	cr->set_matrix(baseCoors);
+	if (sw * h > sh * w)
+	{
+		const double fac = sh * w / (sw * h);
+
+		cr->move_to(0, 0);
+		cr->line_to(sw * (1 - fac) / 2, 0);
+		cr->line_to(sw * (1 - fac) / 2, sh);
+		cr->line_to(0, sh);
+		cr->close_path();
+		cr->fill();
+
+		cr->move_to(sw, 0);
+		cr->line_to(sw - sw * (1 - fac) / 2, 0);
+		cr->line_to(sw - sw * (1 - fac) / 2, sh);
+		cr->line_to(sw, sh);
 		cr->close_path();
 		cr->fill();
 	}
 	else
 	{
-		const cairo_matrix_t fullCoors = cr->get_matrix();
-		cairo_matrix_t baseInv = baseCoors;
-		cairo_matrix_invert(&baseInv);
-		cairo_matrix_t transMat;
-		cairo_matrix_multiply(&transMat, &fullCoors, &baseInv);
-		cr->set_matrix(baseCoors);
-		const double rad = std::min(sw, sh) / 128.0;
-		for (vec2d v : tempPoly)
-		{
-			cairo_matrix_transform_point(&transMat, &v.x, &v.y);
-			cr->move_to(v.x + rad, v.y + rad / 2);
-			cr->line_to(v.x + rad, v.y - rad / 2);
-			cr->line_to(v.x - rad, v.y + rad / 2);
-			cr->line_to(v.x - rad, v.y - rad / 2);
-			cr->close_path();
-			cr->fill();
-		}
-		if (tempPoly.size() == 2)
-		{
-			vec2d v0 = tempPoly[0], v1 = tempPoly[1];
-			cairo_matrix_transform_point(&transMat, &v0.x, &v0.y);
-			cairo_matrix_transform_point(&transMat, &v1.x, &v1.y);
-			const vec2d w = v1 - v0;
-			if (!w.is_zero())
-			{
-				const vec2d sh = w.get_unit().get_lrot() * rad / 8;
-				moveTo(cr, v0 + sh);
-				lineTo(cr, v1 + sh);
-				lineTo(cr, v1 - sh);
-				lineTo(cr, v0 - sh);
-				cr->close_path();
-				cr->fill();
-			}
-		}
+		const double fac = sw * h / (sh * w);
+
+		cr->move_to(0, 0);
+		cr->line_to(0, sh * (1 - fac) / 2);
+		cr->line_to(sw, sh * (1 - fac) / 2);
+		cr->line_to(sw, 0);
+		cr->close_path();
+		cr->fill();
+
+		cr->move_to(0, sh);
+		cr->line_to(0, sh - sh * (1 - fac) / 2);
+		cr->line_to(sw, sh - sh * (1 - fac) / 2);
+		cr->line_to(sw, sh);
+		cr->close_path();
+		cr->fill();
 	}
 
 	return true;
@@ -304,18 +406,43 @@ vec2d ShapeConfigWidget::widgetToUnitCoors(const vec2d wCoors)
 	return vec2d(rx, ry);
 }
 
-bool ShapeConfigWidget::clickHandler(GdkEventButton *event)
+bool ShapeConfigWidget::clickHandler(GdkEventButton *const event)
 {
 	const vec2d uc = widgetToUnitCoors(vec2d(event->x, event->y));
 	if (uc.inside(0, 0, 1, 1))
 	{
-		nextPolygonVertices.push_back(uc);
-		refresh();
+		const uint32_t mode = parentWindow->addShapeMode;
+		if (mode != ADD_SHAPE_POLYGON && parentWindow->nextShapeClicks.size() == 1)
+		{
+			const vec2d v0 = parentWindow->nextShapeClicks[0];
+			parentWindow->nextShapeClicks.clear();
+			if (mode == ADD_SHAPE_RECTANGLE)
+			{
+				const vec2d v1(v0.x, uc.y), v3(uc.x, v0.y);
+				parent->params->shapeStack.push(std::make_shared<ObstaclePolygon>(false, std::vector<vec2d>{ v0, v1, uc, v3 }));
+				parent->shapeStackChangeListeners.invoke();
+			}
+			else if (mode == ADD_SHAPE_ELLIPSE)
+			{
+				parent->params->shapeStack.push(std::make_shared<ObstacleEllipse>(false, v0, uc));
+				parent->shapeStackChangeListeners.invoke();
+			}
+			else if (mode == ADD_SHAPE_CIRCLE)
+			{
+				const vec2d v = uc - v0;
+				const double r = sqrt(parent->params->w * v.x * parent->params->w * v.x + parent->params->h * v.y * parent->params->h * v.y);
+				parent->params->shapeStack.push(std::make_shared<ObstacleEllipse>(false, v0, r / parent->params->w, r / parent->params->h));
+				parent->shapeStackChangeListeners.invoke();
+			}
+		}
+		else
+			parentWindow->nextShapeClicks.push_back(uc);
+		parentWindow->nextShapeChangeListeners.invoke();
 	}
 	return true;
 }
 
-bool ShapeConfigWidget::motionHandler(GdkEventMotion *event)
+bool ShapeConfigWidget::motionHandler(GdkEventMotion *const event)
 {
 	const vec2d uc = widgetToUnitCoors(vec2d(event->x, event->y));
 	mouseInside = uc.inside(0, 0, 1, 1);
@@ -324,7 +451,7 @@ bool ShapeConfigWidget::motionHandler(GdkEventMotion *event)
 	return true;
 }
 
-bool ShapeConfigWidget::leaveHandler(GdkEventCrossing * /*event*/)
+bool ShapeConfigWidget::leaveHandler(GdkEventCrossing *const /*event*/)
 {
 	mouseInside = false;
 	return true;
@@ -343,13 +470,6 @@ void ShapeConfigWidget::deactivateRefresher()
 void ShapeConfigWidget::refresh()
 {
 	queue_draw();
-}
-
-void ShapeConfigWidget::submitCurrentPolygon()
-{
-	parent->params->shapeStack.push(std::make_shared<ObstaclePolygon>(false, nextPolygonVertices));
-	nextPolygonVertices.clear();
-	parent->shapeStackChangeListeners.invoke();
 }
 
 }

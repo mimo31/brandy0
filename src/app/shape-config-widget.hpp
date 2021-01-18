@@ -13,6 +13,7 @@
 
 #include "config-state-abstr.hpp"
 #include "obstacle-shape.hpp"
+#include "shape-config-window-abstr.hpp"
 #include "simulator-params.hpp"
 
 namespace brandy0
@@ -21,11 +22,10 @@ namespace brandy0
 class ShapeConfigWidget : public Gtk::Widget
 {
 private:
-	std::vector<vec2d> nextPolygonVertices;
-
     Glib::RefPtr<Gdk::Window> win;
 
 	ConfigStateAbstr *parent;
+	ShapeConfigWindowAbstr *parentWindow;
 
 	sigc::connection redrawConnection;
 
@@ -39,6 +39,8 @@ private:
     void on_size_allocate(Gdk::Rectangle& allocation) override;
     void on_realize() override;
     void on_unrealize() override;
+	void markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const std::vector<vec2d> ps) const;
+	void markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec2d p) const;
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
 	uint32_t getWidth() const;
@@ -46,9 +48,9 @@ private:
 
 	vec2d widgetToUnitCoors(const vec2d wCoors);
 
-	bool clickHandler(GdkEventButton *event);
-	bool motionHandler(GdkEventMotion *event);
-	bool leaveHandler(GdkEventCrossing *event);
+	bool clickHandler(GdkEventButton *const event);
+	bool motionHandler(GdkEventMotion *const event);
+	bool leaveHandler(GdkEventCrossing *const event);
 
 	void activateRefresher();
 	void deactivateRefresher();
@@ -56,9 +58,7 @@ private:
 	void refresh();
 
 public:
-    ShapeConfigWidget(ConfigStateAbstr *parent);
-
-	void submitCurrentPolygon();
+    ShapeConfigWidget(ConfigStateAbstr *const parent, ShapeConfigWindowAbstr *const parentWindow);
 };
 
 }

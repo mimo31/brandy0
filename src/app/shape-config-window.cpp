@@ -11,10 +11,11 @@
 namespace brandy0
 {
 
-void ShapeConfigWindow::updateUndoRedoSensitivity()
+void ShapeConfigWindow::updateGeneralSensitivity()
 {
 	undoButton.set_sensitive(parent->params->shapeStack.canUndo());
 	redoButton.set_sensitive(parent->params->shapeStack.canRedo());
+	clearAllButton.set_sensitive(!parent->params->shapeStack.empty());
 }
 
 void ShapeConfigWindow::setEntryFields()
@@ -24,16 +25,49 @@ void ShapeConfigWindow::setEntryFields()
 	heightEntry.setText(std::to_string(params->h));
 }
 
+void ShapeConfigWindow::updateAddShapeWidgets()
+{
+	if (addShapeMode == ADD_SHAPE_POLYGON)
+	{
+		polygonVerticesLabel.pseudoShow();
+		const uint32_t vertSet = nextShapeClicks.size();
+		const std::string labelText = std::to_string(vertSet) + " " + (vertSet == 1 ? "vertex" : "vertices") + " set";
+		polygonVerticesLabel.set_text(labelText);
+		polygonPopVertexButton.pseudoShow();
+		polygonPopVertexButton.set_sensitive(vertSet != 0);
+		polygonFinishButton.pseudoShow();
+		polygonFinishButton.set_sensitive(vertSet >= 3);
+	}
+	else
+	{
+		polygonVerticesLabel.pseudoHide();
+		polygonPopVertexButton.pseudoHide();
+		polygonFinishButton.pseudoHide();
+	}
+
+	addingShapeFrame.set_label("current " + ADD_SHAPE_MODES[addShapeMode].name);
+	clearShapeButton.set_sensitive(!nextShapeClicks.empty());
+}
+
 ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
     : BrandyWindow(1280, 720),
-    widthEntry("width"),
-    heightEntry("height"),
+	dimensionsFrame("physical dimensions"),
+    widthEntry("width:"),
+    heightEntry("height:"),
+	addingShapeLabel("adding shape"),
+	addingShapeFrame("current rectangle"),
+	clearShapeButton("clear"),
+	generalFrame("general controls"),
     undoButton("undo"),
     redoButton("redo"),
-	polygonDoneButton("done"),
-	shapeWidget(parent),
+	clearAllButton("clear all (can't undo!)"),
+	shapeWidget(parent, this),
 	parent(parent)
 {
+	polygonVerticesLabel.set_text("0 vertices set");
+	polygonPopVertexButton.set_label("pop vertex");
+	polygonFinishButton.set_label("finish");
+
 	widthEntry.hookInputHandler([this, parent]()
 			{
 			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulatorParams::DEFAULT_W, SimulatorParams::MIN_W, SimulatorParams::MAX_W);
@@ -57,28 +91,89 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 		parent->params->shapeStack.redo();
 		parent->shapeStackChangeListeners.invoke();
 	});
+	clearAllButton.signal_clicked().connect([parent](){
+		parent->params->shapeStack.clear();
+		parent->shapeStackChangeListeners.invoke();
+	});
 	
 	parent->shapeStackChangeListeners.plug([this](){
-		updateUndoRedoSensitivity();
+		updateGeneralSensitivity();
 	});
 	parent->initListeners.plug([this](){
-		updateUndoRedoSensitivity();
+		nextShapeClicks.clear();
+		addShapeMode = ADD_SHAPE_MODE_DEFAULT;
+		nextShapeChangeListeners.invoke();
+		updateGeneralSensitivity();
 		setEntryFields();
 	});
 	parent->inputValidators.plug([this](){
 		return widthEntry.hasValidInput() && heightEntry.hasValidInput();
 	});
 
-    widthEntry.attachTo(rootGrid, 0, 0);
-    heightEntry.attachTo(rootGrid, 3, 0);
+	for (uint32_t i = 0; i < ADD_SHAPE_MODE_COUNT; i++)
+		shapeSelector.append(ADD_SHAPE_MODES[i].name);
+	shapeSelector.set_active(ADD_SHAPE_MODE_DEFAULT);
+	shapeSelector.signal_changed().connect([this]()
+	{
+		const uint32_t newMode = shapeSelector.get_active_row_number();
+		if (newMode != addShapeMode)
+		{
+			nextShapeClicks.clear();
+			addShapeMode = newMode;
+			nextShapeChangeListeners.invoke();
+		}
+	});
 
-	polygonDoneButton.signal_clicked().connect([this](){ shapeWidget.submitCurrentPolygon(); });
+	nextShapeChangeListeners.plug([this]()
+	{
+		updateAddShapeWidgets();
+	});
 
-    rootGrid.attach(undoButton, 6, 0);
-    rootGrid.attach(redoButton, 7, 0);
-	rootGrid.attach(polygonDoneButton, 8, 0);
+	clearShapeButton.signal_clicked().connect([this]()
+	{
+		nextShapeClicks.clear();
+		nextShapeChangeListeners.invoke();
+	});
+	polygonPopVertexButton.signal_clicked().connect([this, parent]()
+	{
+		if (addShapeMode == ADD_SHAPE_POLYGON && nextShapeClicks.size() != 0)
+		{
+			nextShapeClicks.pop_back();
+			nextShapeChangeListeners.invoke();
+		}
+	});
+	polygonFinishButton.signal_clicked().connect([this, parent]()
+	{
+		if (addShapeMode == ADD_SHAPE_POLYGON && nextShapeClicks.size() >= 3)
+		{
+			parent->params->shapeStack.push(std::make_shared<ObstaclePolygon>(false, nextShapeClicks));
+			nextShapeClicks.clear();
+			nextShapeChangeListeners.invoke();
+		}
+	});
 
-    rootGrid.attach(shapeWidget, 0, 1, 9, 1);
+    widthEntry.attachTo(dimensionsGrid, 0, 0);
+    heightEntry.attachTo(dimensionsGrid, 0, 1);
+	dimensionsFrame.add(dimensionsGrid);
+	rootGrid.attach(dimensionsFrame, 0, 0, 1, 2);
+
+	rootGrid.attach(addingShapeLabel, 1, 0);
+	rootGrid.attach(shapeSelector, 2, 0);
+
+	addingShapeGrid.attach(polygonVerticesLabel, 0, 0, 2, 1);
+	addingShapeGrid.attach(clearShapeButton, 0, 1);
+	addingShapeGrid.attach(polygonPopVertexButton, 1, 1);
+	addingShapeGrid.attach(polygonFinishButton, 0, 2, 2, 1);
+	addingShapeFrame.add(addingShapeGrid);
+	rootGrid.attach(addingShapeFrame, 1, 1, 2, 1);
+
+	generalGrid.attach(undoButton, 0, 0);
+	generalGrid.attach(redoButton, 0, 1);
+	generalGrid.attach(clearAllButton, 0, 2);
+	generalFrame.add(generalGrid);
+	rootGrid.attach(generalFrame, 3, 0, 1, 2);
+
+	rootGrid.attach(shapeWidget, 0, 2, 4, 1);
 	shapeWidget.show();
     
     add(rootGrid);

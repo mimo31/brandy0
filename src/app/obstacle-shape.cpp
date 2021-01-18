@@ -99,13 +99,18 @@ ObstacleEllipse::ObstacleEllipse(const bool negative, const vec2d& p0, const vec
 {
 }
 
+ObstacleEllipse::ObstacleEllipse(const bool negative, const vec2d& center, const double xhaxis, const double yhaxis)
+	: ObstacleShape(negative), center(center), xhaxis(xhaxis), yhaxis(yhaxis)
+{
+}
+
 void ObstacleEllipse::fill(Grid<bool>& grid) const
 {
 	for (uint32_t y = 0; y < grid.h; y++)
 	{
 		for (uint32_t x = 0; x < grid.w; x++)
 		{
-			const vec2d crs(x / (grid.w - 1), y / (grid.h - 1));
+			const vec2d crs(x / double(grid.w - 1), y / double(grid.h - 1));
 			const vec2d rel = crs - center;
 			const bool inside = (rel.x / xhaxis) * (rel.x / xhaxis) + (rel.y / yhaxis) * (rel.y / yhaxis) < 1;
 			grid(x, y) = grid(x, y) || inside;
@@ -115,19 +120,16 @@ void ObstacleEllipse::fill(Grid<bool>& grid) const
 
 void ObstacleEllipse::draw(const Cairo::RefPtr<Cairo::Context>& cr) const
 {
-	const cairo_matrix_t origMat = cr->get_matrix();
-	cr->translate(center.x, center.y);
-	cr->scale(xhaxis, yhaxis);
-	cr->arc(0, 0, 1, 0, 2 * M_PI);
-	cr->fill();
-	cr->set_matrix(origMat);
+	if (xhaxis != 0 && yhaxis != 0)
+	{
+		const cairo_matrix_t origMat = cr->get_matrix();
+		cr->translate(center.x, center.y);
+		cr->scale(xhaxis, yhaxis);
+		cr->arc(0, 0, 1, 0, 2 * M_PI);
+		cr->fill();
+		cr->set_matrix(origMat);
+	}
 }
-
-/*
-ObstacleCircle::ObstacleCircle(const vec2d& center, const double r)
-    : ObstacleEllipse(center - vec2d(r, r), center + vec2d(r, r))
-{
-}*/
 
 ObstaclePolygon::ObstaclePolygon(const bool negative, const std::vector<vec2d>& ps)
     : ObstacleShape(negative), ps(ps)
@@ -182,6 +184,18 @@ void ObstaclePolygon::fill(Grid<bool>& grid) const
 			grid(x, y) = grid(x, y) || inside;
 		}
 	}
+}
+
+ObstacleRectangle::ObstacleRectangle(const bool negative, const vec2d v0, const vec2d v1)
+	: ObstaclePolygon(negative, std::vector<vec2d>{ v0, vec2d(v0.x, v1.y), v1, vec2d(v1.x, v0.y) })
+{
+}
+
+ObstacleCircle::ObstacleCircle(const bool negative, const vec2d center, const vec2d v1, const double physW, const double physH)
+	: ObstacleEllipse(negative, center,
+		sqrt((v1 - center).x * (v1 - center).x * physW * physW + (v1 - center).y * (v1 - center).y * physH * physH) / physW,
+		sqrt((v1 - center).x * (v1 - center).x * physW * physW + (v1 - center).y * (v1 - center).y * physH * physH) / physH)
+{
 }
 
 }
