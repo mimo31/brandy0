@@ -15,6 +15,7 @@
 
 #include "application.hpp"
 #include "config-window.hpp"
+#include "export-window.hpp"
 #include "simulation-state-abstr.hpp"
 #include "simulation-window.hpp"
 #include "simulator.hpp"
@@ -31,7 +32,8 @@ class SimulationState : public State, public SimulationStateAbstr
 {
 private:
 	ApplicationAbstr *app;
-	std::unique_ptr<SimulationWindow> win;
+	std::unique_ptr<SimulationWindow> mainWin;
+	std::unique_ptr<ExportWindow> exportWin;
 	std::unique_ptr<Simulator> sim;
 	vec<SimFrame> frames;
 	std::thread computeThread;
@@ -45,7 +47,8 @@ private:
 	uint32_t computedIter;
 	sigc::connection redrawConnection;
 
-	void showWindow();
+	void showMainWindow();
+	void showExportWindow();
 	void checkCapacity();
 	void addLastFrame();
 	double getTime(const uint32_t frame);
@@ -53,13 +56,19 @@ private:
 	void startComputeThread();
 	bool update();
 
+	void updateComputedTime();
+
 public:
 	SimulationState(ApplicationAbstr *const);
 	void activate(const SimulatorParams&);
 	void deactivate();
+	
 	void goBackToConfig() override;
 	void pauseComputation() override;
 	void resumeComputation() override;
+	void enterVideoExport() override;
+	void leaveVideoExport() override;
+
 	bool isComputing() override;
 	uint32_t getFramesStored() override;
 	uint32_t getComputedIter() override;

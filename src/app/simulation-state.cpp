@@ -16,7 +16,9 @@ namespace brandy0
 {
 
 SimulationState::SimulationState(ApplicationAbstr *const app)
-	: app(app), win(std::make_unique<SimulationWindow>(this))
+	: app(app),
+	mainWin(std::make_unique<SimulationWindow>(this)),
+	exportWin(std::make_unique<ExportWindow>(this))
 {
 }
 
@@ -29,6 +31,7 @@ void SimulationState::activate(const SimulatorParams& params)
 	editingTime = false;
 	playbackPaused = false;
 	playbackSpeedup = 1;
+	inVideoExport = false;
 	frames.clear();
 	this->params = std::make_unique<SimulatorParams>(params);
 	sim = std::make_unique<SimulatorClassic>(params);
@@ -39,7 +42,7 @@ void SimulationState::activate(const SimulatorParams& params)
 	initListeners.invoke();
 	resumeComputation();
 	redrawConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::update), 40);
-	showWindow();
+	showMainWindow();
 }
 
 void SimulationState::deactivate()
@@ -51,7 +54,7 @@ void SimulationState::deactivate()
 	if (computeThread.joinable())
 		computeThread.join();
 	redrawConnection.disconnect();
-	win->hide();
+	mainWin->hide();
 }
 
 void SimulationState::goBackToConfig()
@@ -83,6 +86,26 @@ void SimulationState::resumeComputation()
 		computingSwitchListeners.invoke();
 }
 
+void SimulationState::enterVideoExport()
+{
+	inVideoExport = true;
+	pauseComputation();
+	playbackPaused = true;
+	playbackStateChangeListeners.invoke();
+	updateComputedTime();
+	videoExportStartTime = 0;
+	videoExportEndTime = computedTime;
+	videoExportPlaybackSpeedup = 1;
+	videoExportEnterListeners.invoke();
+	showExportWindow();
+}
+
+void SimulationState::leaveVideoExport()
+{
+	inVideoExport = false;
+	exportWin->hide();
+}
+
 bool SimulationState::isComputing()
 {
 	computingMutex.lock();
@@ -107,10 +130,16 @@ uint32_t SimulationState::getComputedIter()
 	return ret;
 }
 
-void SimulationState::showWindow()
+void SimulationState::showMainWindow()
 {
-	app->addWindow(*win);
-	win->show();
+	app->addWindow(*mainWin);
+	mainWin->show();
+}
+
+void SimulationState::showExportWindow()
+{
+	app->addWindow(*exportWin);
+	exportWin->show();
 }
 
 void SimulationState::checkCapacity()
@@ -208,10 +237,15 @@ void SimulationState::startComputeThread()
 	});
 }
 
+void SimulationState::updateComputedTime()
+{
+	computedTime = (frames.size() - 1) * frameStepSize * params->stepsPerFrame * params->dt;
+}
+
 bool SimulationState::update()
 {
 	framesMutex.lock();
-	computedTime = (frames.size() - 1) * frameStepSize * params->stepsPerFrame * params->dt;
+	updateComputedTime();
 	if (!editingTime && !playbackPaused)
 	{
 		if (playbackMode == PlaybackMode::PLAY_UNTIL_END || playbackMode == PlaybackMode::LOOP)
@@ -235,7 +269,7 @@ bool SimulationState::update()
 
 	framesMutex.unlock();
 
-	win->update();
+	mainWin->update();
 	return true;
 }
 

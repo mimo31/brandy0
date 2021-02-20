@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}
 	config-window.cpp
 	conv-utils.cpp
 	display-area.cpp
+	export-window.cpp
 	listener-manager.cpp
 	main.cpp
 	obstacle-shape.cpp
@@ -20,6 +21,7 @@ add_executable(${PROJECT_NAME}
 	simulator-classic.cpp
 	start-state.cpp
 	start-window.cpp
+	styles.cpp
 	validator-manager.cpp
 	validity-indicator.cpp
 	${CMAKE_CURRENT_BINARY_DIR}/shaders/gresources.c

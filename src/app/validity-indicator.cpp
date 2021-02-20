@@ -6,13 +6,12 @@
  */
 #include "validity-indicator.hpp"
 
+#include "styles.hpp"
+
 namespace brandy0
 {
 
 const Gtk::IconSize iconSize = Gtk::BuiltinIconSize::ICON_SIZE_MENU;
-
-bool stylesInit = false;
-Glib::RefPtr<Gtk::CssProvider> redStyle, greenStyle, darkGreenStyle;
 
 ValidityIndicator::ValidityIndicator()
 	: message("(default)"),
@@ -21,21 +20,9 @@ ValidityIndicator::ValidityIndicator()
 	set_valign(Gtk::ALIGN_CENTER);
 	icon = new Gtk::Image("dialog-ok", iconSize);
 
-	if (!stylesInit)
-	{
-		redStyle = Gtk::CssProvider::create();
-		redStyle->load_from_data("label {color: red}");
+	Styles::requestInit();
 
-		greenStyle = Gtk::CssProvider::create();
-		greenStyle->load_from_data("label {color: green}");
-
-		darkGreenStyle = Gtk::CssProvider::create();
-		darkGreenStyle->load_from_data("label {color: darkgreen}");
-
-		stylesInit = true;
-	}
-
-	currentStyle = darkGreenStyle;
+	currentStyle = Styles::darkGreenStyle;
 	message.get_style_context()->add_provider(currentStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
 	message.set_width_chars(30);
@@ -83,7 +70,7 @@ void ValidityIndicator::setOk()
 	if (state == IndicatorState::OK)
 		return;
 	message.set_text("ok");
-	changeStyle(greenStyle);
+	changeStyle(Styles::greenStyle);
 	if (state == IndicatorState::INVALID)
 	{
 		setOkIcon();
@@ -96,7 +83,7 @@ void ValidityIndicator::setDefault()
 	if (state == IndicatorState::DEFAULT)
 		return;
 	message.set_text("(default)");
-	changeStyle(darkGreenStyle);
+	changeStyle(Styles::darkGreenStyle);
 	if (state == IndicatorState::INVALID)
 	{
 		setOkIcon();
@@ -110,7 +97,7 @@ void ValidityIndicator::setInvalid(const std::string& message)
 	if (state != IndicatorState::INVALID)
 	{
 		setInvalidIcon();
-		changeStyle(redStyle);
+		changeStyle(Styles::redStyle);
 		state = IndicatorState::INVALID;
 	}
 }

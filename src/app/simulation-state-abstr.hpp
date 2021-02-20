@@ -24,6 +24,7 @@ enum PlaybackMode
 class SimulationStateAbstr
 {
 public:
+	static constexpr double MAX_PLAYBACK_SPEEDUP = 1000;
 	static const PlaybackMode defaultPlaybackMode = PlaybackMode::PLAY_UNTIL_END;
 	std::unique_ptr<SimulatorParams> params;
 	std::unique_ptr<SimFrame> curFrame;
@@ -34,8 +35,17 @@ public:
 	ListenerManager playbackModeChangeListeners;
 	ListenerManager closeListeners;
 
+	ListenerManager videoExportEnterListeners;
+	ListenerManager vexpStartTimeChangeListeners;
+	ListenerManager vexpEndTimeChangeListeners;
+	ListenerManager vexpPlaybackSpeedupChangeListeners;
+
 	double time;
 	double computedTime;
+
+	double videoExportStartTime;
+	double videoExportEndTime;
+	double videoExportPlaybackSpeedup;
 
 	uint32_t backDisplayMode;
 	uint32_t frontDisplayMode;
@@ -48,9 +58,15 @@ public:
 
 	double playbackSpeedup;
 
+	bool inVideoExport;
+
 	virtual void goBackToConfig() = 0;
 	virtual void pauseComputation() = 0;
 	virtual void resumeComputation() = 0;
+
+	virtual void enterVideoExport() = 0;
+	virtual void leaveVideoExport() = 0;
+
 	virtual bool isComputing() = 0;
 	virtual uint32_t getFramesStored() = 0;
 	virtual uint32_t getComputedIter() = 0;

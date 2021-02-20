@@ -19,7 +19,8 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	playbackFrame("playback"),
 	playPauseButton("pause"),
 	viewFrame("visuals"),
-	backDisplayLabel("background visual"), frontDisplayLabel("foreground visual")
+	backDisplayLabel("background visual"), frontDisplayLabel("foreground visual"),
+	videoExportButton("export video")
 {
 	mainGrid.attach(dArea, 0, 0, 1, 1);
 
@@ -101,9 +102,8 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	playbackSpeedScale.set_has_origin(false);
 	playbackSpeedScale.signal_value_changed().connect([this, parent]
 	{
-		constexpr double maxmult = 1000;
 		const double scaleval = playbackSpeedScale.get_value();
-		const double mult = exp(log(maxmult) * scaleval);
+		const double mult = exp(log(parent->MAX_PLAYBACK_SPEEDUP) * scaleval);
 		parent->playbackSpeedup = mult;
 	});
 
@@ -125,6 +125,7 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	panelGrid.attach(computingFrame, 1, 0);
 	panelGrid.attach(playbackFrame, 2, 0);
 	panelGrid.attach(viewFrame, 3, 0);
+	panelGrid.attach(videoExportButton, 4, 0);
 
 	mainGrid.attach(panelGrid, 0, 1);
 
@@ -167,6 +168,11 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 
 	parent->playbackModeChangeListeners.plug([this]{
 		updatePlaybackModeSelector();
+	});
+
+	videoExportButton.signal_clicked().connect([this, parent]
+	{
+		parent->enterVideoExport();
 	});
 }
 

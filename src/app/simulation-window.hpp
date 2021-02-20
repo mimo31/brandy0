@@ -63,6 +63,8 @@ private:
 	Gtk::Label backDisplayLabel, frontDisplayLabel;
 	Gtk::ComboBoxText backDisplaySelector, frontDisplaySelector;
 
+	Gtk::Button videoExportButton;
+
 	void updateStats();
 	void updatePlaybackModeSelector();
 
