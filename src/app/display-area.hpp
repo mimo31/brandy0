@@ -15,6 +15,7 @@
 
 #include "display-modes.hpp"
 #include "sim-frame.hpp"
+#include "simulation-state-abstr.hpp"
 #include "simulator-params.hpp"
 #include "vec2d.hpp"
 
@@ -45,11 +46,15 @@ typedef std::vector<UniformLoc> UniformLocVec;
 class DisplayArea : public Gtk::GLArea
 {
 private:
+	SimulationStateAbstr *parent;
+
+	double w, h;
+	uint32_t wp, hp;
+	double dx, dy;
+
 	Glib::RefPtr<Gdk::GLContext> glContext;
 
-	const SimulatorParams *params;
 	Grid<bool> solid;
-	SimFrame *curFrame;
 
 	GLuint glWhiteProgram = 0;
 	GLuint glWhiteMat = 0;
@@ -59,9 +64,6 @@ private:
 	GLuint glWhiteVbo = 0;
 	GLuint glPaintVao = 0;
 	GLuint glPaintVbo = 0;
-
-	uint32_t backDisplayMode = BACK_DISPLAY_MODE_DEFAULT;
-	uint32_t frontDisplayMode = FRONT_DISPLAY_MODE_DEFAULT;
 
 	void realize();
 	void unrealize();
@@ -81,13 +83,8 @@ private:
 	void addArrow(std::vector<LineSegment>& segs, const vec2d& pos);
 	void drawContent();
 
-
 public:
-	DisplayArea();
-	void setParams(const SimulatorParams *const);
-	void setCurFrame(const SimFrame& curFrame);
-	void setBackDisplayMode(const uint32_t backMode);
-	void setFrontDisplayMode(const uint32_t frontMode);
+	DisplayArea(SimulationStateAbstr *const parent);
 	void redraw();
 };
 

@@ -15,6 +15,7 @@
 
 #include "application.hpp"
 #include "config-window.hpp"
+#include "simulation-state-abstr.hpp"
 #include "simulation-window.hpp"
 #include "simulator.hpp"
 #include "simulator-params.hpp"
@@ -26,13 +27,12 @@ namespace brandy0
 template<typename T>
 using vec = std::vector<T>;
 
-class SimulationState : public State
+class SimulationState : public State, public SimulationStateAbstr
 {
 private:
 	ApplicationAbstr *app;
-	SimulationWindow *win;
-	SimulatorParams *params;
-	Simulator *sim;
+	std::unique_ptr<SimulationWindow> win;
+	std::unique_ptr<Simulator> sim;
 	vec<SimFrame> frames;
 	std::thread computeThread;
 	std::thread redrawThread;
@@ -42,10 +42,9 @@ private:
 	std::mutex framesMutex;
 	uint32_t frameCount;
 	uint32_t frameStepSize;
-	double time;
+	uint32_t computedIter;
 	sigc::connection redrawConnection;
 
-	void setParams(const SimulatorParams&);
 	void showWindow();
 	void checkCapacity();
 	void addLastFrame();
@@ -58,7 +57,12 @@ public:
 	SimulationState(ApplicationAbstr *const);
 	void activate(const SimulatorParams&);
 	void deactivate();
-	~SimulationState();
+	void goBackToConfig() override;
+	void pauseComputation() override;
+	void resumeComputation() override;
+	bool isComputing() override;
+	uint32_t getFramesStored() override;
+	uint32_t getComputedIter() override;
 };
 
 }

@@ -17,12 +17,15 @@
 #include <gtkmm/grid.h>
 #include <gtkmm/image.h>
 #include <gtkmm/label.h>
+#include <gtkmm/scale.h>
+#include <gtkmm/switch.h>
 
 #include "glob.hpp"
 
 #include "brandy-window.hpp"
 #include "display-area.hpp"
 #include "sim-frame.hpp"
+#include "simulation-state-abstr.hpp"
 #include "simulator-params.hpp"
 
 namespace brandy0
@@ -31,27 +34,41 @@ namespace brandy0
 class SimulationWindow : public BrandyWindow
 {
 private:
+	SimulationStateAbstr *parent;
+
 	DisplayArea dArea;
 	Gtk::Grid mainGrid;
+
 	Gtk::Grid panelGrid;
+	
 	Gtk::Button toConfigButton;
-	Gtk::Label timeLabel;
-	Gtk::Label simulatedToTimeLabel;
-	Gtk::Label storedFramesLabel;
+
+	Gtk::Frame computingFrame;
+	Gtk::Grid computingGrid;
+	Gtk::Switch computingSwitch;
+	Gtk::Label frameBufferLabel;
+	Gtk::Label curIterLabel;
+	Gtk::Label computingStatusLabel;
+
+	Gtk::Frame playbackFrame;
+	Gtk::Grid playbackGrid;
+	Gtk::ComboBoxText playbackModeSelector;
+	Gtk::Button playPauseButton;
+	Gtk::Label timeLabel, playbackSpeedLabel;
+	bool timeScaleAutoSet;
+	Gtk::Scale timeScale, playbackSpeedScale;
 
 	Gtk::Frame viewFrame;
 	Gtk::Grid viewGrid;
-	Gtk::ComboBoxText backDisplaySelector;
-	Gtk::ComboBoxText frontDisplaySelector;
+	Gtk::Label backDisplayLabel, frontDisplayLabel;
+	Gtk::ComboBoxText backDisplaySelector, frontDisplaySelector;
+
+	void updateStats();
+	void updatePlaybackModeSelector();
 
 public:
-	SimulationWindow(const std::function<void()>& backToConfigCallback);
-	void setParams(const SimulatorParams *const);
-	void setCurFrame(const SimFrame&);
-	void redraw();
-	void setTime(const double time, const double of);
-	void setSimulatedToTime(const double simulatedTo);
-	void setStoredFrames(const uint32_t stored, const uint32_t capacity);
+	SimulationWindow(SimulationStateAbstr *const parent);
+	void update();
 };
 
 }

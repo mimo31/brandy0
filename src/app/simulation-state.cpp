@@ -15,21 +15,9 @@
 namespace brandy0
 {
 
-SimulationState::SimulationState(ApplicationAbstr *const app) : app(app), params(nullptr), sim(nullptr)
+SimulationState::SimulationState(ApplicationAbstr *const app)
+	: app(app), win(std::make_unique<SimulationWindow>(this))
 {
-	win = new SimulationWindow([=]()
-	{
-		app->enterExistingConfig(*params);
-	});
-}
-
-SimulationState::~SimulationState()
-{
-	if (params != nullptr)
-		delete params;
-	if (sim != nullptr)
-		delete sim;
-	delete win;
 }
 
 void SimulationState::activate(const SimulatorParams& params)
@@ -37,12 +25,19 @@ void SimulationState::activate(const SimulatorParams& params)
 	frameCount = 0;
 	frameStepSize = 1;
 	time = 0;
+	computedIter = 0;
+	editingTime = false;
+	playbackPaused = false;
+	playbackSpeedup = 1;
 	frames.clear();
-	setParams(params);
-	win->setParams(this->params);
+	this->params = std::make_unique<SimulatorParams>(params);
+	sim = std::make_unique<SimulatorClassic>(params);
+	frontDisplayMode = FRONT_DISPLAY_MODE_DEFAULT;
+	backDisplayMode = BACK_DISPLAY_MODE_DEFAULT;
+	playbackMode = defaultPlaybackMode;
 	addLastFrame();
-	win->setCurFrame(sim->f1);
-	startComputeThread();
+	initListeners.invoke();
+	resumeComputation();
 	redrawConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::update), 40);
 	showWindow();
 }
@@ -53,26 +48,69 @@ void SimulationState::deactivate()
 	if (computing)
 		stopComputingSignal = true;
 	computingMutex.unlock();
-	computeThread.join();
+	if (computeThread.joinable())
+		computeThread.join();
 	redrawConnection.disconnect();
 	win->hide();
+}
+
+void SimulationState::goBackToConfig()
+{
+	app->enterExistingConfig(*params);
+}
+
+void SimulationState::pauseComputation()
+{
+	computingMutex.lock();
+	if (computing)
+		stopComputingSignal = true;
+	computingMutex.unlock();
+	if (computeThread.joinable())
+		computeThread.join();
+	computingSwitchListeners.invoke();
+}
+
+void SimulationState::resumeComputation()
+{
+	computingMutex.lock();
+	const bool started = !computing;
+	if (!computing)
+	{
+		startComputeThread();
+	}
+	computingMutex.unlock();
+	if (started)
+		computingSwitchListeners.invoke();
+}
+
+bool SimulationState::isComputing()
+{
+	computingMutex.lock();
+	const bool ret = computing;
+	computingMutex.unlock();
+	return ret;
+}
+
+uint32_t SimulationState::getFramesStored()
+{
+	framesMutex.lock();
+	const uint32_t ret = frames.size();
+	framesMutex.unlock();
+	return ret;
+}
+
+uint32_t SimulationState::getComputedIter()
+{
+	framesMutex.lock();
+	const uint32_t ret = computedIter;
+	framesMutex.unlock();
+	return ret;
 }
 
 void SimulationState::showWindow()
 {
 	app->addWindow(*win);
 	win->show();
-}
-
-void SimulationState::setParams(const SimulatorParams& params)
-{
-	if (this->params == nullptr)
-		this->params = new SimulatorParams(params);
-	else
-		*(this->params) = params;
-	if (this->sim != nullptr)
-		delete this->sim;
-	this->sim = new SimulatorClassic(params);
 }
 
 void SimulationState::checkCapacity()
@@ -106,15 +144,41 @@ void SimulationState::addLastFrame()
 
 void SimulationState::runComputeThread()
 {
-	computingMutex.lock();
-	computing = true;
-	computingMutex.unlock();
+	const auto updatefreq = std::chrono::milliseconds(17);
+	auto lastupdate = std::chrono::steady_clock::now();
+	framesMutex.lock();
+	uint32_t startiter = computedIter;
+	framesMutex.unlock();
 	while (true)
 	{
-		for (uint32_t i = 0; i < params->stepsPerFrame; i++)
+		bool stop = false;
+		for (uint32_t i = startiter; i < params->stepsPerFrame; i++)
+		{
+			auto ctime = std::chrono::steady_clock::now();
+			if (ctime - lastupdate > updatefreq)
+			{
+				framesMutex.lock();
+				computedIter = i;
+				framesMutex.unlock();
+				computingMutex.lock();
+				if (stopComputingSignal)
+				{
+					stopComputingSignal = false;
+					computingMutex.unlock();
+					stop = true;
+					break;
+				}
+				computingMutex.unlock();
+				lastupdate = ctime;
+			}
 			sim->iter();
+		}
+		if (stop)
+			break;
+		startiter = 0;
 		framesMutex.lock();
 		addLastFrame();
+		computedIter = 0;
 		if (params->stopAfter >= 0 && getTime(frameCount) >= params->stopAfter && getTime(frameCount - 1) < params->stopAfter)
 		{
 			framesMutex.unlock();
@@ -138,6 +202,7 @@ void SimulationState::runComputeThread()
 
 void SimulationState::startComputeThread()
 {
+	computing = true;
 	computeThread = std::thread([=](){
 		runComputeThread();
 	});
@@ -146,27 +211,31 @@ void SimulationState::startComputeThread()
 bool SimulationState::update()
 {
 	framesMutex.lock();
+	computedTime = (frames.size() - 1) * frameStepSize * params->stepsPerFrame * params->dt;
+	if (!editingTime && !playbackPaused)
+	{
+		if (playbackMode == PlaybackMode::PLAY_UNTIL_END || playbackMode == PlaybackMode::LOOP)
+		{
+			time += params->stepsPerFrame * params->dt * playbackSpeedup;
+			if (time > computedTime)
+			{
+				if (playbackMode == PlaybackMode::PLAY_UNTIL_END)
+					time = computedTime;
+				else
+					time = 0;
+			}
+		}
+		else
+			time = computedTime;
+	}
 	uint32_t frame = uint32_t(time / (params->stepsPerFrame * params->dt) / frameStepSize + .5);
 	if (frame >= frames.size())
-	{
-		frame = 0;
-		time = 0;
-	}
-	win->setCurFrame(frames[frame]);
+		frame = frames.size() - 1;
+	curFrame = std::make_unique<SimFrame>(frames[frame]);
 
-	const double timeToSet = time;
-	const uint32_t storedFramesToSet = frames.size();
-	const uint32_t capacityToSet = params->frameCapacity;
-	const double simulatedTimeToSet = (storedFramesToSet - 1) * frameStepSize * params->stepsPerFrame * params->dt;
-	
-	time += params->stepsPerFrame * params->dt;
 	framesMutex.unlock();
 
-	win->setTime(timeToSet, simulatedTimeToSet);
-	win->setSimulatedToTime(simulatedTimeToSet);
-	win->setStoredFrames(storedFramesToSet, capacityToSet);
-
-	win->redraw();
+	win->update();
 	return true;
 }
 

@@ -7,7 +7,7 @@
 namespace brandy0
 {
 
-DisplayArea::DisplayArea() : solid(0, 0), curFrame(nullptr)
+DisplayArea::DisplayArea(SimulationStateAbstr *const parent) : parent(parent), solid(0, 0)
 {
 	set_hexpand(true);
 	set_vexpand(true);
@@ -16,6 +16,18 @@ DisplayArea::DisplayArea() : solid(0, 0), curFrame(nullptr)
 	signal_realize().connect(sigc::mem_fun(*this, &DisplayArea::realize), true);
 	signal_unrealize().connect(sigc::mem_fun(*this, &DisplayArea::unrealize), false);
 	signal_render().connect(sigc::mem_fun(*this, &DisplayArea::render));
+
+	parent->initListeners.plug([this, parent]()
+	{
+		w = parent->params->w;
+		h = parent->params->h;
+		wp = parent->params->wp;
+		hp = parent->params->hp;
+		dx = parent->params->get_dx();
+		dy = parent->params->get_dy();
+		solid = Grid<bool>(wp, hp);
+		parent->params->shapeStack.set(solid);
+	});
 }
 
 bool DisplayArea::render(const Glib::RefPtr<Gdk::GLContext>& /* context */)
@@ -225,9 +237,9 @@ void DisplayArea::initShaders()
 
 Point DisplayArea::to_poi(const double x, const double y)
 {
-	const double relx = x / params->w;
-	const double rely = y / params->h;
-	const Point res(round(relx * (params->wp - 1)), round(rely * (params->hp - 1)));
+	const double relx = x / w;
+	const double rely = y / h;
+	const Point res(round(relx * (wp - 1)), round(rely * (hp - 1)));
 	return res;
 }
 
@@ -238,7 +250,7 @@ Point DisplayArea::to_poi(const vec2d& v)
 
 vec2d DisplayArea::to_coor(const uint32_t x, const uint32_t y)
 {
-	return vec2d(x * params->w / double(params->wp - 1), y * params->h / double(params->hp - 1));
+	return vec2d(x * w / double(wp - 1), y * h / double(hp - 1));
 }
 
 vec2d DisplayArea::to_coor(const Point p)
@@ -249,7 +261,7 @@ vec2d DisplayArea::to_coor(const Point p)
 void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini)
 {
 	Point ipoi = to_poi(ini);
-	if (!ipoi.inside(0, 0, params->wp - 1, params->hp - 1) || solid(ipoi))
+	if (!ipoi.inside(0, 0, wp - 1, hp - 1) || solid(ipoi))
 		return;
 
 	constexpr double step_size = .005;
@@ -259,12 +271,12 @@ void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini
 	for (int i = 0; i < max_steps; i++)
 	{
 		const Point cpoi = to_poi(nxt);
-		const vec2d u = curFrame->u(cpoi);
+		const vec2d u = parent->curFrame->u(cpoi);
 		if (u.is_zero())
 			break;
 		const vec2d nnxt = nxt + step_size * u.get_unit();
 		const Point npoi = to_poi(nnxt);
-		if (!npoi.inside(0, 0, params->wp - 1, params->hp - 1) || solid(npoi))
+		if (!npoi.inside(0, 0, wp - 1, hp - 1) || solid(npoi))
 			break;
 		segs.push_back(LineSegment(nxt, nnxt));
 		nxt = nnxt;
@@ -274,9 +286,9 @@ void DisplayArea::addStreamLine(std::vector<LineSegment>& segs, const vec2d& ini
 	for (int i = 0; i < max_steps; i++)
 	{
 		const Point cpoi = to_poi(nxt);
-		const vec2d nnxt = nxt - step_size * curFrame->u(cpoi).get_unit();
+		const vec2d nnxt = nxt - step_size * parent->curFrame->u(cpoi).get_unit();
 		const Point npoi = to_poi(nnxt);
-		if (!npoi.inside(0, 0, params->wp - 1, params->hp - 1) || solid(npoi))
+		if (!npoi.inside(0, 0, wp - 1, hp - 1) || solid(npoi))
 			break;
 		segs.push_back(LineSegment(nxt, nnxt));
 		nxt = nnxt;
@@ -288,9 +300,9 @@ void DisplayArea::addArrow(std::vector<LineSegment>& segs, const vec2d& pos)
 	constexpr double a = .004;
 
 	const Point poi = to_poi(pos);
-	if (!poi.inside(0, 0, params->wp - 1, params->hp - 1))
+	if (!poi.inside(0, 0, wp - 1, hp - 1))
 		return;
-	const vec2d u = curFrame->u(poi);
+	const vec2d u = parent->curFrame->u(poi);
 	if (u.is_zero())
 	{
 		const vec2d v0 = pos + vec2d(a, a);
@@ -317,11 +329,11 @@ void DisplayArea::addArrow(std::vector<LineSegment>& segs, const vec2d& pos)
 
 void DisplayArea::computeMat(float *mat)
 {
-	mat[0] = 2 / params->w;	mat[4] = 0;		mat[8] = 0;		mat[12] = -1;
-	mat[1] = 0;		mat[5] = 2 / params->h;	mat[9] = 0;		mat[13] = -1;
+	mat[0] = 2 / w;	mat[4] = 0;		mat[8] = 0;		mat[12] = -1;
+	mat[1] = 0;		mat[5] = 2 / h;	mat[9] = 0;		mat[13] = -1;
 	mat[2] = 0;		mat[6] = 0;		mat[10] = 1;	mat[14] = 0;
 	mat[3] = 0;		mat[7] = 0;		mat[11] = 0;	mat[15] = 1;
-	const float mlt = float(get_height()) * params->w / (float(get_width()) * params->h);
+	const float mlt = float(get_height()) * w / (float(get_width()) * h);
 	if (mlt < 1)
 	{
 		mat[0] *= mlt;
@@ -336,38 +348,38 @@ void DisplayArea::computeMat(float *mat)
 
 void DisplayArea::drawContent()
 {
-	if (curFrame == nullptr)
+	if (parent->curFrame == nullptr)
 		return;
 
 	// draw back graphics
-	if (backDisplayMode != BACK_DISPLAY_NONE)
+	if (parent->backDisplayMode != BACK_DISPLAY_NONE)
 	{
 		std::function<double(uint32_t, uint32_t)> scfield = [this](const uint32_t x, const uint32_t y){
-			if (backDisplayMode == BACK_DISPLAY_VELOCITY_MAGNITUDE)
+			if (parent->backDisplayMode == BACK_DISPLAY_VELOCITY_MAGNITUDE)
 			{
-				return curFrame->u(x, y).len();
+				return parent->curFrame->u(x, y).len();
 			}
-			else if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL || backDisplayMode == BACK_DISPLAY_VELOCITY_RELATIVE_CURL)
+			else if (parent->backDisplayMode == BACK_DISPLAY_VELOCITY_CURL || parent->backDisplayMode == BACK_DISPLAY_VELOCITY_RELATIVE_CURL)
 			{
 				// TODO: do not evaluate at solid points
-				if (x == 0 || x == params->wp - 1 || y == 0 || y == params->hp - 1)
+				if (x == 0 || x == wp - 1 || y == 0 || y == hp - 1)
 					return 0.0;
-				const double curl = (curFrame->u(x + 1, y).y - curFrame->u(x - 1, y).y) / params->get_dx() / 2 - (curFrame->u(x, y + 1).x - curFrame->u(x, y - 1).x) / params->get_dy() / 2;
-				if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL)
+				const double curl = (parent->curFrame->u(x + 1, y).y - parent->curFrame->u(x - 1, y).y) / dx / 2 - (parent->curFrame->u(x, y + 1).x - parent->curFrame->u(x, y - 1).x) / dy / 2;
+				if (parent->backDisplayMode == BACK_DISPLAY_VELOCITY_CURL)
 					return curl;
-				const double vel = (4 * curFrame->u(x, y).len() + curFrame->u(x - 1, y).len() + curFrame->u(x + 1, y).len() + curFrame->u(x, y - 1).len() + curFrame->u(x, y + 1).len()) / 8;
+				const double vel = (4 * parent->curFrame->u(x, y).len() + parent->curFrame->u(x - 1, y).len() + parent->curFrame->u(x + 1, y).len() + parent->curFrame->u(x, y - 1).len() + parent->curFrame->u(x, y + 1).len()) / 8;
 				return vel == 0 ? 0.0 : curl / vel;
 			}
-			else if (backDisplayMode == BACK_DISPLAY_PRESSURE)
+			else if (parent->backDisplayMode == BACK_DISPLAY_PRESSURE)
 			{
-				return curFrame->p(x, y);
+				return parent->curFrame->p(x, y);
 			}
-			else if (backDisplayMode == BACK_DISPLAY_VELOCITY_DIV)
+			else if (parent->backDisplayMode == BACK_DISPLAY_VELOCITY_DIV)
 			{
 				// TODO: do not evaluate at solid points
-				if (x == 0 || x == params->wp - 1 || y == 0 || y == params->hp - 1)
+				if (x == 0 || x == parent->params->wp - 1 || y == 0 || y == parent->params->hp - 1)
 					return 0.0;
-				const double div = (curFrame->u(x + 1, y).x - curFrame->u(x - 1, y).x) / params->get_dx() / 2 + (curFrame->u(x, y + 1).y - curFrame->u(x, y - 1).y) / params->get_dy() / 2;
+				const double div = (parent->curFrame->u(x + 1, y).x - parent->curFrame->u(x - 1, y).x) / dx / 2 + (parent->curFrame->u(x, y + 1).y - parent->curFrame->u(x, y - 1).y) / dy / 2;
 				return div;
 			}
 			
@@ -376,9 +388,9 @@ void DisplayArea::drawContent()
 
 		double mn = scfield(0, 0);
 		double mx = scfield(0, 0);
-		for (uint32_t y = 0; y < params->hp; y++)
+		for (uint32_t y = 0; y < hp; y++)
 		{
-			for (uint32_t x = 0; x < params->wp; x++)
+			for (uint32_t x = 0; x < wp; x++)
 			{
 				const double val = scfield(x, y);
 				mn = std::min(mn, val);
@@ -387,12 +399,12 @@ void DisplayArea::drawContent()
 		}
 		if (mn != mx)
 		{
-			const uint32_t pointCount = (params->wp - 1) * (params->hp - 1) * 12;
+			const uint32_t pointCount = (wp - 1) * (hp - 1) * 12;
 			const uint32_t arsize = pointCount * 3;
 			GLfloat *vertex_data = new GLfloat[arsize];
-			for (uint32_t y = 0; y < params->hp - 1; y++)
+			for (uint32_t y = 0; y < hp - 1; y++)
 			{
-				for (uint32_t x = 0; x < params->wp - 1; x++)
+				for (uint32_t x = 0; x < wp - 1; x++)
 				{
 					const vec2d v00 = to_coor(x, y);
 					const double c00 = (scfield(x, y) - mn) / (mx - mn);
@@ -404,7 +416,7 @@ void DisplayArea::drawContent()
 					const double c11 = (scfield(x + 1, y + 1) - mn) / (mx - mn);
 					const vec2d vcen = (v00 + v01 + v10 + v11) / 4;
 					const double ccen = (c00 + c01 + c10 + c11) / 4;
-					const uint32_t ind = 36 *  ((params->wp - 1) * y + x);
+					const uint32_t ind = 36 *  ((wp - 1) * y + x);
 					vertex_data[ind + 9 * 0 + 3 * 0 + 0] = vcen.x;
 					vertex_data[ind + 9 * 0 + 3 * 0 + 1] = vcen.y;
 					vertex_data[ind + 9 * 0 + 3 * 0 + 2] = ccen;
@@ -486,57 +498,56 @@ void DisplayArea::drawContent()
 	}
 
 	// draw front graphics
-	if (frontDisplayMode != FRONT_DISPLAY_NONE)
+	if (parent->frontDisplayMode != FRONT_DISPLAY_NONE)
 	{
 
 		std::vector<LineSegment> segs;
 
 		constexpr double line_d = .0147;
 
-		if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_ARROWS)
+		if (parent->frontDisplayMode == FRONT_DISPLAY_VELOCITY_ARROWS)
 		{
-			for (double x = params->w / 2; x < params->w; x += line_d)
+			for (double x = w / 2; x < w; x += line_d)
 			{
-				for (double y = params->h / 2; y < params->h; y += line_d)
+				for (double y = h / 2; y < h; y += line_d)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(segs, vec2d(x, y));
 				}
-				for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
+				for (double y = h / 2 - line_d; y > 0; y -= line_d)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(segs, vec2d(x, y));
 				}
 			}
-			for (double x = params->w / 2 - line_d; x > 0; x -= line_d)
+			for (double x = w / 2 - line_d; x > 0; x -= line_d)
 			{
-				for (double y = params->h / 2; y < params->h; y += line_d)
+				for (double y = h / 2; y < h; y += line_d)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(segs, vec2d(x, y));
 				}
-				for (double y = params->h / 2 - line_d; y > 0; y -= line_d)
+				for (double y = h / 2 - line_d; y > 0; y -= line_d)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(segs, vec2d(x, y));
 				}
 			}
 		}
-
-		if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_STREAMLINES)
+		else if (parent->frontDisplayMode == FRONT_DISPLAY_VELOCITY_STREAMLINES)
 		{
-			for (double x = params->w / 2; x >= 0; x -= line_d)
+			for (double x = w / 2; x >= 0; x -= line_d)
 			{
-				for (double y = params->h / 2; y >= 0; y -= line_d)
+				for (double y = h / 2; y >= 0; y -= line_d)
 					addStreamLine(segs, vec2d(x, y));
-				for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
+				for (double y = h / 2 + line_d; y <= h; y += line_d)
 					addStreamLine(segs, vec2d(x, y));
 			}
-			for (double x = params->w / 2 + line_d; x <= params->w; x += line_d)
+			for (double x = w / 2 + line_d; x <= w; x += line_d)
 			{
-				for (double y = params->h / 2; y >= 0; y -= line_d)
+				for (double y = h / 2; y >= 0; y -= line_d)
 					addStreamLine(segs, vec2d(x, y));
-				for (double y = params->h / 2 + line_d; y <= params->h; y += line_d)
+				for (double y = h / 2 + line_d; y <= h; y += line_d)
 					addStreamLine(segs, vec2d(x, y));
 			}
 		}
@@ -575,31 +586,6 @@ void DisplayArea::drawContent()
 
 		glDrawArrays(GL_LINES, 0, segs.size() * 2);
 	}
-}
-
-void DisplayArea::setParams(const SimulatorParams *const params)
-{
-	this->params = params;
-	solid = Grid<bool>(params->wp, params->hp);
-	params->shapeStack.set(solid);
-}
-
-void DisplayArea::setCurFrame(const SimFrame& curFrame)
-{
-	if (this->curFrame == nullptr)
-		this->curFrame = new SimFrame(curFrame);
-	else
-		*(this->curFrame) = curFrame;
-}
-
-void DisplayArea::setBackDisplayMode(const uint32_t backMode)
-{
-	backDisplayMode = backMode;
-}
-
-void DisplayArea::setFrontDisplayMode(const uint32_t frontMode)
-{
-	frontDisplayMode = frontMode;
 }
 
 void DisplayArea::redraw()
