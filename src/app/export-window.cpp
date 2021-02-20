@@ -68,25 +68,29 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	startTimeScale.signal_value_changed().connect([this, parent]
 	{
 		parent->videoExportStartTime = startTimeScale.get_value() * parent->computedTime;
+		parent->videoExportClampTime();
+		parent->videoExportValidateRange();
 		parent->vexpStartTimeChangeListeners.invoke();
 	});
 
 	endTimeScale.signal_value_changed().connect([this, parent]
 	{
 		parent->videoExportEndTime = endTimeScale.get_value() * parent->computedTime;
+		parent->videoExportClampTime();
+		parent->videoExportValidateRange();
 		parent->vexpEndTimeChangeListeners.invoke();
 	});
 
-	parent->vexpStartTimeChangeListeners.plug([this, parent]
+	parent->vexpStartTimeChangeListeners.plug([this]
 	{
 		updateStartTimeLabel();
-		updateInvalidTimesWarn();
+		updateDurationLabel();
 	});
 
-	parent->vexpEndTimeChangeListeners.plug([this, parent]
+	parent->vexpEndTimeChangeListeners.plug([this]
 	{
 		updateEndTimeLabel();
-		updateInvalidTimesWarn();
+		updateDurationLabel();
 	});
 
 	playbackSpeedScale.signal_value_changed().connect([this, parent]
@@ -97,9 +101,49 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 		parent->vexpPlaybackSpeedupChangeListeners.invoke();
 	});
 
-	parent->vexpPlaybackSpeedupChangeListeners.plug([this, parent]
+	parent->vexpPlaybackSpeedupChangeListeners.plug([this]
 	{
-		playbackSpeedLabel.set_text("playback speed " + std::to_string(parent->videoExportPlaybackSpeedup) + "x");
+		updatePlaybackSpeedLabel();
+		updateDurationLabel();
+	});
+
+	timeScale.signal_value_changed().connect([this, parent]
+	{
+		if (!timeScaleAutoSet)
+		{
+			parent->videoExportEditingTime = true;
+			if (parent->videoExportRangeValid)
+			{
+				parent->videoExportTime = parent->videoExportStartTime + timeScale.get_value() * (parent->videoExportEndTime - parent->videoExportStartTime);
+			}
+		}
+	});
+	timeScale.signal_button_release_event().connect([this, parent](GdkEventButton*)
+	{
+		parent->videoExportEditingTime = false;
+		return false;
+	});
+
+	parent->updateListeners.plug([this, parent]
+	{
+		if (parent->inVideoExport)
+			update();
+	});
+
+	parent->vexpRangeValidityChangeListeners.plug([this, parent]
+	{
+		updateInvalidTimesWarn();
+	});
+
+	parent->vexpPlaybackStateChangeListeners.plug([this]
+	{
+		updatePlayPauseButtonLabel();
+	});
+
+	playPauseButton.signal_clicked().connect([this, parent]
+	{
+		parent->videoExportPlaybackPaused = !parent->videoExportPlaybackPaused;
+		parent->vexpPlaybackStateChangeListeners.invoke();
 	});
 }
 
@@ -115,15 +159,77 @@ void ExportWindow::updateEndTimeLabel()
 
 void ExportWindow::updateInvalidTimesWarn()
 {
-	if (parent->videoExportStartTime >= parent->videoExportEndTime)
-		invalidTimesLabel.pseudoShow();
-	else
+	if (parent->videoExportRangeValid)
 		invalidTimesLabel.pseudoHide();
+	else
+		invalidTimesLabel.pseudoShow();
 }
 
 void ExportWindow::updatePlaybackSpeedLabel()
 {
+	playbackSpeedLabel.set_text("playback speed " + std::to_string(parent->videoExportPlaybackSpeedup) + "x");
+}
 
+void ExportWindow::updateDurationLabel()
+{
+	if (parent->videoExportRangeValid)
+	{
+		const double simtime = parent->videoExportEndTime - parent->videoExportStartTime;
+		const double realtime = simtime / (parent->params->dt * parent->params->stepsPerFrame * parent->videoExportPlaybackSpeedup) * parent->MS_PER_BASE_FRAME / 1000;
+		durationLabel.set_text("duration = " + std::to_string(simtime) + " (" + std::to_string(realtime) + " s)");
+		durationLabel.pseudoShow();
+	}
+	else
+	{
+		durationLabel.set_text("duration");
+		durationLabel.pseudoHide();
+	}
+}
+
+void ExportWindow::updateTimeLabel()
+{
+	if (parent->videoExportRangeValid)
+	{
+		const double range = parent->videoExportEndTime - parent->videoExportStartTime;
+		const double tm = parent->videoExportTime;
+		const double frac = (tm - parent->videoExportStartTime) / range;
+		timeLabel.set_text("t = " + std::to_string(parent->videoExportTime) + " (" + std::to_string(100 * frac) + " %)");
+	}
+	else
+	{
+		timeLabel.set_text("t undefined");
+	}
+}
+
+void ExportWindow::updatePlayPauseButtonLabel()
+{
+	playPauseButton.set_label(parent->videoExportPlaybackPaused ? "play" : "pause");
+}
+
+void ExportWindow::setTimeScale(const double scaleVal)
+{
+	timeScaleAutoSet = true;
+	timeScale.set_value(scaleVal);
+	timeScaleAutoSet = false;
+}
+
+void ExportWindow::setTimeScaleFromTime()
+{
+	if (parent->videoExportRangeValid)
+	{
+		const double fromStart = parent->videoExportTime - parent->videoExportStartTime;
+		const double range = parent->videoExportEndTime - parent->videoExportStartTime;
+		setTimeScale(fromStart / range);
+	}
+}
+
+void ExportWindow::update()
+{
+	updateTimeLabel();
+	if (!parent->videoExportEditingTime)
+	{
+		setTimeScaleFromTime();
+	}
 }
 
 void ExportWindow::init()
@@ -131,9 +237,13 @@ void ExportWindow::init()
 	startTimeScale.set_value(0);
 	endTimeScale.set_value(1);
 	playbackSpeedScale.set_value(0);
+	timeScaleAutoSet = false;
 	updateStartTimeLabel();
 	updateEndTimeLabel();
 	updatePlaybackSpeedLabel();
+	updateInvalidTimesWarn();
+	updatePlayPauseButtonLabel();
+	updateDurationLabel();
 }
 
 }

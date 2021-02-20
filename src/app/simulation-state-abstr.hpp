@@ -25,6 +25,7 @@ class SimulationStateAbstr
 {
 public:
 	static constexpr double MAX_PLAYBACK_SPEEDUP = 1000;
+	static constexpr double MS_PER_BASE_FRAME = 40;
 	static const PlaybackMode defaultPlaybackMode = PlaybackMode::PLAY_UNTIL_END;
 	std::unique_ptr<SimulatorParams> params;
 	std::unique_ptr<SimFrame> curFrame;
@@ -33,19 +34,26 @@ public:
 	ListenerManager computingSwitchListeners;
 	ListenerManager playbackStateChangeListeners;
 	ListenerManager playbackModeChangeListeners;
+	ListenerManager updateListeners;
 	ListenerManager closeListeners;
 
 	ListenerManager videoExportEnterListeners;
 	ListenerManager vexpStartTimeChangeListeners;
 	ListenerManager vexpEndTimeChangeListeners;
 	ListenerManager vexpPlaybackSpeedupChangeListeners;
+	ListenerManager vexpRangeValidityChangeListeners;
+	ListenerManager vexpPlaybackStateChangeListeners;
 
 	double time;
 	double computedTime;
 
+	double videoExportTime;
 	double videoExportStartTime;
 	double videoExportEndTime;
 	double videoExportPlaybackSpeedup;
+	bool videoExportRangeValid;
+	bool videoExportEditingTime;
+	bool videoExportPlaybackPaused;
 
 	uint32_t backDisplayMode;
 	uint32_t frontDisplayMode;
@@ -70,6 +78,9 @@ public:
 	virtual bool isComputing() = 0;
 	virtual uint32_t getFramesStored() = 0;
 	virtual uint32_t getComputedIter() = 0;
+
+	virtual void videoExportValidateRange() = 0;
+	virtual void videoExportClampTime() = 0;
 };
 
 }

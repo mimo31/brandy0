@@ -25,16 +25,26 @@ private:
 	SimulationStateAbstr *parent;
 
 	Gtk::Scale startTimeScale, endTimeScale, playbackSpeedScale, timeScale;
-	Gtk::Label startTimeLabel, endTimeLabel, durationLabel, playbackSpeedLabel, timeLabel, fileLocationLabel;
-	Hideable<Gtk::Label> invalidTimesLabel;
+	Gtk::Label startTimeLabel, endTimeLabel, playbackSpeedLabel, timeLabel, fileLocationLabel;
+	Hideable<Gtk::Label> invalidTimesLabel, durationLabel;
 	Gtk::Button playPauseButton, selectFileButton, backButton, exportButton;
 	Gtk::Grid mainGrid;
+
+	bool timeScaleAutoSet;
 
 	void init();
 	void updateStartTimeLabel();
 	void updateEndTimeLabel();
 	void updateInvalidTimesWarn();
 	void updatePlaybackSpeedLabel();
+	void updateDurationLabel();
+	void updateTimeLabel();
+	void updatePlayPauseButtonLabel();
+
+	void setTimeScale(const double scaleVal);
+	void setTimeScaleFromTime();
+
+	void update();
 
 public:
 	ExportWindow(SimulationStateAbstr *const parent);

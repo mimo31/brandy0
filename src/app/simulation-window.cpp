@@ -174,6 +174,11 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	{
 		parent->enterVideoExport();
 	});
+
+	parent->updateListeners.plug([this]
+	{
+		update();
+	});
 }
 
 void SimulationWindow::updatePlaybackModeSelector()
@@ -190,7 +195,8 @@ void SimulationWindow::updatePlaybackModeSelector()
 
 void SimulationWindow::update()
 {
-	updateStats();
+	if (!parent->inVideoExport)
+		updateStats();
 	dArea.redraw();
 }
 

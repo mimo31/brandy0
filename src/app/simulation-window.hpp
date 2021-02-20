@@ -67,10 +67,10 @@ private:
 
 	void updateStats();
 	void updatePlaybackModeSelector();
+	void update();
 
 public:
 	SimulationWindow(SimulationStateAbstr *const parent);
-	void update();
 };
 
 }

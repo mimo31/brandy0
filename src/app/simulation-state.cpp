@@ -41,6 +41,7 @@ void SimulationState::activate(const SimulatorParams& params)
 	addLastFrame();
 	initListeners.invoke();
 	resumeComputation();
+	lastUpdate = std::chrono::steady_clock::now();
 	redrawConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::update), 40);
 	showMainWindow();
 }
@@ -95,7 +96,10 @@ void SimulationState::enterVideoExport()
 	updateComputedTime();
 	videoExportStartTime = 0;
 	videoExportEndTime = computedTime;
+	videoExportTime = 0;
 	videoExportPlaybackSpeedup = 1;
+	videoExportRangeValid = computedTime != 0;
+	videoExportPlaybackPaused = true;
 	videoExportEnterListeners.invoke();
 	showExportWindow();
 }
@@ -244,33 +248,69 @@ void SimulationState::updateComputedTime()
 
 bool SimulationState::update()
 {
-	framesMutex.lock();
-	updateComputedTime();
-	if (!editingTime && !playbackPaused)
+	std::chrono::steady_clock::time_point ctime = std::chrono::steady_clock::now();
+	const double elapsedms = std::chrono::duration<double, std::chrono::milliseconds::period>(ctime - lastUpdate).count();
+	lastUpdate = ctime;
+	if (!inVideoExport)
 	{
-		if (playbackMode == PlaybackMode::PLAY_UNTIL_END || playbackMode == PlaybackMode::LOOP)
+		framesMutex.lock();
+		updateComputedTime();
+		if (!editingTime && !playbackPaused)
 		{
-			time += params->stepsPerFrame * params->dt * playbackSpeedup;
-			if (time > computedTime)
+			if (playbackMode == PlaybackMode::PLAY_UNTIL_END || playbackMode == PlaybackMode::LOOP)
 			{
-				if (playbackMode == PlaybackMode::PLAY_UNTIL_END)
-					time = computedTime;
-				else
-					time = 0;
+				time += params->stepsPerFrame * params->dt * playbackSpeedup * elapsedms / MS_PER_BASE_FRAME;
+				if (time > computedTime)
+				{
+					if (playbackMode == PlaybackMode::PLAY_UNTIL_END)
+						time = computedTime;
+					else
+						time = 0;
+				}
 			}
+			else
+				time = computedTime;
 		}
-		else
-			time = computedTime;
+		curFrame = std::make_unique<SimFrame>(frames[getFrameNumber(time)]);
+		framesMutex.unlock();
 	}
-	uint32_t frame = uint32_t(time / (params->stepsPerFrame * params->dt) / frameStepSize + .5);
+	else
+	{
+		if (!videoExportPlaybackPaused && !videoExportEditingTime)
+		{
+			videoExportTime += params->stepsPerFrame * params->dt * videoExportPlaybackSpeedup * elapsedms / MS_PER_BASE_FRAME;
+			if (videoExportTime > videoExportEndTime)
+				videoExportTime = videoExportEndTime;
+		}
+		curFrame = std::make_unique<SimFrame>(frames[getFrameNumber(videoExportTime)]);
+	}
+
+	updateListeners.invoke();
+	return true;
+}
+
+uint32_t SimulationState::getFrameNumber(const double t)
+{
+	uint32_t frame = uint32_t(t / (params->stepsPerFrame * params->dt) / frameStepSize + .5);
 	if (frame >= frames.size())
 		frame = frames.size() - 1;
-	curFrame = std::make_unique<SimFrame>(frames[frame]);
+	return frame;
+}
 
-	framesMutex.unlock();
+void SimulationState::videoExportValidateRange()
+{
+	const bool valid = videoExportStartTime < videoExportEndTime;
+	if (valid != videoExportRangeValid)
+	{
+		videoExportRangeValid = valid;
+		vexpRangeValidityChangeListeners.invoke();
+	}
+}
 
-	mainWin->update();
-	return true;
+void SimulationState::videoExportClampTime()
+{
+	videoExportTime = std::max(videoExportTime, videoExportStartTime);
+	videoExportTime = std::min(videoExportTime, videoExportEndTime);
 }
 
 }

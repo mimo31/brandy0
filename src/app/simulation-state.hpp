@@ -7,6 +7,7 @@
 #ifndef SIMULATION_STATE_HPP
 #define SIMULATION_STATE_HPP
 
+#include <chrono>
 #include <thread>
 
 #include <gtkmm/application.h>
@@ -58,6 +59,9 @@ private:
 
 	void updateComputedTime();
 
+	uint32_t getFrameNumber(const double t);
+	std::chrono::steady_clock::time_point lastUpdate;
+
 public:
 	SimulationState(ApplicationAbstr *const);
 	void activate(const SimulatorParams&);
@@ -72,6 +76,9 @@ public:
 	bool isComputing() override;
 	uint32_t getFramesStored() override;
 	uint32_t getComputedIter() override;
+
+	void videoExportValidateRange() override;
+	void videoExportClampTime() override;
 };
 
 }
