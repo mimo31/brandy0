@@ -40,6 +40,7 @@ private:
 	void updateDurationLabel();
 	void updateTimeLabel();
 	void updatePlayPauseButtonLabel();
+	void updateExportButtonSensitivity();
 
 	void setTimeScale(const double scaleVal);
 	void setTimeScaleFromTime();

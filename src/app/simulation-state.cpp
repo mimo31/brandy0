@@ -110,6 +110,28 @@ void SimulationState::leaveVideoExport()
 	exportWin->hide();
 }
 
+void SimulationState::confirmVideoExport()
+{
+	cout << "confirmed" << endl;
+	FrameDrawer drawer(*params);
+	drawer.setFrontDisplayMode(FRONT_DISPLAY_VELOCITY_ARROWS);
+	drawer.setBackDisplayMode(BACK_DISPLAY_VELOCITY_MAGNITUDE);
+	uint8_t *data = new uint8_t[1920 * 1080 * 3];
+	cout << "drawing" << endl;
+	drawer.drawFrame(frames[0], 1920, 1080, data, 1920 * 3);
+	cout << "drawn" << endl;
+	for (uint32_t i = 0; i < 100; i++)
+	{
+		cout << uint32_t(data[3 * (i * 1920 + i)]) << endl;
+	}
+	/*for (uint32_t i = 0; i < 1920 * 1080 * 3; i++)
+	{
+		if (data[i])
+			cout << uint32_t(i) << endl;
+	}*/
+	delete [] data;
+}
+
 bool SimulationState::isComputing()
 {
 	computingMutex.lock();

@@ -10,6 +10,7 @@ add_executable(${PROJECT_NAME}
 	conv-utils.cpp
 	display-area.cpp
 	export-window.cpp
+	graphics.cpp
 	listener-manager.cpp
 	main.cpp
 	obstacle-shape.cpp

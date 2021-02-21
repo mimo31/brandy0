@@ -133,6 +133,7 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	parent->vexpRangeValidityChangeListeners.plug([this, parent]
 	{
 		updateInvalidTimesWarn();
+		updateExportButtonSensitivity();
 	});
 
 	parent->vexpPlaybackStateChangeListeners.plug([this]
@@ -144,6 +145,11 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	{
 		parent->videoExportPlaybackPaused = !parent->videoExportPlaybackPaused;
 		parent->vexpPlaybackStateChangeListeners.invoke();
+	});
+
+	exportButton.signal_clicked().connect([this, parent]
+	{
+		parent->confirmVideoExport();
 	});
 }
 
@@ -206,6 +212,11 @@ void ExportWindow::updatePlayPauseButtonLabel()
 	playPauseButton.set_label(parent->videoExportPlaybackPaused ? "play" : "pause");
 }
 
+void ExportWindow::updateExportButtonSensitivity()
+{
+	exportButton.set_sensitive(parent->videoExportRangeValid);
+}
+
 void ExportWindow::setTimeScale(const double scaleVal)
 {
 	timeScaleAutoSet = true;
@@ -244,6 +255,7 @@ void ExportWindow::init()
 	updateInvalidTimesWarn();
 	updatePlayPauseButtonLabel();
 	updateDurationLabel();
+	updateExportButtonSensitivity();
 }
 
 }

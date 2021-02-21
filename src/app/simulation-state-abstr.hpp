@@ -74,6 +74,7 @@ public:
 
 	virtual void enterVideoExport() = 0;
 	virtual void leaveVideoExport() = 0;
+	virtual void confirmVideoExport() = 0;
 
 	virtual bool isComputing() = 0;
 	virtual uint32_t getFramesStored() = 0;
