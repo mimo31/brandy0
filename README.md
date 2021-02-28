@@ -21,10 +21,20 @@ brandy0 is a maturita project and is currently in development.
 ![simulation screen](./doc/shots/2021-02-28_video_export_screen.png)
 
 ## dependencies
-* libavcodec, libavformat, libavutil, libswscale (for video export)
-* gtkmm 3 (C++ interfrace for GTK 3)
+* `libavcodec`, `libavformat`, `libavutil`, `libswscale` (for video export)
+* `gtkmm` 3 (C++ interfrace for GTK 3)
 
-# the below information relates to older experimental simulations (./src/exper)
+## how to compile and run
+* have (the development versions of) the above library dependencies installed
+* have `cmake` installed
+* create a `cmake` build directory that builds from the source in `./src`
+  * as of now, it might be necessary to first build `gresources.c` and only then the main build target
+* let `cmake` build
+* run the `app/brandy0` built by `cmake`
+
+<br/><br/><br/>
+
+# all below information relates to older experimental simulations (./src/exper)
 
 ## dependencies
 * Eigen 3.3.7 -- available [here](https://gitlab.com/libeigen/eigen/-/releases)
