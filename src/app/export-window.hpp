@@ -8,6 +8,7 @@
 #define EXPORT_WINDOW_HPP
 
 #include <gtkmm/button.h>
+#include <gtkmm/filechooserdialog.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/label.h>
 #include <gtkmm/progressbar.h>
@@ -44,6 +45,9 @@ private:
 	void updatePlayPauseButtonLabel();
 	void updateExportButtonSensitivity();
 	void updateProgressIndicators();
+	void updateFileLocationLabel();
+
+	void getFileLocationFromUser();
 
 	void setTimeScale(const double scaleVal);
 	void setTimeScaleFromTime();

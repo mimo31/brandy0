@@ -6,6 +6,8 @@
  */
 #include "export-window.hpp"
 
+#include <gtkmm/filechooserdialog.h>
+
 #include "styles.hpp"
 
 namespace brandy0
@@ -158,6 +160,37 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	{
 		updateProgressIndicators();
 	});
+
+	selectFileButton.signal_clicked().connect([this, parent]
+	{
+		getFileLocationFromUser();
+	});
+
+	parent->vexpFileLocationChangeListeners.plug([this]
+	{
+		updateFileLocationLabel();
+	});
+}
+
+void ExportWindow::getFileLocationFromUser()
+{
+	Gtk::FileChooserDialog dial("Select file for exported video.", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
+	dial.set_transient_for(*this);
+	dial.set_modal(true);
+	dial.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+	dial.add_button("Select", Gtk::ResponseType::RESPONSE_OK);
+
+	// dial.run() blocks this thread
+	if (dial.run() == Gtk::ResponseType::RESPONSE_OK)
+	{
+		Glib::RefPtr<Gio::File> selectedFile = dial.get_file(), cd = Gio::File::create_for_path(".");
+		const std::string relpath = cd->get_relative_path(selectedFile);
+		std::string fname = relpath == "" ? selectedFile->get_path() : "./" + relpath;
+		if (fname.length() < 4 || fname.substr(fname.length() - 4) != ".mp4")
+			fname += ".mp4";
+		parent->videoExportFileLocation = fname;
+		parent->vexpFileLocationChangeListeners.invoke();
+	}
 }
 
 void ExportWindow::updateStartTimeLabel()
@@ -277,6 +310,11 @@ void ExportWindow::updateProgressIndicators()
 	}
 }
 
+void ExportWindow::updateFileLocationLabel()
+{
+	fileLocationLabel.set_text("will save to " + parent->videoExportFileLocation);
+}
+
 void ExportWindow::update()
 {
 	updateTimeLabel();
@@ -300,6 +338,7 @@ void ExportWindow::init()
 	updateDurationLabel();
 	updateExportButtonSensitivity();
 	updateProgressIndicators();
+	updateFileLocationLabel();
 }
 
 }

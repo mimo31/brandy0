@@ -101,6 +101,7 @@ void SimulationState::enterVideoExport()
 	videoExportPlaybackSpeedup = 1;
 	videoExportRangeValid = computedTime != 0;
 	videoExportPlaybackPaused = true;
+	videoExportFileLocation = "exported.mp4";
 	videoExportEnterListeners.invoke();
 	showExportWindow();
 }
@@ -117,7 +118,7 @@ void SimulationState::confirmVideoExport()
 		*params,
 		backDisplayMode,
 		frontDisplayMode,
-		"out.mp4",
+		videoExportFileLocation,
 		frames,
 		videoExportStartTime,
 		videoExportEndTime,

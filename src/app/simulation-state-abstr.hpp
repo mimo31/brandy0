@@ -30,7 +30,7 @@ public:
 	static const PlaybackMode defaultPlaybackMode = PlaybackMode::PLAY_UNTIL_END;
 	std::unique_ptr<SimulatorParams> params;
 	std::unique_ptr<SimFrame> curFrame;
-
+	
 	ListenerManager initListeners;
 	ListenerManager computingSwitchListeners;
 	ListenerManager playbackStateChangeListeners;
@@ -44,6 +44,7 @@ public:
 	ListenerManager vexpPlaybackSpeedupChangeListeners;
 	ListenerManager vexpRangeValidityChangeListeners;
 	ListenerManager vexpPlaybackStateChangeListeners;
+	ListenerManager vexpFileLocationChangeListeners;
 	ListenerManager vexpExportUpdateListeners;
 
 	double time;
@@ -56,6 +57,7 @@ public:
 	bool videoExportRangeValid;
 	bool videoExportEditingTime;
 	bool videoExportPlaybackPaused;
+	std::string videoExportFileLocation;
 	uint32_t videoExportWidth = 1920, videoExportHeight = 1080;
 
 	uint32_t backDisplayMode;
