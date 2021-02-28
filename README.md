@@ -5,7 +5,7 @@ brandy0 is a maturita project and is currently in development.
 
 ## state of development
 
-#### the start (home) screen as of 2020/02/28
+#### the start (home) screen as of 2021/02/28
 ![start screen](./doc/shots/2020-12-04_start_screen.png)
 
 #### the simulation configuration screen as of 2021/02/28
