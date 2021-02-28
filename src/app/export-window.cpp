@@ -8,6 +8,7 @@
 
 #include <gtkmm/filechooserdialog.h>
 
+#include "conv-utils.hpp"
 #include "styles.hpp"
 
 namespace brandy0
@@ -17,25 +18,55 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	: parent(parent),
 	selectFileButton("select file location"),
 	backButton("back (no export)"),
-	exportButton("export video")
+	exportButton("export video"),
+	widthEntry("width (pixels):"),
+	heightEntry("height (pixels):"),
+	bitrateEntry("bitrate:"),
+	timingFrame("video timing"),
+	previewFrame("preview play"),
+	parameterFrame("video file parameters")
 {
-	mainGrid.attach(startTimeLabel, 0, 0);
-	mainGrid.attach(startTimeScale, 0, 1);
-	mainGrid.attach(endTimeLabel, 0, 2);
-	mainGrid.attach(endTimeScale, 0, 3);
-	mainGrid.attach(invalidTimesLabel, 0, 4);
-	mainGrid.attach(durationLabel, 0, 5);
-	mainGrid.attach(playbackSpeedLabel, 0, 6);
-	mainGrid.attach(playbackSpeedScale, 0, 7);
-	mainGrid.attach(backButton, 0, 8);
-	mainGrid.attach(timeLabel, 1, 0);
+	timingGrid.attach(startTimeLabel, 0, 0);
+	timingGrid.attach(startTimeScale, 0, 1);
+	timingGrid.attach(endTimeLabel, 0, 2);
+	timingGrid.attach(endTimeScale, 0, 3);
+	timingGrid.attach(invalidTimesLabel, 0, 4);
+	timingGrid.attach(durationLabel, 0, 5);
+	timingGrid.attach(playbackSpeedLabel, 0, 6);
+	timingGrid.attach(playbackSpeedScale, 0, 7);
+	timingFrame.add(timingGrid);
+	mainGrid.attach(timingFrame, 0, 0, 1, 2);
+
+	previewGrid.attach(timeLabel, 0, 0);
+	previewGrid.attach(timeScale, 0, 1);
+	previewGrid.attach(playPauseButton, 0, 2);
+	previewFrame.add(previewGrid);
+	mainGrid.attach(previewFrame, 1, 0);
+
+	widthEntry.attachTo(parameterGrid, 0, 0);
+	heightEntry.attachTo(parameterGrid, 0, 1);
+	bitrateEntry.attachTo(parameterGrid, 0, 2);
+	parameterGrid.attach(fileLocationLabel, 0, 3, 3, 1);
+	parameterGrid.attach(selectFileButton, 0, 4, 3, 1);
+	parameterFrame.add(parameterGrid);
+	mainGrid.attach(parameterFrame, 1, 1);
+
+	mainGrid.attach(backButton, 0, 2);
+	mainGrid.attach(exportButton, 1, 2);
+	mainGrid.attach(exportProgressLabel, 0, 3, 2, 1);
+	mainGrid.attach(exportProgressBar, 0, 4, 2, 1);
+
+	/*mainGrid.attach(timeLabel, 1, 0);
 	mainGrid.attach(timeScale, 1, 1);
-	mainGrid.attach(playPauseButton, 1, 2);
-	mainGrid.attach(fileLocationLabel, 1, 6);
-	mainGrid.attach(selectFileButton, 1, 7);
-	mainGrid.attach(exportButton, 1, 8);
-	mainGrid.attach(exportProgressLabel, 0, 9, 2, 1);
-	mainGrid.attach(exportProgressBar, 0, 10, 2, 1);
+	mainGrid.attach(playPauseButton, 1, 2, 3, 1);
+	widthEntry.attachTo(mainGrid, 1, 3);
+	heightEntry.attachTo(mainGrid, 1, 4);
+	bitrateEntry.attachTo(mainGrid, 1, 5);
+	mainGrid.attach(fileLocationLabel, 1, 6, 3, 1);
+	mainGrid.attach(selectFileButton, 1, 7, 3, 1);
+	mainGrid.attach(exportButton, 1, 8, 3, 1);
+	mainGrid.attach(exportProgressLabel, 0, 9, 4, 1);
+	mainGrid.attach(exportProgressBar, 0, 10, 4, 1);*/
 
 	add(mainGrid);
 
@@ -170,6 +201,44 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	{
 		updateFileLocationLabel();
 	});
+
+	widthEntry.hookInputHandler([this, parent]
+	{
+		uint32_t w;
+		ConvUtils::updatePosIntIndicator(widthEntry, w, parent->DEFAULT_VIDEO_WIDTH, parent->MAX_VIDEO_WIDTH);
+		if (widthEntry.hasValidInput() && w % 4 != 0)
+			widthEntry.indicateInvalid("must be divisible by 4");
+		else
+			parent->videoExportWidth = w;
+		parent->vexpEntryValidityChangeListeners.invoke();
+	});
+
+	heightEntry.hookInputHandler([this, parent]
+	{
+		uint32_t h;
+		ConvUtils::updatePosIntIndicator(heightEntry, h, parent->DEFAULT_VIDEO_HEIGHT, parent->MAX_VIDEO_HEIGHT);
+		if (heightEntry.hasValidInput() && h % 4 != 0)
+			heightEntry.indicateInvalid("must be divisible by 4");
+		else
+			parent->videoExportHeight = h;
+		parent->vexpEntryValidityChangeListeners.invoke();
+	});
+
+	bitrateEntry.hookInputHandler([this, parent]
+	{
+		ConvUtils::updatePosIntIndicator(bitrateEntry, parent->videoExportBitrate, parent->DEFAULT_VIDEO_BITRATE, parent->MAX_VIDEO_BITRATE);
+		parent->vexpEntryValidityChangeListeners.invoke();
+	});
+
+	parent->entryFieldValidators.plug([this]
+	{
+		return widthEntry.hasValidInput() && heightEntry.hasValidInput() && bitrateEntry.hasValidInput();
+	});
+
+	parent->vexpEntryValidityChangeListeners.plug([this]
+	{
+		updateExportButtonSensitivity();
+	});
 }
 
 void ExportWindow::getFileLocationFromUser()
@@ -254,7 +323,7 @@ void ExportWindow::updatePlayPauseButtonLabel()
 
 void ExportWindow::updateExportButtonSensitivity()
 {
-	exportButton.set_sensitive(parent->videoExportRangeValid);
+	exportButton.set_sensitive(parent->videoExportRangeValid && parent->entryFieldValidators.isAllValid());
 }
 
 void ExportWindow::setTimeScale(const double scaleVal)
@@ -330,6 +399,12 @@ void ExportWindow::init()
 	endTimeScale.set_value(1);
 	playbackSpeedScale.set_value(0);
 	timeScaleAutoSet = false;
+
+	using std::to_string;
+	widthEntry.setText(to_string(parent->videoExportWidth));
+	heightEntry.setText(to_string(parent->videoExportHeight));
+	bitrateEntry.setText(to_string(parent->videoExportBitrate));
+
 	updateStartTimeLabel();
 	updateEndTimeLabel();
 	updatePlaybackSpeedLabel();

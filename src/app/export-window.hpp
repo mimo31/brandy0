@@ -8,12 +8,13 @@
 #define EXPORT_WINDOW_HPP
 
 #include <gtkmm/button.h>
-#include <gtkmm/filechooserdialog.h>
+#include <gtkmm/frame.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/label.h>
 #include <gtkmm/progressbar.h>
 #include <gtkmm/scale.h>
 
+#include "annotated-entry.hpp"
 #include "brandy-window.hpp"
 #include "hideable.hpp"
 #include "simulation-state-abstr.hpp"
@@ -30,8 +31,10 @@ private:
 	Gtk::Label startTimeLabel, endTimeLabel, playbackSpeedLabel, timeLabel, fileLocationLabel;
 	Hideable<Gtk::Label> invalidTimesLabel, durationLabel, exportProgressLabel;
 	Gtk::Button playPauseButton, selectFileButton, backButton, exportButton;
-	Gtk::Grid mainGrid;
+	Gtk::Grid mainGrid, timingGrid, previewGrid, parameterGrid;
 	Hideable<Gtk::ProgressBar> exportProgressBar;
+	AnnotatedEntry widthEntry, heightEntry, bitrateEntry;
+	Gtk::Frame timingFrame, previewFrame, parameterFrame;
 
 	bool timeScaleAutoSet;
 

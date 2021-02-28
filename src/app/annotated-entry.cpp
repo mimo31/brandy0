@@ -17,9 +17,9 @@ AnnotatedEntry::AnnotatedEntry(const std::string& label)
 
 void AnnotatedEntry::attachTo(Gtk::Grid& grid, const uint32_t fromX, const uint32_t fromY)
 {
-	grid.attach(label, fromX, fromY, 1, 1);
-	grid.attach(entry, fromX + 1, fromY, 1, 1);
-	grid.attach(indicator, fromX + 2, fromY, 1, 1);
+	grid.attach(label, fromX, fromY);
+	grid.attach(entry, fromX + 1, fromY);
+	grid.attach(indicator, fromX + 2, fromY);
 }
 
 void AnnotatedEntry::hookInputHandler(const std::function<void()>& callback)

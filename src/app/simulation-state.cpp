@@ -101,7 +101,10 @@ void SimulationState::enterVideoExport()
 	videoExportPlaybackSpeedup = 1;
 	videoExportRangeValid = computedTime != 0;
 	videoExportPlaybackPaused = true;
-	videoExportFileLocation = "exported.mp4";
+	videoExportFileLocation = "./exported.mp4";
+	videoExportWidth = DEFAULT_VIDEO_WIDTH;
+	videoExportHeight = DEFAULT_VIDEO_HEIGHT;
+	videoExportBitrate = DEFAULT_VIDEO_BITRATE;
 	videoExportEnterListeners.invoke();
 	showExportWindow();
 }
