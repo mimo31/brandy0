@@ -60,6 +60,11 @@ private:
 
 	uint32_t frontDisplayMode, backDisplayMode;
 
+	bool has_gl_structs = false;
+	GLuint gl_framebuf, gl_texture;
+
+	void generate_gl_structs();
+
 	Point to_poi(const double x, const double y) const;
 	Point to_poi(const vec2d& v) const;
 	vec2d to_coor(const uint32_t x, const uint32_t y) const;

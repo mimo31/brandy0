@@ -32,6 +32,8 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	mainGrid.attach(fileLocationLabel, 1, 6);
 	mainGrid.attach(selectFileButton, 1, 7);
 	mainGrid.attach(exportButton, 1, 8);
+	mainGrid.attach(exportProgressLabel, 0, 9, 2, 1);
+	mainGrid.attach(exportProgressBar, 0, 10, 2, 1);
 
 	add(mainGrid);
 
@@ -151,6 +153,11 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	{
 		parent->confirmVideoExport();
 	});
+
+	parent->vexpExportUpdateListeners.plug([this]
+	{
+		updateProgressIndicators();
+	});
 }
 
 void ExportWindow::updateStartTimeLabel()
@@ -234,6 +241,42 @@ void ExportWindow::setTimeScaleFromTime()
 	}
 }
 
+void ExportWindow::updateProgressIndicators()
+{
+	if (parent->videoExporter)
+	{
+		exportProgressBar.pseudoShow();
+		exportProgressLabel.pseudoShow();
+		if (parent->videoExporter->complete)
+		{
+			exportProgressBar.set_fraction(1);
+			exportProgressLabel.set_text("export complete!");
+		}
+		else if (parent->videoExporter->finishing)
+		{
+			exportProgressBar.set_fraction(1);
+			const std::string num = std::to_string(parent->videoExporter->framesToProcess);
+			exportProgressLabel.set_text("processed " + num + " / " + num + " video frames, finishing...");
+		}
+		else if (parent->videoExporter->failed)
+		{
+			exportProgressLabel.set_text("export failed (" + parent->videoExporter->errorMessage + ")");
+		}
+		else
+		{
+			exportProgressBar.set_fraction(parent->videoExporter->processedFrames / double(parent->videoExporter->framesToProcess));
+			const std::string processingFr = std::to_string(parent->videoExporter->processedFrames + 1),
+				totalFr = std::to_string(parent->videoExporter->framesToProcess);
+			exportProgressLabel.set_text("processing video frame " + processingFr + " / " + totalFr + "...");
+		}
+	}
+	else
+	{
+		exportProgressBar.pseudoHide();
+		exportProgressLabel.pseudoHide();
+	}
+}
+
 void ExportWindow::update()
 {
 	updateTimeLabel();
@@ -256,6 +299,7 @@ void ExportWindow::init()
 	updatePlayPauseButtonLabel();
 	updateDurationLabel();
 	updateExportButtonSensitivity();
+	updateProgressIndicators();
 }
 
 }

@@ -543,6 +543,16 @@ void FrameDrawer::drawFrame(const SimFrame& frame, const double view_width, cons
 	drawAll(frame);
 }
 
+void FrameDrawer::generate_gl_structs()
+{
+	if (!has_gl_structs)
+	{
+		glGenFramebuffers(1, &gl_framebuf);
+		glGenTextures(1, &gl_texture);
+		has_gl_structs = true;
+	}
+}
+
 void FrameDrawer::drawFrame(const SimFrame& frame, const uint32_t width, const uint32_t height, uint8_t *const data, const uint32_t linesize)
 {
 	graphics::ctx->make_current();
@@ -550,30 +560,27 @@ void FrameDrawer::drawFrame(const SimFrame& frame, const uint32_t width, const u
 	vieww = width;
 	viewh = height;
 
+	// get original state
 	GLint origframebuf;
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &origframebuf);
-	// TODO: get original viewport
-	cout << "framebuf was at " << origframebuf << endl;
-	GLuint framebuf;
-	glGenFramebuffers(1, &framebuf);
-	cout << "new framebuf " << framebuf << endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuf);
-	GLuint texture;
-	glGenTextures(1, &texture);
-	cout << "texture " << texture << endl;
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLint origviewport[4];
+	glGetIntegerv(GL_VIEWPORT, origviewport);
+
+	generate_gl_structs();
+	glBindFramebuffer(GL_FRAMEBUFFER, gl_framebuf);
+	glBindTexture(GL_TEXTURE_2D, gl_texture);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_texture, 0);
 	glViewport(0, 0, width, height);
 	drawAll(frame);
 	
 	uint8_t *rawdata = new uint8_t[4 * width * height];
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, rawdata);
-	cout << "formatting data" << endl;
 	for (uint32_t y = 0; y < height; y++)
 	{
 		for (uint32_t x = 0; x < width; x++)
@@ -584,8 +591,10 @@ void FrameDrawer::drawFrame(const SimFrame& frame, const uint32_t width, const u
 		}
 	}
 	delete [] rawdata;
+
+	// set back to original state
 	glBindFramebuffer(GL_FRAMEBUFFER, origframebuf);
-	// TODO: set the original viewport back
+	glViewport(origviewport[0], origviewport[1], origviewport[2], origviewport[3]);
 }
 
 }

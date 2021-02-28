@@ -32,6 +32,7 @@ void SimulationState::activate(const SimulatorParams& params)
 	playbackPaused = false;
 	playbackSpeedup = 1;
 	inVideoExport = false;
+	computing = false;
 	frames.clear();
 	this->params = std::make_unique<SimulatorParams>(params);
 	sim = std::make_unique<SimulatorClassic>(params);
@@ -112,24 +113,23 @@ void SimulationState::leaveVideoExport()
 
 void SimulationState::confirmVideoExport()
 {
-	cout << "confirmed" << endl;
-	FrameDrawer drawer(*params);
-	drawer.setFrontDisplayMode(FRONT_DISPLAY_VELOCITY_ARROWS);
-	drawer.setBackDisplayMode(BACK_DISPLAY_VELOCITY_MAGNITUDE);
-	uint8_t *data = new uint8_t[1920 * 1080 * 3];
-	cout << "drawing" << endl;
-	drawer.drawFrame(frames[0], 1920, 1080, data, 1920 * 3);
-	cout << "drawn" << endl;
-	for (uint32_t i = 0; i < 100; i++)
+	videoExporter = std::make_unique<VideoExporter>(
+		*params,
+		backDisplayMode,
+		frontDisplayMode,
+		"out.mp4",
+		frames,
+		videoExportStartTime,
+		videoExportEndTime,
+		MS_PER_BASE_FRAME / videoExportPlaybackSpeedup * frameStepSize,
+		params->dt * params->stepsPerFrame * frameStepSize,
+		videoExportWidth,
+		videoExportHeight);
+	videoExporter->updateListeners.plug([this]
 	{
-		cout << uint32_t(data[3 * (i * 1920 + i)]) << endl;
-	}
-	/*for (uint32_t i = 0; i < 1920 * 1080 * 3; i++)
-	{
-		if (data[i])
-			cout << uint32_t(i) << endl;
-	}*/
-	delete [] data;
+		vexpExportUpdateListeners.invoke();
+	});
+	videoExporter->exportVideo();
 }
 
 bool SimulationState::isComputing()

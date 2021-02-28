@@ -25,14 +25,13 @@ add_executable(${PROJECT_NAME}
 	styles.cpp
 	validator-manager.cpp
 	validity-indicator.cpp
+	video-exporter.cpp
 	${CMAKE_CURRENT_BINARY_DIR}/shaders/gresources.c
 )
 
-message(${CMAKE_CURRENT_BINARY_DIR}/adlfkjasdf/${GRESOURCE_C})
-
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 
-target_link_libraries(${PROJECT_NAME} -pthread brandy0-lib) 
+target_link_libraries(${PROJECT_NAME} -pthread brandy0-lib -lavcodec -lavformat -lavutil -lswscale)
 
 add_dependencies(${PROJECT_NAME} brandy0-gresources)
 

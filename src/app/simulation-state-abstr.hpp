@@ -12,6 +12,7 @@
 #include "listener-manager.hpp"
 #include "sim-frame.hpp"
 #include "simulator-params.hpp"
+#include "video-exporter.hpp"
 
 namespace brandy0
 {
@@ -43,6 +44,7 @@ public:
 	ListenerManager vexpPlaybackSpeedupChangeListeners;
 	ListenerManager vexpRangeValidityChangeListeners;
 	ListenerManager vexpPlaybackStateChangeListeners;
+	ListenerManager vexpExportUpdateListeners;
 
 	double time;
 	double computedTime;
@@ -54,6 +56,7 @@ public:
 	bool videoExportRangeValid;
 	bool videoExportEditingTime;
 	bool videoExportPlaybackPaused;
+	uint32_t videoExportWidth = 1920, videoExportHeight = 1080;
 
 	uint32_t backDisplayMode;
 	uint32_t frontDisplayMode;
@@ -67,6 +70,7 @@ public:
 	double playbackSpeedup;
 
 	bool inVideoExport;
+	VideoExporterPtr videoExporter;
 
 	virtual void goBackToConfig() = 0;
 	virtual void pauseComputation() = 0;

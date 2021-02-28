@@ -10,6 +10,7 @@
 #include <gtkmm/button.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/label.h>
+#include <gtkmm/progressbar.h>
 #include <gtkmm/scale.h>
 
 #include "brandy-window.hpp"
@@ -26,9 +27,10 @@ private:
 
 	Gtk::Scale startTimeScale, endTimeScale, playbackSpeedScale, timeScale;
 	Gtk::Label startTimeLabel, endTimeLabel, playbackSpeedLabel, timeLabel, fileLocationLabel;
-	Hideable<Gtk::Label> invalidTimesLabel, durationLabel;
+	Hideable<Gtk::Label> invalidTimesLabel, durationLabel, exportProgressLabel;
 	Gtk::Button playPauseButton, selectFileButton, backButton, exportButton;
 	Gtk::Grid mainGrid;
+	Hideable<Gtk::ProgressBar> exportProgressBar;
 
 	bool timeScaleAutoSet;
 
@@ -41,6 +43,7 @@ private:
 	void updateTimeLabel();
 	void updatePlayPauseButtonLabel();
 	void updateExportButtonSensitivity();
+	void updateProgressIndicators();
 
 	void setTimeScale(const double scaleVal);
 	void setTimeScaleFromTime();
