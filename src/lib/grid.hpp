@@ -84,6 +84,24 @@ struct Grid
 	}
 };
 
+template <typename T>
+T max(const Grid<T>& grid)
+{
+	T best = grid.data[0];
+	for (uint32_t i = 1; i < grid.w * grid.h; i++)
+		best = std::max(best, grid.data[i]);
+	return best;
+}
+
+template <typename T>
+T min(const Grid<T>& grid)
+{
+	T best = grid.data[0];
+	for (uint32_t i = 1; i < grid.w * grid.h; i++)
+		best = std::min(best, grid.data[i]);
+	return best;
+}
+
 }
 
 #endif // GRID_HPP

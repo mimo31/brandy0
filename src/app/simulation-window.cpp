@@ -133,9 +133,11 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 
 	show_all_children();
 
-	parent->computingSwitchListeners.plug([this, parent]{
+	const std::string divergedMessage = "SIMULATION DIVERGED";
+
+	parent->computingSwitchListeners.plug([this, parent, divergedMessage]{
 		const bool computing = parent->isComputing();
-		computingStatusLabel.set_text(computing ? "running" : "paused");
+		computingStatusLabel.set_text(!parent->crashed ? (computing ? "running" : "paused") : divergedMessage);
 		if (computingSwitch.get_state() != computing)
 			computingSwitch.set_state(computing);
 	});
@@ -147,12 +149,20 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 			parent->pauseComputation();
 	});
 
+	parent->crashListeners.plug([this, divergedMessage]
+	{
+		computingSwitch.set_state(false);
+		computingSwitch.set_sensitive(false);
+		computingStatusLabel.set_text(divergedMessage);
+	});
+
 	parent->initListeners.plug([this, parent]{
 		timeScaleAutoSet = false;
 		playPauseButton.set_label("pause");
 		updatePlaybackModeSelector();
 		backDisplaySelector.set_active(BACK_DISPLAY_MODE_DEFAULT);
 		frontDisplaySelector.set_active(FRONT_DISPLAY_MODE_DEFAULT);
+		computingSwitch.set_sensitive(true);
 		timeScale.set_value(0);
 		playbackSpeedScale.set_value(0);
 	});

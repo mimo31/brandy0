@@ -42,6 +42,7 @@ public:
 	ListenerManager playbackModeChangeListeners;
 	ListenerManager updateListeners;
 	ListenerManager closeListeners;
+	ListenerManager crashListeners;
 
 	ListenerManager videoExportEnterListeners;
 	ListenerManager vexpStartTimeChangeListeners;
@@ -56,6 +57,7 @@ public:
 
 	double time;
 	double computedTime;
+	bool crashed;
 
 	double videoExportTime;
 	double videoExportStartTime;

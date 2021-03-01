@@ -18,8 +18,13 @@ class SimulatorClassic : public Simulator
 {
 private:
     Grid<double> field;
+	Grid<bool> dirichlet;
+	Grid<bool> visited;
+
+	void visit(const Point p);
 
     double lapL1limit;
+	double crashLimit;
 
     void enforcePBoundary(SimFrame& f);
     void enforceUBoundary(SimFrame& f);

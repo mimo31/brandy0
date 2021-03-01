@@ -20,6 +20,7 @@ class Simulator
 {
 public:
 	double w, h;
+	bool crashed;
 	SimFrame f0, f1;
 	
 	Simulator(const SimulatorParams& params);

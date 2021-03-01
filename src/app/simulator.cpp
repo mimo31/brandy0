@@ -10,7 +10,7 @@ namespace brandy0
 {
 
 Simulator::Simulator(const SimulatorParams& params)
-	: w(params.w), h(params.h),
+	: w(params.w), h(params.h), crashed(false),
 	f0(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp)),
 	f1(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp)),
 	dt(params.dt),

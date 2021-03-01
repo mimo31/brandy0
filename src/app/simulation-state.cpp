@@ -33,6 +33,8 @@ void SimulationState::activate(const SimulatorParams& params)
 	playbackSpeedup = 1;
 	inVideoExport = false;
 	computing = false;
+	crashed = false;
+	crashSignal = false;
 	frames.clear();
 	this->params = std::make_unique<SimulatorParams>(params);
 	sim = std::make_unique<SimulatorClassic>(params);
@@ -231,6 +233,17 @@ void SimulationState::runComputeThread()
 				lastupdate = ctime;
 			}
 			sim->iter();
+			if (sim->crashed)
+			{
+				crashMutex.lock();
+				crashSignal = true;
+				crashMutex.unlock();
+				framesMutex.lock();
+				computedIter = i;
+				framesMutex.unlock();
+				stop = true;
+				break;
+			}
 		}
 		if (stop)
 			break;
@@ -277,6 +290,16 @@ bool SimulationState::update()
 	std::chrono::steady_clock::time_point ctime = std::chrono::steady_clock::now();
 	const double elapsedms = std::chrono::duration<double, std::chrono::milliseconds::period>(ctime - lastUpdate).count();
 	lastUpdate = ctime;
+
+	crashMutex.lock();
+	if (crashSignal)
+	{
+		crashed = true;
+		crashSignal = false;
+		crashListeners.invoke();
+	}
+	crashMutex.unlock();
+
 	if (!inVideoExport)
 	{
 		framesMutex.lock();

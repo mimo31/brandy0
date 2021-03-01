@@ -41,8 +41,8 @@ private:
 	std::thread redrawThread;
 	bool computing;
 	bool stopComputingSignal = false;
-	std::mutex computingMutex;
-	std::mutex framesMutex;
+	std::mutex computingMutex, framesMutex, crashMutex;
+	bool crashSignal;
 	uint32_t frameCount;
 	uint32_t frameStepSize;
 	uint32_t computedIter;

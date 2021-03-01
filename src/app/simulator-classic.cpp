@@ -9,9 +9,60 @@
 namespace brandy0
 {
 
+void SimulatorClassic::visit(const Point p)
+{
+	if (visited(p))
+		return;
+	visited(p) = true;
+	if (p.x != 0 && indep(p.x - 1, p.y))
+		visit(Point(p.x - 1, p.y));
+	if (uint32_t(p.x + 1) != wp && indep(p.x + 1, p.y))
+		visit(Point(p.x + 1, p.y));
+	if (p.y != 0 && indep(p.x, p.y - 1))
+		visit(Point(p.x, p.y - 1));
+	if (uint32_t(p.y + 1) != hp && indep(p.x, p.y + 1))
+		visit(Point(p.x, p.y + 1));
+}
+
 SimulatorClassic::SimulatorClassic(const SimulatorParams& params)
-	: Simulator(params), field(params.wp, params.hp), lapL1limit(.1)
-{   
+	: Simulator(params), field(wp, hp), dirichlet(wp, hp), visited(wp, hp), lapL1limit(.1 * wp * hp / 64 / 64), crashLimit(1e13)
+{
+	dirichlet.set_all(false);
+	if (bcx0.p == PressureBoundaryCond::DIRICHLET)
+		for (uint32_t y = 0; y < hp; y++)
+			dirichlet(0, y) = true;
+	if (bcx1.p == PressureBoundaryCond::DIRICHLET)
+		for (uint32_t y = 0; y < hp; y++)
+			dirichlet(wp - 1, y) = true;
+	if (bcy0.p == PressureBoundaryCond::DIRICHLET)
+		for (uint32_t x = 0; x < wp; x++)
+			dirichlet(x, 0) = true;
+	if (bcy1.p == PressureBoundaryCond::DIRICHLET)
+		for (uint32_t x = 0; x < wp; x++)
+			dirichlet(x, hp - 1) = true;
+	
+	visited.set_all(false);
+	for (uint32_t y = 0; y < hp; y++)
+	{
+		for (uint32_t x = 0; x < wp; x++)
+		{
+			if (dirichlet(x, y))
+				visit(Point(x, y));
+			else if (!indep(x, y))
+				visited(x, y) = true;
+		}
+	}
+	for (uint32_t y = 0; y < hp; y++)
+	{
+		for (uint32_t x = 0; x < wp; x++)
+		{
+			if (!visited(x, y))
+			{
+				dirichlet(x, y) = true;
+				visit(Point(x, y));
+			}
+		}
+	}
 }
 
 void SimulatorClassic::enforcePBoundary(SimFrame& f)
@@ -60,6 +111,11 @@ void SimulatorClassic::enforcePBoundary(SimFrame& f)
 	{
 		for (uint32_t x = 1; x < wp - 1; x++)
 		{
+			if (dirichlet(x, y))
+			{
+				f.p(x, y) = 0;
+				continue;
+			}
 			if (solid(x, y) || indep(x, y))
 				continue;
 			uint32_t cou = 0;
@@ -119,32 +175,77 @@ void SimulatorClassic::enforceBoundary(SimFrame& f)
 
 void SimulatorClassic::iter()
 {
+	if (crashed)
+		return;
 	f0 = f1;
 	for (uint32_t y = 1; y < hp - 1; y++)
 	{
 		for (uint32_t x = 1; x < wp - 1; x++)
 		{
 			if (indep(x, y))
+			{
 				field(x, y) = -(f0.u(x + 1, y).x - f0.u(x - 1, y).x + f0.u(x, y + 1).y - f0.u(x, y - 1).y) / dt / (2 * dx)
 					+ (f0.u(x + 1, y).x - f0.u(x - 1, y).x) * (f0.u(x + 1, y).x - f0.u(x - 1, y).x) / 4 / (dx * dx)
 					+ 2 * (f0.u(x, y + 1).x - f0.u(x, y - 1).x) / 2 / dx * (f0.u(x + 1, y).y - f0.u(x - 1, y).y) / 2 / dx
 					+ (f0.u(x, y + 1).y - f0.u(x, y - 1).y) * (f0.u(x, y + 1).y - f0.u(x, y - 1).y) / 4 / (dx * dx);
+				if (field(x, y) > crashLimit || field(x, y) < -crashLimit)
+				{
+					crashed = true;
+					return;
+				}
+			}
 		}
 	}
 	while (true)
 	{
 		f0.p = f1.p;
 		double dl1 = 0;
+		cout.precision(15);
 		for (uint32_t y = 1; y < hp - 1; y++)
 		{
 			for (uint32_t x = 1; x < wp - 1; x++)
 			{
-				if (indep(x, y))
+				if (indep(x, y) && !dirichlet(x, y))
 				{
-					f1.p(x, y) = (f0.p(x + 1, y) + f0.p(x - 1, y) + f0.p(x, y + 1) + f0.p(x, y - 1) + (dx * dx) * field(x, y)) / 4;
+					double sm = 0;
+					uint32_t coef = 4;
+					if (!dirichlet(x + 1, y))
+					{
+						if (indep(x + 1, y))
+							sm += f0.p(x + 1, y);
+						else
+							coef--;
+					}
+					if (!dirichlet(x - 1, y))
+					{
+						if (indep(x - 1, y))
+							sm += f0.p(x - 1, y);
+						else
+							coef--;
+					}
+					if (!dirichlet(x, y + 1))
+					{
+						if (indep(x, y + 1))
+							sm += f0.p(x, y + 1);
+						else
+							coef--;
+					}
+					if (!dirichlet(x, y - 1))
+					{
+						if (indep(x, y - 1))
+							sm += f0.p(x, y - 1);
+						else
+							coef--;
+					}
+					f1.p(x, y) = (sm + (dx * dx) * field(x, y)) / coef;
 					dl1 += abs(f1.p(x, y) - f0.p(x, y));
 				}
 			}
+		}
+		if (std::isnan(dl1))
+		{
+			crashed = true;
+			return;
 		}
 		enforcePBoundary(f1);
 		if (dl1 < lapL1limit)
@@ -168,6 +269,11 @@ void SimulatorClassic::iter()
 						- (f0.p(x, y + 1) - f0.p(x, y - 1)) / 2 / dx
 						+ nu * (f0.u(x + 1, y).y + f0.u(x - 1, y).y + f0.u(x, y + 1).y + f0.u(x, y - 1).y - 4 * f0.u(x, y).y) / (dx * dx)
 					);
+				if (std::isnan(f1.u(x, y).x) || std::isnan(f1.u(x, y).y))
+				{
+					crashed = true;
+					return;
+				}
 			}
 		}
 	}
