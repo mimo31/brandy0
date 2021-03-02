@@ -84,6 +84,8 @@ void VideoExporter::exportVideo()
 	const double vidTimeBound = compTimeToVideoTime(endTime);
 	framesToProcess = uint32_t(vidTimeBound * fps);
 
+	av_log_set_level(AV_LOG_FATAL);
+
 	format = av_guess_format(NULL, filename.c_str(), NULL);
 	if (!format)
 	{
