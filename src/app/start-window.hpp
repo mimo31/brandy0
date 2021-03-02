@@ -14,22 +14,23 @@
 #include <gtkmm/label.h>
 #include <gtkmm/window.h>
 
-#include "glob.hpp"
+#include "brandy-window.hpp"
+#include "start-state-abstr.hpp"
 
 namespace brandy0
 {
 
-class StartWindow : public Gtk::Window
+class StartWindow : public BrandyWindow
 {
 private:
-	Gtk::Button newButton, loadButton;
+	StartStateAbstr *parent;
+
+	Gtk::Button newButton, aboutButton;
 	Gtk::Label descriptionLabel;
 	Gtk::Grid layoutGrid;
 
 public:
-	StartWindow(const std::function<void()>& newSimCallback,
-			const std::function<void(std::string)>& loadSimCallback);
-	~StartWindow() override;
+	StartWindow(StartStateAbstr *const);
 };
 
 }

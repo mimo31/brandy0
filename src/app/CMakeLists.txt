@@ -1,6 +1,7 @@
 add_subdirectory(shaders)
 
 add_executable(${PROJECT_NAME}
+	about-window.cpp
 	annotated-entry.cpp
 	application.cpp
 	bc-selector.cpp

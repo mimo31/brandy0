@@ -44,7 +44,8 @@ public:
 	ListenerManager closeListeners;
 	ListenerManager crashListeners;
 
-	ListenerManager videoExportEnterListeners;
+	ListenerManager vexpEnterListeners;
+	ListenerManager vexpLeaveListeners;
 	ListenerManager vexpStartTimeChangeListeners;
 	ListenerManager vexpEndTimeChangeListeners;
 	ListenerManager vexpPlaybackSpeedupChangeListeners;

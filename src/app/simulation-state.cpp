@@ -52,6 +52,8 @@ void SimulationState::activate(const SimulatorParams& params)
 
 void SimulationState::deactivate()
 {
+	leaveVideoExport();
+	exportWin->hide();
 	computingMutex.lock();
 	if (computing)
 		stopComputingSignal = true;
@@ -117,18 +119,22 @@ void SimulationState::enterVideoExport()
 	videoExportWidth = DEFAULT_VIDEO_WIDTH;
 	videoExportHeight = DEFAULT_VIDEO_HEIGHT;
 	videoExportBitrate = DEFAULT_VIDEO_BITRATE;
-	videoExportEnterListeners.invoke();
+	vexpEnterListeners.invoke();
 	showExportWindow();
 }
 
 void SimulationState::leaveVideoExport()
 {
-	inVideoExport = false;
-	if (videoExporter)
+	if (inVideoExport)
 	{
-		if (!videoExporter->complete)
-			videoExporter->cancel();
-		videoExporter = nullptr;
+		inVideoExport = false;
+		if (videoExporter)
+		{
+			if (!videoExporter->complete)
+				videoExporter->cancel();
+			videoExporter = nullptr;
+		}
+		vexpLeaveListeners.invoke();
 	}
 }
 
@@ -340,7 +346,10 @@ bool SimulationState::update()
 					if (playbackMode == PlaybackMode::PLAY_UNTIL_END)
 						time = computedTime;
 					else
-						time = 0;
+						if (computedTime == 0)
+							time = 0;
+						else
+							time -= computedTime * floor(time / computedTime);
 				}
 			}
 			else

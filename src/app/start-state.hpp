@@ -11,24 +11,30 @@
 
 #include "glob.hpp"
 
+#include "about-window.hpp"
 #include "application.hpp"
+#include "ptr.hpp"
 #include "state.hpp"
+#include "start-state-abstr.hpp"
 #include "start-window.hpp"
 
 namespace brandy0
 {
 
-class StartState : public State
+class StartState : public State, public StartStateAbstr
 {
 private:
 	ApplicationAbstr* app;
-	StartWindow* win;
+	uptr<StartWindow> mainWin;
+	uptr<AboutWindow> aboutWin;
 public:
 	StartState(ApplicationAbstr *const);
 	void activate();
 	void deactivate();
 	void run();
-	~StartState();
+
+	void goToNewSimulation() override;
+	void showAbout() override;
 };
 
 }

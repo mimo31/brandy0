@@ -11,32 +11,32 @@
 namespace brandy0
 {
 
-StartWindow::StartWindow(const std::function<void()>& newSimCallback,
-			const std::function<void(std::string)>& loadSimCallback)
-	: newButton("new simulation"),
-	loadButton("load simulation"),
+StartWindow::StartWindow(StartStateAbstr *const parent)
+	: parent(parent),
+	newButton("new simulation"),
+	aboutButton("about"),
 	descriptionLabel("Welcome to brandy0, a fluid dynamics simulator!")
 {
-	set_title("brandy0");
-	set_border_width(12);
-
-	newButton.signal_clicked().connect(newSimCallback);
+	newButton.signal_clicked().connect([parent]
+	{
+		parent->goToNewSimulation();
+	});
+	aboutButton.signal_clicked().connect([parent]
+	{
+		parent->showAbout();
+	});
 
 	layoutGrid.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
 	layoutGrid.add(descriptionLabel);
 	layoutGrid.add(newButton);
-	layoutGrid.add(loadButton);
+	layoutGrid.add(aboutButton);
 
 	layoutGrid.set_row_spacing(5);
 
 	add(layoutGrid);
 
 	show_all_children();
-}
-
-StartWindow::~StartWindow()
-{
 }
 
 }

@@ -11,6 +11,8 @@
 namespace brandy0
 {
 
+const std::string exportButtonDefaultLabel = "export video";
+
 SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	: BrandyWindow(1280, 720),
 	parent(parent), dArea(parent),
@@ -20,7 +22,7 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	playPauseButton("pause"),
 	viewFrame("visuals"),
 	backDisplayLabel("background visual"), frontDisplayLabel("foreground visual"),
-	videoExportButton("export video")
+	videoExportButton(exportButtonDefaultLabel)
 {
 	mainGrid.attach(dArea, 0, 0, 1, 1);
 
@@ -196,6 +198,16 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		parent->closeAll();
 		return false;
 	});
+
+	parent->vexpEnterListeners.plug([this]
+	{
+		disableWhenExport();
+	});
+
+	parent->vexpLeaveListeners.plug([this]
+	{
+		enableWhenNotExport();
+	});
 }
 
 void SimulationWindow::updatePlaybackModeSelector()
@@ -234,6 +246,28 @@ void SimulationWindow::updateStats()
 	curIterLabel.set_text("iter. of frame: " + std::to_string(parent->getComputedIter()) + " / " + std::to_string(parent->params->stepsPerFrame));
 	timeLabel.set_text("t = " + std::to_string(parent->time) + " (of " + std::to_string(parent->computedTime) + ")");
 	playbackSpeedLabel.set_text("playback speed " + std::to_string(parent->playbackSpeedup) + "x");
+}
+
+void SimulationWindow::disableWhenExport()
+{
+	computingSwitch.set_sensitive(false);
+	playbackModeSelector.set_sensitive(false);
+	playPauseButton.set_sensitive(false);
+	timeScale.set_sensitive(false);
+	playbackSpeedScale.set_sensitive(false);
+	videoExportButton.set_sensitive(false);
+	videoExportButton.set_label("(exporting)");
+}
+
+void SimulationWindow::enableWhenNotExport()
+{
+	computingSwitch.set_sensitive(true);
+	playbackModeSelector.set_sensitive(true);
+	playPauseButton.set_sensitive(true);
+	timeScale.set_sensitive(true);
+	playbackSpeedScale.set_sensitive(true);
+	videoExportButton.set_sensitive(true);
+	videoExportButton.set_label(exportButtonDefaultLabel);
 }
 
 }

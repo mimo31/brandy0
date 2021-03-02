@@ -67,6 +67,8 @@ private:
 
 	void updateStats();
 	void updatePlaybackModeSelector();
+	void disableWhenExport();
+	void enableWhenNotExport();
 	void update();
 
 public:

@@ -84,7 +84,7 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 		hide();
 	});
 
-	parent->videoExportEnterListeners.plug([this]
+	parent->vexpEnterListeners.plug([this]
 	{
 		init();
 	});

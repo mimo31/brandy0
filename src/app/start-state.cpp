@@ -9,35 +9,40 @@
 namespace brandy0
 {
 
-StartState::StartState(ApplicationAbstr *const app) : app(app)
+StartState::StartState(ApplicationAbstr *const app)
+	: app(app),
+	mainWin(make_unique<StartWindow>(this)),
+	aboutWin(make_unique<AboutWindow>(this))
 {
-	win = new StartWindow([=](){
-			app->enterNewConfig();
-			}, [](std::string s){
-			std::cout << "hi -- " << s << std::endl;
-			});
-}
-
-StartState::~StartState()
-{
-	delete win;
 }
 
 void StartState::activate()
 {
-	win->show();
-	app->addWindow(*win);
+	mainWin->show();
+	app->addWindow(*mainWin);
 }
 
 void StartState::deactivate()
 {
-	win->hide();
+	aboutWin->hide();
+	mainWin->hide();
 }
 
 void StartState::run()
 {
-	win->show();
-	app->run(*win);
+	mainWin->show();
+	app->run(*mainWin);
+}
+
+void StartState::goToNewSimulation()
+{
+	app->enterNewConfig();
+}
+
+void StartState::showAbout()
+{
+	aboutWin->show();
+	aboutWin->present();
 }
 
 }
