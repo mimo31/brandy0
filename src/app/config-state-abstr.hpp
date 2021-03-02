@@ -26,11 +26,16 @@ public:
 	ListenerManager dimensionsChangeListeners;
 	ListenerManager shapeStackChangeListeners;
 	ListenerManager validityChangeListeners;
+	ListenerManager shapeConfigOpenedChangeListeners;
 
 	ValidatorManager inputValidators;
 
+	bool shapeConfigOpened;
+
 	virtual void submitAll() = 0;
 	virtual void goBackHome() = 0;
+	virtual void openShapeConfig() = 0;
+	virtual void closeAll() = 0;
 };
 
 }

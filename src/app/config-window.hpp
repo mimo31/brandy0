@@ -23,6 +23,7 @@
 #include "bc-selector.hpp"
 #include "brandy-window.hpp"
 #include "config-state-abstr.hpp"
+#include "hideable.hpp"
 #include "simulator-params.hpp"
 
 namespace brandy0
@@ -48,8 +49,8 @@ private:
 	Gtk::Frame compFrame;
 	Gtk::Grid compGrid;
 
-	Gtk::Button backHomeButton;
-	Gtk::Button startSimButton;
+	Gtk::Button backHomeButton, startSimButton;
+	Hideable<Gtk::Button> reopenButton;
 
 	ConfigStateAbstr *parent;
 

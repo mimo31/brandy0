@@ -149,8 +149,16 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 		{
 			parent->params->shapeStack.push(std::make_shared<ObstaclePolygon>(false, nextShapeClicks));
 			nextShapeClicks.clear();
+			parent->shapeStackChangeListeners.invoke();
 			nextShapeChangeListeners.invoke();
 		}
+	});
+
+	signal_delete_event().connect([parent](GdkEventAny*)
+	{
+		parent->shapeConfigOpened = false;
+		parent->shapeConfigOpenedChangeListeners.invoke();
+		return false;
 	});
 
     widthEntry.attachTo(dimensionsGrid, 0, 0);

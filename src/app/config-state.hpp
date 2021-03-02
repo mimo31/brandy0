@@ -27,8 +27,8 @@ class ConfigState : public State, public ConfigStateAbstr
 {
 private:
 	ApplicationAbstr *app;
-	ConfigWindow *mainWin;
-	ShapeConfigWindow *shapeWin;
+	std::unique_ptr<ConfigWindow> mainWin;
+	std::unique_ptr<ShapeConfigWindow> shapeWin;
 
 	void setDefaultParams();
 	void setParams(const SimulatorParams&);
@@ -39,10 +39,11 @@ public:
 	void activate();
 	void activate(const SimulatorParams&);
 	void deactivate();
-	~ConfigState();
 
 	void submitAll() override;
 	void goBackHome() override;
+	void openShapeConfig() override;
+	void closeAll() override;
 };
 
 }

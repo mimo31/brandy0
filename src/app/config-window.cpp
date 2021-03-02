@@ -44,8 +44,11 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	startSimButton("start simulation"),
 	parent(parent)
 {
+	reopenButton.set_label("reopen obstacle editor");
+
 	backHomeButton.signal_clicked().connect([parent](){ parent->goBackHome(); });
 	startSimButton.signal_clicked().connect([parent](){ parent->submitAll(); });
+	reopenButton.signal_clicked().connect([parent](){ parent->openShapeConfig(); });
 
 	rhoEntry.hookInputHandler([this, parent]()
 			{
@@ -102,6 +105,20 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 		setEntryFields();
 	});
 
+	parent->shapeConfigOpenedChangeListeners.plug([this, parent]()
+	{
+		if (parent->shapeConfigOpened)
+			reopenButton.pseudoHide();
+		else
+			reopenButton.pseudoShow();
+	});
+
+	signal_delete_event().connect([this, parent](GdkEventAny*)
+	{
+		parent->closeAll();
+		return false;
+	});
+
 	Glib::RefPtr<Gtk::CssProvider> framePaddingStyle = Gtk::CssProvider::create();
 	framePaddingStyle->load_from_data("grid { padding: 5px }");
 
@@ -129,10 +146,11 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	compFrame.add(compGrid);
 
 	rootGrid.attach(descriptionLabel, 0, 0, 2, 1);
-	rootGrid.attach(physFrame, 0, 1, 1, 1);
-	rootGrid.attach(compFrame, 1, 1, 1, 1);
-	rootGrid.attach(backHomeButton, 0, 2, 1, 1);
-	rootGrid.attach(startSimButton, 1, 2, 1, 1);
+	rootGrid.attach(physFrame, 0, 1, 1, 2);
+	rootGrid.attach(compFrame, 1, 1);
+	rootGrid.attach(reopenButton, 1, 2);
+	rootGrid.attach(backHomeButton, 0, 3);
+	rootGrid.attach(startSimButton, 1, 3);
 
 	add(rootGrid);
 

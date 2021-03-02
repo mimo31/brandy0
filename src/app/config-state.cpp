@@ -9,36 +9,32 @@
 namespace brandy0
 {
 
-ConfigState::ConfigState(ApplicationAbstr *const app) : app(app)
+ConfigState::ConfigState(ApplicationAbstr *const app)
+	: app(app),
+	mainWin(std::make_unique<ConfigWindow>(this)),
+	shapeWin(std::make_unique<ShapeConfigWindow>(this))
 {
-	mainWin = new ConfigWindow(this);
-	shapeWin = new ShapeConfigWindow(this);
-}
-
-ConfigState::~ConfigState()
-{
-	delete mainWin;
-	delete shapeWin;
 }
 
 void ConfigState::activate()
 {
+	shapeConfigOpened = false;
 	setDefaultParams();
-	initListeners.invoke();
 	showWindows();
+	initListeners.invoke();
 }
 
 void ConfigState::activate(const SimulatorParams& params)
 {
+	shapeConfigOpened = false;
 	setParams(params);
-	initListeners.invoke();
 	showWindows();
+	initListeners.invoke();
 }
 
 void ConfigState::showWindows()
 {
-	app->addWindow(*shapeWin);
-	shapeWin->show();
+	openShapeConfig();
 	app->addWindow(*mainWin);
 	mainWin->show();
 }
@@ -73,6 +69,23 @@ void ConfigState::goBackHome()
 {
 	app->enterHome();
 	closeListeners.invoke();
+}
+
+void ConfigState::openShapeConfig()
+{
+	if (!shapeConfigOpened)
+	{
+		app->addWindow(*shapeWin);
+		shapeWin->show();
+		shapeConfigOpened = true;
+		shapeConfigOpenedChangeListeners.invoke();
+	}
+}
+
+void ConfigState::closeAll()
+{
+	if (shapeConfigOpened)
+		shapeWin->close();
 }
 
 }
