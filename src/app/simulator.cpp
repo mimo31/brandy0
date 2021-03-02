@@ -10,7 +10,7 @@ namespace brandy0
 {
 
 Simulator::Simulator(const SimulatorParams& params)
-	: w(params.w), h(params.h), crashed(false),
+	: w(params.w), h(params.h), crashed(false), incomplete(false),
 	f0(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp)),
 	f1(Grid<double>(params.wp, params.hp), Grid<vec2d>(params.wp, params.hp)),
 	dt(params.dt),
@@ -51,6 +51,12 @@ vec2d Simulator::to_coor(const Point& p)
 vec2d Simulator::to_coor(const int32_t x, const int32_t y)
 {
 	return to_coor(Point(x, y));
+}
+
+void Simulator::setPauseControl(const bool *const pauseSignal, std::mutex *const controlMutex)
+{
+	this->pauseSignal = pauseSignal;
+	this->controlMutex = controlMutex;
 }
 
 }

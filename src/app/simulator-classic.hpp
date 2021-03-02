@@ -31,7 +31,7 @@ private:
     void enforceBoundary(SimFrame& f);
 public:
 	SimulatorClassic(const SimulatorParams& params);
-    void iter();
+    void iter() override;
 };
 
 }

@@ -35,11 +35,14 @@ bool ConvUtils::isPositiveReal(const std::string& s)
 	for (uint32_t i = dotind + 1; i < ind; i++)
 		if (s[i] < '0' || s[i] > '9')
 			return false;
-	if (s[ind + 1] == '-' && ind + 1 == s.length() - 1)
-		return false;
-	for (uint32_t i = (s[ind + 1] == '-' ? ind + 1 : ind) + 1; i < s.length(); i++)
-		if (s[i] < '0' || s[i] > '9')
+	if (ind != s.length())
+	{
+		if (s[ind + 1] == '-' && ind + 1 == s.length() - 1)
 			return false;
+		for (uint32_t i = (s[ind + 1] == '-' ? ind + 1 : ind) + 1; i < s.length(); i++)
+			if (s[i] < '0' || s[i] > '9')
+				return false;
+	}
 	return true;
 }
 

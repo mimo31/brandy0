@@ -16,7 +16,7 @@ class State
 {
 public:
 	virtual void deactivate() = 0;
-	virtual ~State() = default;
+	virtual ~State() { };
 };
 
 }

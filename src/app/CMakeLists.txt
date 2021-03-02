@@ -29,7 +29,12 @@ add_executable(${PROJECT_NAME}
 	${CMAKE_CURRENT_BINARY_DIR}/shaders/gresources.c
 )
 
+add_subdirectory(tests)
+
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
+
+include_directories(${PROJECT_NAME} . tests)
 
 target_link_libraries(${PROJECT_NAME} -pthread brandy0-lib -lavcodec -lavformat -lavutil -lswscale)
 

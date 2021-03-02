@@ -17,7 +17,7 @@ namespace brandy0
 ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	: parent(parent),
 	selectFileButton("select file location"),
-	backButton("back (no export)"),
+	backButton("cancel"),
 	exportButton("export video"),
 	widthEntry("width (pixels):"),
 	heightEntry("height (pixels):"),
@@ -56,18 +56,6 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	mainGrid.attach(exportProgressLabel, 0, 3, 2, 1);
 	mainGrid.attach(exportProgressBar, 0, 4, 2, 1);
 
-	/*mainGrid.attach(timeLabel, 1, 0);
-	mainGrid.attach(timeScale, 1, 1);
-	mainGrid.attach(playPauseButton, 1, 2, 3, 1);
-	widthEntry.attachTo(mainGrid, 1, 3);
-	heightEntry.attachTo(mainGrid, 1, 4);
-	bitrateEntry.attachTo(mainGrid, 1, 5);
-	mainGrid.attach(fileLocationLabel, 1, 6, 3, 1);
-	mainGrid.attach(selectFileButton, 1, 7, 3, 1);
-	mainGrid.attach(exportButton, 1, 8, 3, 1);
-	mainGrid.attach(exportProgressLabel, 0, 9, 4, 1);
-	mainGrid.attach(exportProgressBar, 0, 10, 4, 1);*/
-
 	add(mainGrid);
 
 	startTimeScale.set_draw_value(false);
@@ -93,6 +81,7 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	backButton.signal_clicked().connect([this, parent]
 	{
 		parent->leaveVideoExport();
+		hide();
 	});
 
 	parent->videoExportEnterListeners.plug([this]
@@ -239,6 +228,12 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	{
 		updateExportButtonSensitivity();
 	});
+
+	signal_delete_event().connect([parent](GdkEventAny*)
+	{
+		parent->leaveVideoExport();
+		return false;
+	});
 }
 
 void ExportWindow::getFileLocationFromUser()
@@ -353,6 +348,7 @@ void ExportWindow::updateProgressIndicators()
 		{
 			exportProgressBar.set_fraction(1);
 			exportProgressLabel.set_text("export complete!");
+			backButton.set_label("close");
 		}
 		else if (parent->videoExporter->finishing)
 		{

@@ -185,6 +185,11 @@ void init()
 	}
 }
 
+void destruct()
+{
+	ctx.reset();
+}
+
 }
 
 FrameDrawer::FrameDrawer(const SimulatorParams& p)

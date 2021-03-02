@@ -70,6 +70,7 @@ public:
 	void goBackToConfig() override;
 	void pauseComputation() override;
 	void resumeComputation() override;
+	void closeAll() override;
 	void enterVideoExport() override;
 	void leaveVideoExport() override;
 	void confirmVideoExport() override;
@@ -80,6 +81,8 @@ public:
 
 	void videoExportValidateRange() override;
 	void videoExportClampTime() override;
+
+	~SimulationState() { };
 };
 
 }

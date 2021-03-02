@@ -102,6 +102,7 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	parent->initListeners.plug([this](){
 		nextShapeClicks.clear();
 		addShapeMode = ADD_SHAPE_MODE_DEFAULT;
+		shapeSelector.set_active(ADD_SHAPE_MODE_DEFAULT);
 		nextShapeChangeListeners.invoke();
 		updateGeneralSensitivity();
 		setEntryFields();

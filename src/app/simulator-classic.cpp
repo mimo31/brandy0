@@ -177,25 +177,30 @@ void SimulatorClassic::iter()
 {
 	if (crashed)
 		return;
-	f0 = f1;
-	for (uint32_t y = 1; y < hp - 1; y++)
+	if (!incomplete)
 	{
-		for (uint32_t x = 1; x < wp - 1; x++)
+		f0 = f1;
+		for (uint32_t y = 1; y < hp - 1; y++)
 		{
-			if (indep(x, y))
+			for (uint32_t x = 1; x < wp - 1; x++)
 			{
-				field(x, y) = -(f0.u(x + 1, y).x - f0.u(x - 1, y).x + f0.u(x, y + 1).y - f0.u(x, y - 1).y) / dt / (2 * dx)
-					+ (f0.u(x + 1, y).x - f0.u(x - 1, y).x) * (f0.u(x + 1, y).x - f0.u(x - 1, y).x) / 4 / (dx * dx)
+				if (indep(x, y))
+				{
+					field(x, y) = -(f0.u(x + 1, y).x - f0.u(x - 1, y).x + f0.u(x, y + 1).y - f0.u(x, y - 1).y) / dt / (2 * dx)
+						+ (f0.u(x + 1, y).x - f0.u(x - 1, y).x) * (f0.u(x + 1, y).x - f0.u(x - 1, y).x) / 4 / (dx * dx)
 					+ 2 * (f0.u(x, y + 1).x - f0.u(x, y - 1).x) / 2 / dx * (f0.u(x + 1, y).y - f0.u(x - 1, y).y) / 2 / dx
 					+ (f0.u(x, y + 1).y - f0.u(x, y - 1).y) * (f0.u(x, y + 1).y - f0.u(x, y - 1).y) / 4 / (dx * dx);
-				if (field(x, y) > crashLimit || field(x, y) < -crashLimit)
-				{
-					crashed = true;
-					return;
+					if (field(x, y) > crashLimit || field(x, y) < -crashLimit)
+					{
+						crashed = true;
+						return;
+					}
 				}
 			}
 		}
 	}
+	incomplete = false;
+	uint32_t it = 0;
 	while (true)
 	{
 		f0.p = f1.p;
@@ -250,6 +255,22 @@ void SimulatorClassic::iter()
 		enforcePBoundary(f1);
 		if (dl1 < lapL1limit)
 			break;
+		it++;
+		if (it == 1000)
+		{
+			it = 0;
+			if (controlMutex)
+			{
+				controlMutex->lock();
+				if (*pauseSignal)
+				{
+					incomplete = true;
+					controlMutex->unlock();
+					return;
+				}
+				controlMutex->unlock();
+			}
+		}
 	}
 	for (uint32_t y = 1; y < hp - 1; y++)
 	{

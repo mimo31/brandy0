@@ -20,6 +20,7 @@ Application::Application()
 Application::~Application()
 {
 	activeSt->deactivate();
+	graphics::destruct();
 	delete startSt;
 	delete configSt;
 	delete simulationSt;

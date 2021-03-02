@@ -88,6 +88,8 @@ public:
 	virtual void pauseComputation() = 0;
 	virtual void resumeComputation() = 0;
 
+	virtual void closeAll() = 0;
+
 	virtual void enterVideoExport() = 0;
 	virtual void leaveVideoExport() = 0;
 	virtual void confirmVideoExport() = 0;

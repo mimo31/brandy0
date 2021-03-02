@@ -7,6 +7,8 @@
 #ifndef SIMULATOR_HPP
 #define SIMULATOR_HPP
 
+#include <mutex>
+
 #include "glob.hpp"
 
 #include "grid.hpp"
@@ -20,11 +22,15 @@ class Simulator
 {
 public:
 	double w, h;
-	bool crashed;
+	bool crashed, incomplete;
 	SimFrame f0, f1;
+
+	const bool *pauseSignal = nullptr;
+	std::mutex *controlMutex = nullptr;
 	
 	Simulator(const SimulatorParams& params);
 	virtual void iter() = 0;
+	void setPauseControl(const bool *const pauseSignal, std::mutex *const controlMutex);
 	virtual ~Simulator() {}
 
 protected:

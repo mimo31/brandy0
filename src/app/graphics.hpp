@@ -35,6 +35,7 @@ extern GLuint glPaintVbo;
 extern Glib::RefPtr<Gdk::GLContext> ctx;
 
 void init();
+void destruct();
 
 };
 

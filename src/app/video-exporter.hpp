@@ -73,7 +73,7 @@ private:
 
 public:
 	uint32_t framesToProcess, processedFrames;
-	bool finishing, complete, failed;
+	bool finishing, complete, failed, inProgress;
 	std::string errorMessage;
 
 	ListenerManager updateListeners;
@@ -93,6 +93,7 @@ public:
 	);
 
 	void exportVideo();
+	void cancel();
 };
 typedef std::unique_ptr<VideoExporter> VideoExporterPtr;
 

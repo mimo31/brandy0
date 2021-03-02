@@ -157,13 +157,14 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	});
 
 	parent->initListeners.plug([this, parent]{
-		timeScaleAutoSet = false;
 		playPauseButton.set_label("pause");
 		updatePlaybackModeSelector();
 		backDisplaySelector.set_active(BACK_DISPLAY_MODE_DEFAULT);
 		frontDisplaySelector.set_active(FRONT_DISPLAY_MODE_DEFAULT);
 		computingSwitch.set_sensitive(true);
+		timeScaleAutoSet = true;
 		timeScale.set_value(0);
+		timeScaleAutoSet = false;
 		playbackSpeedScale.set_value(0);
 	});
 
@@ -188,6 +189,12 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	parent->updateListeners.plug([this]
 	{
 		update();
+	});
+
+	signal_delete_event().connect([parent](GdkEventAny*)
+	{
+		parent->closeAll();
+		return false;
 	});
 }
 

@@ -6,6 +6,8 @@
  */
 #include "video-exporter.hpp"
 
+#include <filesystem>
+
 #include <glibmm.h>
 
 namespace brandy0
@@ -66,7 +68,7 @@ VideoExporter::VideoExporter(
 
 	framesToProcess = 0;
 	processedFrames = 0;
-	finishing = complete = failed = false;
+	finishing = complete = failed = inProgress = false;
 	errorMessage = "";
 }
 
@@ -76,6 +78,7 @@ void VideoExporter::exportVideo()
 
 	processedFrames = 0;
 	finishing = complete = failed = false;
+	inProgress = true;
 	errorMessage = "";
 
 	const double vidTimeBound = compTimeToVideoTime(endTime);
@@ -193,6 +196,9 @@ void VideoExporter::exportVideo()
 
 void VideoExporter::doExport()
 {
+	if (!inProgress)
+		return;
+	
 	constexpr uint32_t yieldIntervalMs = 40;
 
 	for (; videoTimeToCompTime(videoTime) < endTime; videoTime += 1 / double(fps), processedFrames++)
@@ -267,12 +273,28 @@ void VideoExporter::finishExport()
 	avformat_free_context(formatctx);
 	finishing = false;
 	complete = true;
+	inProgress = false;
 }
 
 void VideoExporter::receiveContinueCall()
 {
 	lastYield = std::chrono::steady_clock::now();
 	doExport();
+}
+
+void VideoExporter::cancel()
+{
+	if (inProgress)
+	{
+		delete[] drawndata;
+		av_frame_free(&frame);
+		av_frame_free(&rgbframe);
+		sws_freeContext(swsctx);
+		avcodec_free_context(&encoderctx);
+		avformat_free_context(formatctx);
+		std::filesystem::remove(filename);
+		inProgress = false;
+	}
 }
 
 }

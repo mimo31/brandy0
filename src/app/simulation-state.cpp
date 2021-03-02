@@ -38,6 +38,7 @@ void SimulationState::activate(const SimulatorParams& params)
 	frames.clear();
 	this->params = std::make_unique<SimulatorParams>(params);
 	sim = std::make_unique<SimulatorClassic>(params);
+	sim->setPauseControl(&stopComputingSignal, &computingMutex);
 	frontDisplayMode = FRONT_DISPLAY_MODE_DEFAULT;
 	backDisplayMode = BACK_DISPLAY_MODE_DEFAULT;
 	playbackMode = defaultPlaybackMode;
@@ -90,6 +91,15 @@ void SimulationState::resumeComputation()
 		computingSwitchListeners.invoke();
 }
 
+void SimulationState::closeAll()
+{
+	if (inVideoExport)
+	{
+		leaveVideoExport();
+		exportWin->close();
+	}
+}
+
 void SimulationState::enterVideoExport()
 {
 	inVideoExport = true;
@@ -114,7 +124,12 @@ void SimulationState::enterVideoExport()
 void SimulationState::leaveVideoExport()
 {
 	inVideoExport = false;
-	exportWin->hide();
+	if (videoExporter)
+	{
+		if (!videoExporter->complete)
+			videoExporter->cancel();
+		videoExporter = nullptr;
+	}
 }
 
 void SimulationState::confirmVideoExport()
@@ -238,6 +253,17 @@ void SimulationState::runComputeThread()
 				crashMutex.lock();
 				crashSignal = true;
 				crashMutex.unlock();
+				framesMutex.lock();
+				computedIter = i;
+				framesMutex.unlock();
+				stop = true;
+				break;
+			}
+			else if (sim->incomplete)
+			{
+				computingMutex.lock();
+				stopComputingSignal = false;
+				computingMutex.unlock();
 				framesMutex.lock();
 				computedIter = i;
 				framesMutex.unlock();

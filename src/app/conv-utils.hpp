@@ -13,12 +13,14 @@
 #include "glob.h"
 
 #include "annotated-entry.hpp"
+#include "tests.hpp"
 
 namespace brandy0
 {
 
 class ConvUtils
 {
+friend Tests;
 private:
     static bool isPositiveReal(const std::string& s);
     static bool isReal(const std::string& s);
