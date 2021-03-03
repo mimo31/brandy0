@@ -14,8 +14,10 @@ add_custom_command(
 	VERBATIM
 	MAIN_DEPENDENCY ${GRESOURCE_XML}
 	DEPENDS
-		*.vs.glsl
-		*.fs.glsl
+		plain-float.vs.glsl
+		plain.vs.glsl
+		rainbow.fs.glsl
+		white.fs.glsl
 )
 
 add_custom_target(

@@ -6,6 +6,8 @@
  */
 #include "obstacle-shape.hpp"
 
+#include <cmath>
+
 namespace brandy0
 {
 

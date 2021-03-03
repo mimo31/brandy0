@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <string>
 
-#include "glob.h"
+#include "glob.hpp"
 
 #include "annotated-entry.hpp"
 #include "tests.hpp"

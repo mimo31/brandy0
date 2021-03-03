@@ -7,6 +7,8 @@
 #ifndef OBSTACLE_SHAPE_HPP
 #define OBSTACLE_SHAPE_HPP
 
+#define _USE_MATH_DEFINES
+
 #include <memory>
 #include <vector>
 
