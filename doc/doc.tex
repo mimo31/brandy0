@@ -121,6 +121,33 @@ For every dependency listed below, automatically include all its dependencies. (
 		Run the executable. It has been generated at \icd{\$REPO/build/release/app/brandy0}.
 \end{enumerate}
 
+\newcommand{\inull}{start interface}
+\newcommand{\Inull}{Start Interface}
+\newcommand{\ione}{configuration interface}
+\newcommand{\Ione}{Configuration Interface}
+\newcommand{\itwo}{simulation interface}
+\newcommand{\Itwo}{Simulation Interface}
+
+\subsection{Program Workflow}
+The intended typical execution of the program can be logically divided into three phases.
+\begin{enumerate}
+	\item The \hyperref[sec:i0]{\inull}, which allows the user to initiate the configuration of a new simulation.
+	\item The \hyperref[sec:i1]{\ione}, which allows the user to configure parameters of a simulation.
+	\item The \hyperref[sec:i2]{\itwo}, which allows the user to play frames from the simulation that have already been computed, and which is being shown while the computation is running.
+\end{enumerate}
+The user may enter these interfaces in the above order, but they can also go back to the previous interface (unless they already are in the start interface)
+
+\subsubsection{\Inull}\label{sec:i0}
+The \inull{} consists of one main window with two buttons. The first button leaves the \inull{} and enters the \ione. The second button pops a second window with information about the program, but the main window remains open. Closing the popped up window with about information has no other effects. Closing the main window terminates the program.
+
+% screenshot of i0 here (with the about box open)
+
+\subsubsection{\Ione}\label{sec:i1}
+
+The \ione{} consists of two windows by default. The main window allows the user to set various numerical parameters of the future simulation. (see >link here< for more detailed explanation of each parameter)
+
+\subsubsection{\Itwo}\label{sec:i2}
+
 \section{Technical Documentation}
 
 \end{document}
