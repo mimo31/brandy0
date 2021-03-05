@@ -1,5 +1,3 @@
-add_subdirectory(shaders)
-
 add_executable(${PROJECT_NAME}
 	about-window.cpp
 	annotated-entry.cpp
@@ -27,8 +25,10 @@ add_executable(${PROJECT_NAME}
 	validator-manager.cpp
 	validity-indicator.cpp
 	video-exporter.cpp
-	${CMAKE_CURRENT_BINARY_DIR}/shaders/gresources.c
 )
+
+add_subdirectory(shaders)
+set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/shaders/gresources.c PROPERTY GENERATED 1)
 
 add_subdirectory(tests)
 
