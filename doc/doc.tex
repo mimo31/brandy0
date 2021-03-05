@@ -17,7 +17,10 @@
 \newcommand{\nscd}[1]{\scd{\$ #1}}
 \newcommand{\sscd}[1]{\scd{\$ sudo #1}}
 \newcommand{\aptinstall}[1]{\sscd{apt install #1}}
-\newcommand{\pubinst}{possible installation using \icd{apt} on Ubuntu 20.10 }
+\newcommand{\snapinstall}[1]{\sscd{snap install #1}}
+\newcommand{\defos}{Ubuntu 20.10}
+\newcommand{\psubinst}{possible installation using \icd{snap} on \defos}
+\newcommand{\pubinst}{possible installation using \icd{apt} on \defos}
 \newcommand{\pname}{brandy0}
 
 \begin{document}
@@ -39,7 +42,7 @@ For every dependency listed below, automatically include all its dependencies. (
 \begin{itemize}
 	\item gtkmm 3 (a C++ interface for GTK (GTK+) -- a GUI library)
 		\begin{itemize}
-			\item \pubinst (similarly for other linux package manager)
+			\item \pubinst{} (similarly for another linux package manager)
 				\aptinstall{libgtkmm-3.0-1v5}
 			\item Other versions, such as gtkmm 2 or gtkmm 4, are not compatible.
 		\end{itemize}
@@ -47,19 +50,13 @@ For every dependency listed below, automatically include all its dependencies. (
 		\begin{itemize}
 			\item specifically \icd{libavcodec}, \icd{libavformat}, \icd{libavutil}, \icd{libswscale}
 			\item \pubinst
+				\sscd{add-apt-repository universe}
 				\aptinstall{libavcodec58 libavformat58 libavutil56 libswscale5}
 		\end{itemize}
 \end{itemize}
 
 \subsubsection{Additional dependencies required for compilation}\label{sec:compiledeps}
 \begin{itemize}
-	\item CMake version 3.16 or higher (a build automation tool)
-		\begin{itemize}
-			\item \pubinst
-				\aptinstall{cmake}
-			\item Older versions of CMake may work fine too, but then it is necessary to edit the minimum required version in \icd{CMakeLists.txt}
-		\end{itemize}
-	\item pkg-config (a build tool for fetching appropriate compiler flags)
 	\item developer packages for the above run-time dependencies (unless the developer files were already included in the main package)
 		\begin{itemize}
 			\item \pubinst
@@ -68,6 +65,29 @@ For every dependency listed below, automatically include all its dependencies. (
 				\ccd{\$ sudo apt install libgtkmm-3.0-dev libavcodec-dev libavformat-dev \textbackslash}\\
 				\ccd{libavutil-dev libswscale-dev}
 				\vspace*{5pt}
+		\end{itemize}
+	\item a C++17-compliant C++ compiler
+		\begin{itemize}
+			\item for example: possible installation of the GCC compiler using \icd{apt} on \defos
+				\aptinstall{g++}
+		\end{itemize}
+	\item CMake version 3.16 or higher (a build automation tool)
+		\begin{itemize}
+			\item \psubinst{} (recommended)
+				\snapinstall{cmake}
+			\item \pubinst
+				\aptinstall{cmake}
+			\item Older versions of CMake may work fine too, but then it is necessary to edit the minimum required version in \icd{CMakeLists.txt}.
+		\end{itemize}
+	\item make (a build automation tool)
+		\begin{itemize}
+			\item \pubinst
+				\aptinstall{make}
+		\end{itemize}
+	\item pkg-config (a build tool for fetching appropriate compiler flags)
+		\begin{itemize}
+			\item \pubinst
+				\aptinstall{pkg-config}
 		\end{itemize}
 \end{itemize}
 
@@ -86,7 +106,7 @@ For every dependency listed below, automatically include all its dependencies. (
 	\item
 		Clone the repository. In what follows, it is assumed that \icd{\$REPO} is the root directory of the repository.
 	\item
-		Decide whether you want a \emph{debug} or a \emph{release} build (or both, one executable for each). A release build should produce a more optimized executable, but it will make the compilation take longer and limit potential debugging options.
+		Decide whether you want a \emph{debug} or a \emph{release} build (or both, one executable for each). A release build should produce a more optimized executable, but it will probably make the compilation take longer and limit potential debugging options.
 	\item
 		Create a directory for the build. In what follows, \icd{\$REPO/build/release} will be the build directory.
 		\nscd{mkdir -p \$REPO/build/release}
