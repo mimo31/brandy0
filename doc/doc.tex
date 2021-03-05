@@ -1,0 +1,106 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, total={6.5in, 10in}]{geometry}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newcommand{\icd}[1]{\texttt{#1}}
+\newcommand{\ccd}[1]{\colorbox{gray!15!white}{\texttt{#1}}}
+\newcommand{\scd}[1]{
+	\vspace*{5pt}
+
+	\ccd{#1}
+	\vspace*{5pt}
+}
+\newcommand{\nscd}[1]{\scd{\$ #1}}
+\newcommand{\sscd}[1]{\scd{\$ sudo #1}}
+\newcommand{\aptinstall}[1]{\sscd{apt install #1}}
+\newcommand{\pubinst}{possible installation using \icd{apt} on Ubuntu 20.10 }
+\newcommand{\pname}{brandy0}
+
+\begin{document}
+
+\author{Viktor Fukala}
+\title{\pname: Fluid Flow Simulator}
+\maketitle
+
+\section{User Documentation}
+\subsection{\pname}
+\pname{} is a computer program that computes and displays the temporal evolution of the state of a fluid inside a two-dimentional container. To start the computation, the user must specifiy the parameters and boundary conditions the fluid should have and satisfy. The program also permits changing the parameters the computational model such as the sizes of the temporal and spacial steps during the simulation. When at least some states of the fuild are computed, the program allows the user to visualize them as a continuous video.
+
+\subsection{Installation}
+
+\pname{} can be distributed as a single executable file which dynamically links to libraries it depends on. The executable file itself can (in some cases) be directly downloaded from the project repository or it can be compiled from source. Either way, dependencies in the list that follows must be installed whenever \pname{} runs.
+
+\subsubsection{Dependencies required at run time}\label{sec:runtimedeps}
+For every dependency listed below, automatically include all its dependencies. (If using a package manager, they typically install automatically.)
+\begin{itemize}
+	\item gtkmm 3 (a C++ interface for GTK (GTK+) -- a GUI library)
+		\begin{itemize}
+			\item \pubinst (similarly for other linux package manager)
+				\aptinstall{libgtkmm-3.0-1v5}
+			\item Other versions, such as gtkmm 2 or gtkmm 4, are not compatible.
+		\end{itemize}
+	\item some ffmpeg libraries
+		\begin{itemize}
+			\item specifically \icd{libavcodec}, \icd{libavformat}, \icd{libavutil}, \icd{libswscale}
+			\item \pubinst
+				\aptinstall{libavcodec58 libavformat58 libavutil56 libswscale5}
+		\end{itemize}
+\end{itemize}
+
+\subsubsection{Additional dependencies required for compilation}\label{sec:compiledeps}
+\begin{itemize}
+	\item CMake version 3.16 or higher (a build automation tool)
+		\begin{itemize}
+			\item \pubinst
+				\aptinstall{cmake}
+			\item Older versions of CMake may work fine too, but then it is necessary to edit the minimum required version in \icd{CMakeLists.txt}
+		\end{itemize}
+	\item pkg-config (a build tool for fetching appropriate compiler flags)
+	\item developer packages for the above run-time dependencies (unless the developer files were already included in the main package)
+		\begin{itemize}
+			\item \pubinst
+				\vspace*{5pt}
+
+				\ccd{\$ sudo apt install libgtkmm-3.0-dev libavcodec-dev libavformat-dev \textbackslash}\\
+				\ccd{libavutil-dev libswscale-dev}
+				\vspace*{5pt}
+		\end{itemize}
+\end{itemize}
+
+\subsubsection{Installation steps}
+\underline{If you already have the executable file for \pname{}}:
+\begin{enumerate}
+	\item
+		Install all dependencies mentioned in \ref{sec:runtimedeps}.
+	\item
+		Run the executable.
+\end{enumerate}
+\underline{If you need to compile the source}:
+\begin{enumerate}
+	\item
+		Install all dependencies mentioned in \ref{sec:runtimedeps} and \ref{sec:compiledeps}.
+	\item
+		Clone the repository. In what follows, it is assumed that \icd{\$REPO} is the root directory of the repository.
+	\item
+		Decide whether you want a \emph{debug} or a \emph{release} build (or both, one executable for each). A release build should produce a more optimized executable, but it will make the compilation take longer and limit potential debugging options.
+	\item
+		Create a directory for the build. In what follows, \icd{\$REPO/build/release} will be the build directory.
+		\nscd{mkdir -p \$REPO/build/release}
+	\item
+		Let CMake generate its build environment.
+		\nscd{cd \$REPO/build/release}
+		\nscd{cmake -DCMAKE\_BUILD\_TYPE=Release \$REPO/src} (replace \icd{Release} with \icd{Debug} if you want a debug build)
+	\item
+		Let CMake build the project.
+		\nscd{cmake --build .} (run this still inside \icd{\$REPO/build/release})
+	\item
+		Run the executable. It has been generated at \icd{\$REPO/build/release/app/brandy0}.
+\end{enumerate}
+
+\section{Technical Documentation}
+
+\end{document}
