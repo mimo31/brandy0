@@ -17,10 +17,11 @@
 #include "application.hpp"
 #include "config-window.hpp"
 #include "export-window.hpp"
+#include "ptr.hpp"
 #include "simulation-state-abstr.hpp"
 #include "simulation-window.hpp"
 #include "simulator.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 #include "state.hpp"
 
 namespace brandy0
@@ -33,9 +34,9 @@ class SimulationState : public State, public SimulationStateAbstr
 {
 private:
 	ApplicationAbstr *app;
-	std::unique_ptr<SimulationWindow> mainWin;
-	std::unique_ptr<ExportWindow> exportWin;
-	std::unique_ptr<Simulator> sim;
+	uptr<SimulationWindow> mainWin;
+	uptr<ExportWindow> exportWin;
+	uptr<Simulator> sim;
 	vec<SimFrame> frames;
 	std::thread computeThread;
 	std::thread redrawThread;
@@ -64,7 +65,7 @@ private:
 
 public:
 	SimulationState(ApplicationAbstr *const);
-	void activate(const SimulatorParams&);
+	void activate(const SimulationParams&);
 	void deactivate();
 	
 	void goBackToConfig() override;

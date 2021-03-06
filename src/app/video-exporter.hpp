@@ -79,7 +79,7 @@ public:
 	ListenerManager updateListeners;
 
 	VideoExporter(
-		const SimulatorParams& params,
+		const SimulationParams& params,
 		const uint32_t backDisplayMode,
 		const uint32_t frontDisplayMode,
 		const std::string& filename,
@@ -95,7 +95,6 @@ public:
 	void exportVideo();
 	void cancel();
 };
-typedef std::unique_ptr<VideoExporter> VideoExporterPtr;
 
 }
 

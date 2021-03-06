@@ -16,15 +16,29 @@
 namespace brandy0
 {
 
+/// The window containing the about information of this project
 class AboutWindow : public BrandyWindow
 {
 private:
+	/// Parent start state
 	StartStateAbstr *parent;
 
+	/// Grid containing all widgets; the direct child of the window
 	Gtk::Grid mainGrid;
-	Gtk::Label authorLabel, purposeLabel, repoLabel;
+	/// Label with information about the author and the time of development
+	Gtk::Label authorLabel;
+	/// Label with information about the main purpose of this project
+	Gtk::Label purposeLabel;
+	/// Label with a link to the project repository
+	Gtk::Label repoLabel;
+
+	// TODO mention the used libraries
 public:
-	AboutWindow(StartStateAbstr *const);
+	/**
+	 * Constructs the about window.
+	 * @param parent the parent start state
+	 */
+	AboutWindow(StartStateAbstr *const parent);
 };
 
 }

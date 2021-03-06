@@ -1,11 +1,11 @@
 /**
- * simulator-params.hpp
+ * simulation-params.hpp
  *
  * Author: Viktor Fukala
  * Created on 2020/10/29
  */
-#ifndef SIMULATOR_PARAMS_HPP
-#define SIMULATOR_PARAMS_HPP
+#ifndef SIMULATION_PARAMS_HPP
+#define SIMULATION_PARAMS_HPP
 
 #include "glob.hpp"
 
@@ -16,7 +16,7 @@
 namespace brandy0
 {
 
-struct SimulatorParams
+struct SimulationParams
 {
 	static constexpr uint32_t DEFAULT_WP = 64, MAX_WP = 16384, DEFAULT_HP = 64, MAX_HP = 16384,
 					DEFAULT_STEPS_PER_FRAME = 5, MAX_STEPS_PER_FRAME = 1048576, DEFAULT_FRAME_CAPACITY = 4096, MAX_FRAME_CAPACITY = 16777216;
@@ -43,7 +43,7 @@ struct SimulatorParams
 
 	// TODO add compressibility indicator as member
 
-	SimulatorParams(const double w, const double h, const uint32_t wp, const uint32_t hp, const double dt,
+	SimulationParams(const double w, const double h, const uint32_t wp, const uint32_t hp, const double dt,
 			const BoundaryCond& bcx0, const BoundaryCond& bcx1, const BoundaryCond& bcy0, const BoundaryCond& bcy1,
 			const double rho, const double mu, const ObstacleShapeStack& shapeStack, const double stopAfter, const uint32_t stepsPerFrame,
 			const uint32_t frameCapacity)
@@ -66,5 +66,5 @@ struct SimulatorParams
 
 }
 
-#endif // SIMULATOR_PARAMS_HPP
+#endif // SIMULATION_PARAMS_HPP
 

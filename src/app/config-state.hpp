@@ -16,6 +16,7 @@
 #include "config-window.hpp"
 #include "func-utils.hpp"
 #include "listener-manager.hpp"
+#include "ptr.hpp"
 #include "shape-config-window.hpp"
 #include "state.hpp"
 #include "validator-manager.hpp"
@@ -27,17 +28,17 @@ class ConfigState : public State, public ConfigStateAbstr
 {
 private:
 	ApplicationAbstr *app;
-	std::unique_ptr<ConfigWindow> mainWin;
-	std::unique_ptr<ShapeConfigWindow> shapeWin;
+	uptr<ConfigWindow> mainWin;
+	uptr<ShapeConfigWindow> shapeWin;
 
 	void setDefaultParams();
-	void setParams(const SimulatorParams&);
+	void setParams(const SimulationParams&);
 	void showWindows();
 
 public:
 	ConfigState(ApplicationAbstr *const);
 	void activate();
-	void activate(const SimulatorParams&);
+	void activate(const SimulationParams&);
 	void deactivate();
 
 	void submitAll() override;

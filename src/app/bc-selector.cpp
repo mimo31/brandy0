@@ -7,7 +7,7 @@
 #include "bc-selector.hpp"
 
 #include "conv-utils.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 
 namespace brandy0
 {
@@ -17,7 +17,7 @@ BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputCha
     pressureLabel("pressure (type):"),
     uxEntry("velocity.x:"),
     uyEntry("velocity.y:"),
-	bc(vec2d(SimulatorParams::DEFAULT_U, SimulatorParams::DEFAULT_U), SimulatorParams::DEFAULT_PRESSURE_BC),
+	bc(vec2d(SimulationParams::DEFAULT_U, SimulationParams::DEFAULT_U), SimulationParams::DEFAULT_PRESSURE_BC),
 	inputChangeHandler(inputChangeHandler)
 {
     pressureSelector.append("Dirichlet");
@@ -36,12 +36,12 @@ BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputCha
     pressureSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onPressureTypeChange));
     uxEntry.hookInputHandler([=]()
     {
-        ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulatorParams::DEFAULT_U, SimulatorParams::MAX_U);
+        ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulationParams::DEFAULT_U, SimulationParams::MAX_U);
         inputChangeHandler();
     });
     uyEntry.hookInputHandler([=]()
     {
-        ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulatorParams::DEFAULT_U, SimulatorParams::MAX_U);
+        ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulationParams::DEFAULT_U, SimulationParams::MAX_U);
         inputChangeHandler();
     });
 }

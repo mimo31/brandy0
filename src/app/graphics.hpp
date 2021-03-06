@@ -15,7 +15,7 @@
 #include <epoxy/gl.h>
 
 #include "sim-frame.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 
 namespace brandy0
 {
@@ -78,7 +78,7 @@ private:
 	void drawAll(const SimFrame& frame);
 
 public:
-	FrameDrawer(const SimulatorParams& p);
+	FrameDrawer(const SimulationParams& p);
 
 	void setFrontDisplayMode(const uint32_t fdm);
 	void setBackDisplayMode(const uint32_t bdm);

@@ -27,7 +27,7 @@ void AnnotatedEntry::hookInputHandler(const std::function<void()>& callback)
 	entry.signal_changed().connect(callback);
 }
 
-std::string AnnotatedEntry::getText()
+std::string AnnotatedEntry::getText() const
 {
 	return entry.get_text();
 }

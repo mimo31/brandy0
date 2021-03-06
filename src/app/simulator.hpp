@@ -13,7 +13,7 @@
 
 #include "grid.hpp"
 #include "sim-frame.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 
 namespace brandy0
 {
@@ -28,7 +28,7 @@ public:
 	const bool *pauseSignal = nullptr;
 	std::mutex *controlMutex = nullptr;
 	
-	Simulator(const SimulatorParams& params);
+	Simulator(const SimulationParams& params);
 	virtual void iter() = 0;
 	void setPauseControl(const bool *const pauseSignal, std::mutex *const controlMutex);
 	virtual ~Simulator() {}

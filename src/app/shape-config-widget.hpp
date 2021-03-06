@@ -14,7 +14,7 @@
 #include "config-state-abstr.hpp"
 #include "obstacle-shape.hpp"
 #include "shape-config-window-abstr.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 
 namespace brandy0
 {

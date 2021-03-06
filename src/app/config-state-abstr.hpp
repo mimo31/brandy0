@@ -7,10 +7,9 @@
 #ifndef CONFIG_STATE_ABSTR_HPP
 #define CONFIG_STATE_ABSTR_HPP
 
-#include <memory>
-
 #include "listener-manager.hpp"
-#include "simulator-params.hpp"
+#include "ptr.hpp"
+#include "simulation-params.hpp"
 #include "validator-manager.hpp"
 
 namespace brandy0
@@ -19,7 +18,7 @@ namespace brandy0
 class ConfigStateAbstr
 {
 public:
-	std::unique_ptr<SimulatorParams> params;
+	uptr<SimulationParams> params;
 
 	ListenerManager initListeners;
 	ListenerManager closeListeners;

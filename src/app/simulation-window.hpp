@@ -26,7 +26,7 @@
 #include "display-area.hpp"
 #include "sim-frame.hpp"
 #include "simulation-state-abstr.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 
 namespace brandy0
 {

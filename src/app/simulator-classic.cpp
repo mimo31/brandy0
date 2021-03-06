@@ -24,7 +24,7 @@ void SimulatorClassic::visit(const Point p)
 		visit(Point(p.x, p.y + 1));
 }
 
-SimulatorClassic::SimulatorClassic(const SimulatorParams& params)
+SimulatorClassic::SimulatorClassic(const SimulationParams& params)
 	: Simulator(params), field(wp, hp), dirichlet(wp, hp), visited(wp, hp), lapL1limit(.1 * wp * hp / 64 / 64), crashLimit(1e13)
 {
 	dirichlet.set_all(false);

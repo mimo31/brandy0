@@ -7,11 +7,10 @@
 #ifndef SIMULATION_STATE_ABSTR_HPP
 #define SIMULATION_STATE_ABSTR_HPP
 
-#include <memory>
-
 #include "listener-manager.hpp"
+#include "ptr.hpp"
 #include "sim-frame.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 #include "validator-manager.hpp"
 #include "video-exporter.hpp"
 
@@ -33,8 +32,8 @@ public:
 		DEFAULT_VIDEO_WIDTH = 1920, MAX_VIDEO_WIDTH = 8192,
 		DEFAULT_VIDEO_HEIGHT = 1080, MAX_VIDEO_HEIGHT = 8192,
 		DEFAULT_VIDEO_BITRATE = 320'000, MAX_VIDEO_BITRATE = 4'000'000;
-	std::unique_ptr<SimulatorParams> params;
-	std::unique_ptr<SimFrame> curFrame;
+	uptr<SimulationParams> params;
+	uptr<SimFrame> curFrame;
 	
 	ListenerManager initListeners;
 	ListenerManager computingSwitchListeners;
@@ -83,7 +82,7 @@ public:
 	double playbackSpeedup;
 
 	bool inVideoExport;
-	VideoExporterPtr videoExporter;
+	uptr<VideoExporter> videoExporter;
 
 	virtual void goBackToConfig() = 0;
 	virtual void pauseComputation() = 0;

@@ -41,7 +41,7 @@ void VideoExporter::detectFatalError(const std::string& message)
 }
 
 VideoExporter::VideoExporter(
-		const SimulatorParams& params,
+		const SimulationParams& params,
 		const uint32_t backDisplayMode,
 		const uint32_t frontDisplayMode,
 		const std::string& filename,

@@ -24,7 +24,7 @@ void ConfigState::activate()
 	initListeners.invoke();
 }
 
-void ConfigState::activate(const SimulatorParams& params)
+void ConfigState::activate(const SimulationParams& params)
 {
 	shapeConfigOpened = false;
 	setParams(params);
@@ -48,15 +48,15 @@ void ConfigState::deactivate()
 
 void ConfigState::setDefaultParams()
 {
-	const BoundaryCond bc(vec2d(SimulatorParams::DEFAULT_U, SimulatorParams::DEFAULT_U), SimulatorParams::DEFAULT_PRESSURE_BC);
-	setParams(SimulatorParams(SimulatorParams::DEFAULT_W, SimulatorParams::DEFAULT_H, SimulatorParams::DEFAULT_WP, SimulatorParams::DEFAULT_HP,
-			   	SimulatorParams::DEFAULT_DT, bc, bc, bc, bc, SimulatorParams::DEFAULT_RHO, SimulatorParams::DEFAULT_MU, ObstacleShapeStack(), SimulatorParams::DEFAULT_STOP_AFTER,
-				SimulatorParams::DEFAULT_STEPS_PER_FRAME, SimulatorParams::DEFAULT_FRAME_CAPACITY));
+	const BoundaryCond bc(vec2d(SimulationParams::DEFAULT_U, SimulationParams::DEFAULT_U), SimulationParams::DEFAULT_PRESSURE_BC);
+	setParams(SimulationParams(SimulationParams::DEFAULT_W, SimulationParams::DEFAULT_H, SimulationParams::DEFAULT_WP, SimulationParams::DEFAULT_HP,
+			   	SimulationParams::DEFAULT_DT, bc, bc, bc, bc, SimulationParams::DEFAULT_RHO, SimulationParams::DEFAULT_MU, ObstacleShapeStack(), SimulationParams::DEFAULT_STOP_AFTER,
+				SimulationParams::DEFAULT_STEPS_PER_FRAME, SimulationParams::DEFAULT_FRAME_CAPACITY));
 }
 
-void ConfigState::setParams(const SimulatorParams& params)
+void ConfigState::setParams(const SimulationParams& params)
 {
-	this->params = std::make_unique<SimulatorParams>(params);
+	this->params = std::make_unique<SimulationParams>(params);
 }
 
 void ConfigState::submitAll()

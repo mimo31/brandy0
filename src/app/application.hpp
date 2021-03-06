@@ -14,7 +14,7 @@
 #include "application-abstr.hpp"
 #include "config-state.hpp"
 #include "simulation-state.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 #include "state.hpp"
 #include "start-state.hpp"
 
@@ -37,9 +37,9 @@ private:
 public:
 	Application();
 	void enterNewConfig() override;
-	void enterExistingConfig(const SimulatorParams) override;
+	void enterExistingConfig(const SimulationParams) override;
 	void enterHome() override;
-	void enterNewSimulation(const SimulatorParams) override;
+	void enterNewSimulation(const SimulationParams) override;
 	void addWindow(Gtk::Window& win) override;
 	void run(Gtk::Window& win) override;
 	void run();

@@ -20,7 +20,7 @@ void ShapeConfigWindow::updateGeneralSensitivity()
 
 void ShapeConfigWindow::setEntryFields()
 {
-	std::unique_ptr<SimulatorParams>& params = parent->params;
+	uptr<SimulationParams>& params = parent->params;
 	widthEntry.setText(std::to_string(params->w));
 	heightEntry.setText(std::to_string(params->h));
 }
@@ -70,14 +70,14 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 
 	widthEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulatorParams::DEFAULT_W, SimulatorParams::MIN_W, SimulatorParams::MAX_W);
+			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParams::DEFAULT_W, SimulationParams::MIN_W, SimulationParams::MAX_W);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	heightEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulatorParams::DEFAULT_H, SimulatorParams::MIN_H, SimulatorParams::MAX_H);
+			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulationParams::DEFAULT_H, SimulationParams::MIN_H, SimulationParams::MAX_H);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}

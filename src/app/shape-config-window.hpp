@@ -19,7 +19,7 @@
 #include "hideable.hpp"
 #include "shape-config-widget.hpp"
 #include "shape-config-window-abstr.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 
 namespace brandy0
 {

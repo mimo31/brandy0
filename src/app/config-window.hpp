@@ -24,7 +24,7 @@
 #include "brandy-window.hpp"
 #include "config-state-abstr.hpp"
 #include "hideable.hpp"
-#include "simulator-params.hpp"
+#include "simulation-params.hpp"
 
 namespace brandy0
 {

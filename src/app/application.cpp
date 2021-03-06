@@ -44,7 +44,7 @@ void Application::enterNewConfig()
 	configSt->activate();
 }
 
-void Application::enterExistingConfig(const SimulatorParams params)
+void Application::enterExistingConfig(const SimulationParams params)
 {
 	switchStates(configSt);
 	configSt->activate(params);
@@ -56,7 +56,7 @@ void Application::enterHome()
 	startSt->activate();
 }
 
-void Application::enterNewSimulation(const SimulatorParams params)
+void Application::enterNewSimulation(const SimulationParams params)
 {
 	switchStates(simulationSt);
 	simulationSt->activate(params);

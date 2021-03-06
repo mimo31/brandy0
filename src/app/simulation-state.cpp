@@ -22,7 +22,7 @@ SimulationState::SimulationState(ApplicationAbstr *const app)
 {
 }
 
-void SimulationState::activate(const SimulatorParams& params)
+void SimulationState::activate(const SimulationParams& params)
 {
 	frameCount = 0;
 	frameStepSize = 1;
@@ -36,7 +36,7 @@ void SimulationState::activate(const SimulatorParams& params)
 	crashed = false;
 	crashSignal = false;
 	frames.clear();
-	this->params = std::make_unique<SimulatorParams>(params);
+	this->params = std::make_unique<SimulationParams>(params);
 	sim = std::make_unique<SimulatorClassic>(params);
 	sim->setPauseControl(&stopComputingSignal, &computingMutex);
 	frontDisplayMode = FRONT_DISPLAY_MODE_DEFAULT;

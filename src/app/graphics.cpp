@@ -192,7 +192,7 @@ void destruct()
 
 }
 
-FrameDrawer::FrameDrawer(const SimulatorParams& p)
+FrameDrawer::FrameDrawer(const SimulationParams& p)
 	: w(p.w), h(p.h), wp(p.wp), hp(p.hp), dx(p.get_dx()), dy(p.get_dy()), solid(Grid<bool>(wp, hp))
 {
 	p.shapeStack.set(solid);

@@ -6,6 +6,9 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 
+\setlength{\parindent}{0pt}
+\newcommand{\vxlisp}{\vspace*{12pt}}
+
 \newcommand{\icd}[1]{\texttt{#1}}
 \newcommand{\ccd}[1]{\colorbox{gray!15!white}{\texttt{#1}}}
 \newcommand{\scd}[1]{
@@ -127,6 +130,8 @@ For every dependency listed below, automatically include all its dependencies. (
 \newcommand{\Ione}{Configuration Interface}
 \newcommand{\itwo}{simulation interface}
 \newcommand{\Itwo}{Simulation Interface}
+\newcommand{\iexv}{video export interface}
+\newcommand{\Iexv}{Video Export Interface}
 
 \subsection{Program Workflow}
 The intended typical execution of the program can be logically divided into three phases.
@@ -144,9 +149,20 @@ The \inull{} consists of one main window with two buttons. The first button leav
 
 \subsubsection{\Ione}\label{sec:i1}
 
-The \ione{} consists of two windows by default. The main window allows the user to set various numerical parameters of the future simulation. (see >link here< for more detailed explanation of each parameter)
+The \ione{} consists of two windows by default. The main window allows the user to set various numerical parameters of the future simulation. (see [link here to description of parameters] for more detailed explanation of each parameter) Intially, the entry fields for simulation parameters contain some default values, which the user may subsequently change. In the main window, there are also buttons for going back to the \inull{} and for starting the simulation. It is only possible to start the simulation if no entry fields have been set to invalid values. (The presence of such an invalid value would be indicated by a red label next to the entry field.)
+\vxlisp
+
+The second window in the \ione{} allows the user to configure the physical shape of the container. That includes the physical dimensions of the enclosing rectangle (its width and height) and the shape, position and size of the solid obstacles inside this rectangle. The user can select the shape of the obstacle they want to add and then specify the position and size of the obstacle by clicking on the grid. For more information about specific shapes, see [link here to description of shapes]. In the top right part of the window, the user can undo the addition of shapes, redo the addition they have already undone, or clear remove all shapes (without the option to then undo this removal).
+\vxlisp
+
+Closing the main window terminates the application. Closing the shape configuration window enables a button in the main window that reopens it.
 
 \subsubsection{\Itwo}\label{sec:i2}
+
+The \itwo{} consists of one main window. This main window contains a drawing area which at every moment, displays one of the computed frames of the simulation. There is a control panel below the drawing area. Parts of the control panel include a button to terminate the simulation and return to \ione{}, a section  ...
+% need to divide this into more sections (section per Gtk::Frame in control panel)
+% perhaps use itemize
+% need to link to part of a screenshot to make this at least a bit comprehensible
 
 \section{Technical Documentation}
 

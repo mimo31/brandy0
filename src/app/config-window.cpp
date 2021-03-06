@@ -52,47 +52,47 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 
 	rhoEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulatorParams::DEFAULT_RHO, SimulatorParams::MIN_RHO, SimulatorParams::MAX_RHO);
+			ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulationParams::DEFAULT_RHO, SimulationParams::MIN_RHO, SimulationParams::MAX_RHO);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 	muEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulatorParams::DEFAULT_MU, SimulatorParams::MIN_MU, SimulatorParams::MAX_MU);
+			ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulationParams::DEFAULT_MU, SimulationParams::MIN_MU, SimulationParams::MAX_MU);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 
 	gridWidthEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulatorParams::DEFAULT_WP, SimulatorParams::MAX_WP);
+			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParams::DEFAULT_WP, SimulationParams::MAX_WP);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	gridHeightEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulatorParams::DEFAULT_HP, SimulatorParams::MAX_HP);
+			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParams::DEFAULT_HP, SimulationParams::MAX_HP);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	stepsPerFrameEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulatorParams::DEFAULT_STEPS_PER_FRAME, SimulatorParams::MAX_STEPS_PER_FRAME);
+			ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulationParams::DEFAULT_STEPS_PER_FRAME, SimulationParams::MAX_STEPS_PER_FRAME);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 	frameCapacityEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulatorParams::DEFAULT_FRAME_CAPACITY, SimulatorParams::MAX_FRAME_CAPACITY);
+			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParams::DEFAULT_FRAME_CAPACITY, SimulationParams::MAX_FRAME_CAPACITY);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 
 	dtEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulatorParams::DEFAULT_DT, SimulatorParams::MIN_DT, SimulatorParams::MAX_DT);
+			ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulationParams::DEFAULT_DT, SimulationParams::MIN_DT, SimulationParams::MAX_DT);
 			parent->validityChangeListeners.invoke();
 			}
 			);
@@ -179,7 +179,7 @@ ConfigWindow::~ConfigWindow()
 void ConfigWindow::setEntryFields()
 {
 	using std::to_string;
-	std::unique_ptr<SimulatorParams>& params = parent->params;
+	uptr<SimulationParams>& params = parent->params;
 
 	gridWidthEntry.setText(to_string(params->wp));
 	gridHeightEntry.setText(to_string(params->hp));
