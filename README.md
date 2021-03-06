@@ -31,6 +31,9 @@ brandy0 is a maturita project and is currently in development.
 * let `cmake` build
 * run the `app/brandy0` built by `cmake`
 
+## licensing
+Parts of this project are licensed under various licenses. All files in the doc/shots directory are licensed under the GNU General Public License. See the doc/shots/LICENSE file for the full license text. All other files (the contents of the src directory and this readme file) are licensed under the MIT license. See the LICENSE file for the full license text.
+
 <br/><br/><br/>
 
 # all below information relates to older experimental simulations (./src/exper)
