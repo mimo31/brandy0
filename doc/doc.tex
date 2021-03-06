@@ -124,6 +124,34 @@ For every dependency listed below, automatically include all its dependencies. (
 		Run the executable. It has been generated at \icd{\$REPO/build/release/app/brandy0}.
 \end{enumerate}
 
+\subsection{General Principles}
+\subsubsection{Physical Model}
+The core object that the program attempts to approximate is the temporal evolution of the state of a fuild inside a container. In our context, the fluid is assumed to be incompressible and its state at any given moment is characterized by the velocity and the pressure of the fluid at every point in space. The computations of the program are based on a physical model which uniquely describes the temporal evolution of this state based on the following:
+\begin{itemize}
+	\item the shape of the enclosing container,
+	\item the mechanical properties of the fluid,
+	\item the boundary conditions at surface of the container, and
+	\item the initial conditions (the initial state of the fluid).
+\end{itemize}
+With the exception of the initial conditions, the program allows the user to configure, to some extent, all of the above.
+
+\subsubsection{Discretized Model}
+In order for a computer to at least approximate the temporal evolution of the state of the fluid, the model must be discretized. The model must be discretized in both space and time. Therefore, the temporal evolution of the state is not represented as a map from a continuous interval but as a discrete sequence of finitely many frames, where each frame is an approximation of the state at one particular moment.
+\vxlisp
+
+Each frame then contains information about fluid pressure and velocity not at every point of the container but only at finitely many points of the container. In our case, these points form a uniform rectangular grid.
+
+\subsubsection{Computational Realization}
+The core of the program applies an iterative process which produces the next frame from the previous one. The specific formulas being applied are derived from differential equations governing the physical model.
+\vxlisp
+
+These frame-generating interations continue until the user actively stops the computation. To avoid running out of memory, all the frames are stored in a buffer with a set maximal number of frames. Whenever this limit is reached, every second frame is deleted from the buffer and every new frame is added to the buffer after twice as many iterations than how many were done for each frame before reaching this limit.
+
+It must be noted that, not due any explicit error in either the computer implementation or the mathematical model but rather due to the very nature of the numerical model, the computation might collapse (\emph{diverge}). That means that especially for extereme values of some parameters, the program might produce degenerate results. However, when the results get degerate enough, the program automatically recognizes that and immeidately terminates further computations.
+\vxlisp
+
+Furthermore, even when the computations do not collapse, one should bear in mind that the results of the program are only an approximation of the real solution to the physical model, which in turn is only an approximation of the behavior of real-world fluids. Despite all this, the program helps visualize roughly what \emph{kind} of behavior the fluid is might exhibit under the given conditions.
+
 \newcommand{\inull}{start interface}
 \newcommand{\Inull}{Start Interface}
 \newcommand{\ione}{configuration interface}
@@ -133,7 +161,7 @@ For every dependency listed below, automatically include all its dependencies. (
 \newcommand{\iexv}{video export interface}
 \newcommand{\Iexv}{Video Export Interface}
 
-\subsection{Program Workflow}
+\subsection{Navigation}
 The intended typical execution of the program can be logically divided into three phases.
 \begin{enumerate}
 	\item The \hyperref[sec:i0]{\inull}, which allows the user to initiate the configuration of a new simulation.
