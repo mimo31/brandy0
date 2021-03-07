@@ -27,7 +27,7 @@ struct SimulationParams
 					DEFAULT_STOP_AFTER = -1.0,//3e-3,
 					DEFAULT_DT = 1e-5, MIN_DT = 1e-9, MAX_DT = 1e1,
 					DEFAULT_U = 0, MAX_U = 1e3; // MIN is -MAX
-	static constexpr PressureBoundaryCond DEFAULT_PRESSURE_BC = PressureBoundaryCond::VON_NEUMANN;
+	static constexpr PressureBoundaryCond DEFAULT_PRESSURE_BC = PressureBoundaryCond::NEUMANN;
 
 	double w, h;
 	uint32_t wp, hp;

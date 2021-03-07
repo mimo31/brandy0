@@ -16,7 +16,7 @@ namespace brandy0
 
 enum PressureBoundaryCond
 {
-	DIRICHLET, VON_NEUMANN
+	DIRICHLET, NEUMANN
 };
 
 struct BoundaryCond

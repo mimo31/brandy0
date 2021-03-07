@@ -25,7 +25,7 @@ enum PlaybackMode
 class SimulationStateAbstr
 {
 public:
-	static constexpr double MAX_PLAYBACK_SPEEDUP = 1000;
+	static constexpr double MAX_PLAYBACK_SPEEDUP = 10000;
 	static constexpr double MS_PER_BASE_FRAME = 40;
 	static const PlaybackMode defaultPlaybackMode = PlaybackMode::PLAY_UNTIL_END;
 	static constexpr uint32_t

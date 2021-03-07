@@ -21,7 +21,7 @@ BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputCha
 	inputChangeHandler(inputChangeHandler)
 {
     pressureSelector.append("Dirichlet");
-    pressureSelector.append("von Neumann");
+    pressureSelector.append("Neumann");
     pressureSelector.set_active(0);
     selectedPressure = PressureBoundaryCond::DIRICHLET;
 
@@ -48,7 +48,7 @@ BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputCha
 
 void BCSelector::onPressureTypeChange()
 {
-    bc.p = pressureSelector.get_active_row_number() == 0 ? PressureBoundaryCond::DIRICHLET : PressureBoundaryCond::VON_NEUMANN;
+    bc.p = pressureSelector.get_active_row_number() == 0 ? PressureBoundaryCond::DIRICHLET : PressureBoundaryCond::NEUMANN;
 	inputChangeHandler();
 }
 
