@@ -50,7 +50,6 @@ private:
 		{
 		}
 	};
-	typedef std::vector<LineSegment> LineSegmentVec;
 
 	double w, h;
 	uint32_t wp, hp;
@@ -72,8 +71,8 @@ private:
 	vec2d to_coor(const Point p) const;
 	void computeMat(float *mat) const;
 	
-	void addStreamLine(const SimFrame& frame, LineSegmentVec&, const vec2d&);
-	void addArrow(const SimFrame& frame, LineSegmentVec& segs, const vec2d& pos, const double norm_len);
+	void addStreamLine(const SimFrame& frame, vec<LineSegment>&, const vec2d&);
+	void addArrow(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& pos, const double norm_len);
 
 	void drawAll(const SimFrame& frame);
 

@@ -9,6 +9,7 @@
 #include <gtkmm/cssprovider.h>
 
 #include "conv-utils.hpp"
+#include "simulation-params-preset.hpp"
 
 namespace brandy0
 {
@@ -42,57 +43,59 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	compFrame("computation configuration"),
 	backHomeButton("back to home"),
 	startSimButton("start simulation"),
+	presetButton("load a preset"),
 	parent(parent)
 {
 	reopenButton.set_label("reopen obstacle editor");
 
-	backHomeButton.signal_clicked().connect([parent](){ parent->goBackHome(); });
-	startSimButton.signal_clicked().connect([parent](){ parent->submitAll(); });
-	reopenButton.signal_clicked().connect([parent](){ parent->openShapeConfig(); });
+	backHomeButton.signal_clicked().connect([parent]{ parent->goBackHome(); });
+	startSimButton.signal_clicked().connect([parent]{ parent->submitAll(); });
+	reopenButton.signal_clicked().connect([parent]{ parent->openShapeConfig(); });
+	presetButton.signal_clicked().connect([parent]{ parent->openPresets(); });
 
 	rhoEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulationParams::DEFAULT_RHO, SimulationParams::MIN_RHO, SimulationParams::MAX_RHO);
+			ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulationParamsPreset::DEFAULT_RHO, SimulationParamsPreset::MIN_RHO, SimulationParamsPreset::MAX_RHO);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 	muEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulationParams::DEFAULT_MU, SimulationParams::MIN_MU, SimulationParams::MAX_MU);
+			ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulationParamsPreset::DEFAULT_MU, SimulationParamsPreset::MIN_MU, SimulationParamsPreset::MAX_MU);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 
 	gridWidthEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParams::DEFAULT_WP, SimulationParams::MAX_WP);
+			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParamsPreset::DEFAULT_WP, SimulationParamsPreset::MAX_WP);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	gridHeightEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParams::DEFAULT_HP, SimulationParams::MAX_HP);
+			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParamsPreset::DEFAULT_HP, SimulationParamsPreset::MAX_HP);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	stepsPerFrameEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulationParams::DEFAULT_STEPS_PER_FRAME, SimulationParams::MAX_STEPS_PER_FRAME);
+			ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulationParamsPreset::DEFAULT_STEPS_PER_FRAME, SimulationParamsPreset::MAX_STEPS_PER_FRAME);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 	frameCapacityEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParams::DEFAULT_FRAME_CAPACITY, SimulationParams::MAX_FRAME_CAPACITY);
+			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParamsPreset::DEFAULT_FRAME_CAPACITY, SimulationParamsPreset::MAX_FRAME_CAPACITY);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 
 	dtEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulationParams::DEFAULT_DT, SimulationParams::MIN_DT, SimulationParams::MAX_DT);
+			ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulationParamsPreset::DEFAULT_DT, SimulationParamsPreset::MIN_DT, SimulationParamsPreset::MAX_DT);
 			parent->validityChangeListeners.invoke();
 			}
 			);
@@ -101,7 +104,7 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 		startSimButton.set_sensitive(parent->inputValidators.isAllValid());
 	});
 
-	parent->initListeners.plug([this]() {
+	parent->paramsOverwriteListeners.plug([this]() {
 		setEntryFields();
 	});
 
@@ -146,11 +149,12 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	compFrame.add(compGrid);
 
 	rootGrid.attach(descriptionLabel, 0, 0, 2, 1);
-	rootGrid.attach(physFrame, 0, 1, 1, 2);
+	rootGrid.attach(physFrame, 0, 1, 1, 3);
 	rootGrid.attach(compFrame, 1, 1);
 	rootGrid.attach(reopenButton, 1, 2);
-	rootGrid.attach(backHomeButton, 0, 3);
-	rootGrid.attach(startSimButton, 1, 3);
+	rootGrid.attach(presetButton, 1, 3);
+	rootGrid.attach(backHomeButton, 0, 4);
+	rootGrid.attach(startSimButton, 1, 4);
 
 	add(rootGrid);
 

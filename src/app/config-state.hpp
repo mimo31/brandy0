@@ -14,8 +14,9 @@
 #include "application.hpp"
 #include "config-state-abstr.hpp"
 #include "config-window.hpp"
-#include "func-utils.hpp"
+#include "func.hpp"
 #include "listener-manager.hpp"
+#include "preset-window.hpp"
 #include "ptr.hpp"
 #include "shape-config-window.hpp"
 #include "state.hpp"
@@ -30,6 +31,7 @@ private:
 	ApplicationAbstr *app;
 	uptr<ConfigWindow> mainWin;
 	uptr<ShapeConfigWindow> shapeWin;
+	uptr<PresetWindow> presetWin;
 
 	void setDefaultParams();
 	void setParams(const SimulationParams&);
@@ -45,6 +47,8 @@ public:
 	void goBackHome() override;
 	void openShapeConfig() override;
 	void closeAll() override;
+	void openPresets() override;
+	void confirmPreset(const SimulationParams &preset) override;
 };
 
 }

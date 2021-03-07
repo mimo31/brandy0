@@ -1,11 +1,11 @@
 /**
- * func-utils.hpp
+ * func.hpp
  * 
  * Author: Viktor Fukala
  * Created on 2021/1/16
  */
-#ifndef FUNC_UTILS_HPP
-#define FUNC_UTILS_HPP
+#ifndef FUNC_HPP
+#define FUNC_HPP
 
 #include <functional>
 
@@ -17,4 +17,4 @@ typedef std::function<bool()> BoolFunc;
 
 }
 
-#endif // FUNC_UTILS_HPP
+#endif // FUNC_HPP

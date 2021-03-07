@@ -10,6 +10,7 @@
 
 #include "conv-utils.hpp"
 #include "styles.hpp"
+#include "str.hpp"
 
 namespace brandy0
 {
@@ -248,8 +249,8 @@ void ExportWindow::getFileLocationFromUser()
 	if (dial.run() == Gtk::ResponseType::RESPONSE_OK)
 	{
 		Glib::RefPtr<Gio::File> selectedFile = dial.get_file(), cd = Gio::File::create_for_path(".");
-		const std::string relpath = cd->get_relative_path(selectedFile);
-		std::string fname = relpath == "" ? selectedFile->get_path() : "./" + relpath;
+		const str relpath = cd->get_relative_path(selectedFile);
+		str fname = relpath == "" ? selectedFile->get_path() : "./" + relpath;
 		if (fname.length() < 4 || fname.substr(fname.length() - 4) != ".mp4")
 			fname += ".mp4";
 		parent->videoExportFileLocation = fname;
@@ -353,7 +354,7 @@ void ExportWindow::updateProgressIndicators()
 		else if (parent->videoExporter->finishing)
 		{
 			exportProgressBar.set_fraction(1);
-			const std::string num = std::to_string(parent->videoExporter->framesToProcess);
+			const str num = std::to_string(parent->videoExporter->framesToProcess);
 			exportProgressLabel.set_text("processed " + num + " / " + num + " video frames, finishing...");
 		}
 		else if (parent->videoExporter->failed)
@@ -363,7 +364,7 @@ void ExportWindow::updateProgressIndicators()
 		else
 		{
 			exportProgressBar.set_fraction(parent->videoExporter->processedFrames / double(parent->videoExporter->framesToProcess));
-			const std::string processingFr = std::to_string(parent->videoExporter->processedFrames + 1),
+			const str processingFr = std::to_string(parent->videoExporter->processedFrames + 1),
 				totalFr = std::to_string(parent->videoExporter->framesToProcess);
 			exportProgressLabel.set_text("processing video frame " + processingFr + " / " + totalFr + "...");
 		}

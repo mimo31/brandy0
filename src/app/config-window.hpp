@@ -49,7 +49,7 @@ private:
 	Gtk::Frame compFrame;
 	Gtk::Grid compGrid;
 
-	Gtk::Button backHomeButton, startSimButton;
+	Gtk::Button backHomeButton, startSimButton, presetButton;
 	Hideable<Gtk::Button> reopenButton;
 
 	ConfigStateAbstr *parent;

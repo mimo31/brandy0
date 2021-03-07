@@ -39,7 +39,7 @@ private:
     void on_size_allocate(Gdk::Rectangle& allocation) override;
     void on_realize() override;
     void on_unrealize() override;
-	void markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const std::vector<vec2d> ps) const;
+	void markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec<vec2d> ps) const;
 	void markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec2d p) const;
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 

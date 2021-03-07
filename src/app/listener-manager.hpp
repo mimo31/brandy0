@@ -7,9 +7,8 @@
 #ifndef LISTENER_MANAGER_HPP
 #define LISTENER_MANAGER_HPP
 
-#include <vector>
-
-#include "func-utils.hpp"
+#include "func.hpp"
+#include "vec.hpp"
 
 namespace brandy0
 {
@@ -17,7 +16,7 @@ namespace brandy0
 class ListenerManager
 {
 private:
-	std::vector<VoidFunc> listeners;
+	vec<VoidFunc> listeners;
 
 public:
 	void plug(const VoidFunc& listener);

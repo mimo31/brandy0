@@ -15,8 +15,8 @@ ObstacleShape::ObstacleShape(const bool negative) : negative(negative)
 {
 }
 
-ObstacleShapeStack::ObstacleShapeStack()
-	: shownPointer(0)
+ObstacleShapeStack::ObstacleShapeStack(const vec<sptr<ObstacleShape>> &shapes)
+	: shownPointer(shapes.size()), shapes(shapes)
 {
 }
 
@@ -83,14 +83,14 @@ bool ObstacleShapeStack::empty() const
 
 void ObstacleShapeStack::fill(Grid<bool>& grid) const
 {
-	for (const std::shared_ptr<ObstacleShape>& shape : *this)
+	for (const sptr<ObstacleShape>& shape : *this)
 		shape->fill(grid);
 }
 
 void ObstacleShapeStack::set(Grid<bool>& grid) const
 {
 	grid.set_all(false);
-	for (const std::shared_ptr<ObstacleShape>& shape : *this)
+	for (const sptr<ObstacleShape>& shape : *this)
 		shape->fill(grid);
 }
 
@@ -133,7 +133,7 @@ void ObstacleEllipse::draw(const Cairo::RefPtr<Cairo::Context>& cr) const
 	}
 }
 
-ObstaclePolygon::ObstaclePolygon(const bool negative, const std::vector<vec2d>& ps)
+ObstaclePolygon::ObstaclePolygon(const bool negative, const vec<vec2d>& ps)
     : ObstacleShape(negative), ps(ps)
 {
 }
@@ -189,7 +189,12 @@ void ObstaclePolygon::fill(Grid<bool>& grid) const
 }
 
 ObstacleRectangle::ObstacleRectangle(const bool negative, const vec2d v0, const vec2d v1)
-	: ObstaclePolygon(negative, std::vector<vec2d>{ v0, vec2d(v0.x, v1.y), v1, vec2d(v1.x, v0.y) })
+	: ObstaclePolygon(negative, vec<vec2d>{ v0, vec2d(v0.x, v1.y), v1, vec2d(v1.x, v0.y) })
+{
+}
+
+ObstacleCircle::ObstacleCircle(const bool negative, const vec2d center, const double r)
+	: ObstacleEllipse(negative, center, r, r)
 {
 }
 

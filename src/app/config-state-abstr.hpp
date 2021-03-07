@@ -26,15 +26,20 @@ public:
 	ListenerManager shapeStackChangeListeners;
 	ListenerManager validityChangeListeners;
 	ListenerManager shapeConfigOpenedChangeListeners;
+	ListenerManager presetsOpenListeners;
+	ListenerManager paramsOverwriteListeners;
 
 	ValidatorManager inputValidators;
 
 	bool shapeConfigOpened;
+	bool presetsOpened;
 
 	virtual void submitAll() = 0;
 	virtual void goBackHome() = 0;
 	virtual void openShapeConfig() = 0;
 	virtual void closeAll() = 0;
+	virtual void openPresets() = 0;
+	virtual void confirmPreset(const SimulationParams &preset) = 0;
 };
 
 }

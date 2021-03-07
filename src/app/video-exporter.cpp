@@ -29,12 +29,12 @@ uint32_t VideoExporter::videoTimeToFrame(const double videoTime) const
 	return res < frames.size() ? res : frames.size() - 1;
 }
 
-void VideoExporter::detectError(const std::string& /*message*/)
+void VideoExporter::detectError(const str& /*message*/)
 {
 	// TODO implement
 }
 
-void VideoExporter::detectFatalError(const std::string& message)
+void VideoExporter::detectFatalError(const str& message)
 {
 	failed = true;
 	detectError(message);
@@ -44,8 +44,8 @@ VideoExporter::VideoExporter(
 		const SimulationParams& params,
 		const uint32_t backDisplayMode,
 		const uint32_t frontDisplayMode,
-		const std::string& filename,
-		const std::vector<SimFrame>& frames,
+		const str& filename,
+		const vec<SimFrame>& frames,
 		const double startTime,
 		const double endTime,
 		const double msPerFrame,

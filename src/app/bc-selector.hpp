@@ -19,7 +19,8 @@
 
 #include "annotated-entry.hpp"
 #include "boundary-cond.hpp"
-#include "func-utils.hpp"
+#include "func.hpp"
+#include "str.hpp"
 
 namespace brandy0
 {
@@ -43,7 +44,7 @@ private:
 public:
     PressureBoundaryCond selectedPressure;
 
-    BCSelector(const std::string& atDescriptor, const VoidFunc& inputChangeHandler);//const std::function<void()>& validityChangeHandler);
+    BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler);//const std::function<void()>& validityChangeHandler);
     
     bool hasValidInput() const;
 	BoundaryCond getBc() const;

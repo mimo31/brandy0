@@ -7,9 +7,8 @@
 #ifndef VALIDATOR_MANAGER_HPP
 #define VALIDATOR_MANAGER_HPP
 
-#include <vector>
-
-#include "func-utils.hpp"
+#include "func.hpp"
+#include "vec.hpp"
 
 namespace brandy0
 {
@@ -17,7 +16,7 @@ namespace brandy0
 class ValidatorManager
 {
 private:
-	std::vector<BoolFunc> validators;
+	vec<BoolFunc> validators;
 
 public:
 	void plug(const BoolFunc& validator);

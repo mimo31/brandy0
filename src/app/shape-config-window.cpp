@@ -7,6 +7,7 @@
 #include "shape-config-window.hpp"
 
 #include "conv-utils.hpp"
+#include "simulation-params-preset.hpp"
 
 namespace brandy0
 {
@@ -31,7 +32,7 @@ void ShapeConfigWindow::updateAddShapeWidgets()
 	{
 		polygonVerticesLabel.pseudoShow();
 		const uint32_t vertSet = nextShapeClicks.size();
-		const std::string labelText = std::to_string(vertSet) + " " + (vertSet == 1 ? "vertex" : "vertices") + " set";
+		const str labelText = std::to_string(vertSet) + " " + (vertSet == 1 ? "vertex" : "vertices") + " set";
 		polygonVerticesLabel.set_text(labelText);
 		polygonPopVertexButton.pseudoShow();
 		polygonPopVertexButton.set_sensitive(vertSet != 0);
@@ -68,38 +69,38 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	polygonPopVertexButton.set_label("pop vertex");
 	polygonFinishButton.set_label("finish");
 
-	widthEntry.hookInputHandler([this, parent]()
+	widthEntry.hookInputHandler([this, parent]
 			{
-			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParams::DEFAULT_W, SimulationParams::MIN_W, SimulationParams::MAX_W);
+			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParamsPreset::DEFAULT_W, SimulationParamsPreset::MIN_W, SimulationParamsPreset::MAX_W);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
-	heightEntry.hookInputHandler([this, parent]()
+	heightEntry.hookInputHandler([this, parent]
 			{
-			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulationParams::DEFAULT_H, SimulationParams::MIN_H, SimulationParams::MAX_H);
+			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulationParamsPreset::DEFAULT_H, SimulationParamsPreset::MIN_H, SimulationParamsPreset::MAX_H);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	
-	undoButton.signal_clicked().connect([parent](){
+	undoButton.signal_clicked().connect([parent]{
 		parent->params->shapeStack.undo();
 		parent->shapeStackChangeListeners.invoke();
 	});
-	redoButton.signal_clicked().connect([parent](){
+	redoButton.signal_clicked().connect([parent]{
 		parent->params->shapeStack.redo();
 		parent->shapeStackChangeListeners.invoke();
 	});
-	clearAllButton.signal_clicked().connect([parent](){
+	clearAllButton.signal_clicked().connect([parent]{
 		parent->params->shapeStack.clear();
 		parent->shapeStackChangeListeners.invoke();
 	});
 	
-	parent->shapeStackChangeListeners.plug([this](){
+	parent->shapeStackChangeListeners.plug([this]{
 		updateGeneralSensitivity();
 	});
-	parent->initListeners.plug([this](){
+	parent->paramsOverwriteListeners.plug([this]{
 		nextShapeClicks.clear();
 		addShapeMode = ADD_SHAPE_MODE_DEFAULT;
 		shapeSelector.set_active(ADD_SHAPE_MODE_DEFAULT);
@@ -107,14 +108,14 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 		updateGeneralSensitivity();
 		setEntryFields();
 	});
-	parent->inputValidators.plug([this](){
+	parent->inputValidators.plug([this]{
 		return widthEntry.hasValidInput() && heightEntry.hasValidInput();
 	});
 
 	for (uint32_t i = 0; i < ADD_SHAPE_MODE_COUNT; i++)
 		shapeSelector.append(ADD_SHAPE_MODES[i].name);
 	shapeSelector.set_active(ADD_SHAPE_MODE_DEFAULT);
-	shapeSelector.signal_changed().connect([this]()
+	shapeSelector.signal_changed().connect([this]
 	{
 		const uint32_t newMode = shapeSelector.get_active_row_number();
 		if (newMode != addShapeMode)
@@ -125,17 +126,17 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 		}
 	});
 
-	nextShapeChangeListeners.plug([this]()
+	nextShapeChangeListeners.plug([this]
 	{
 		updateAddShapeWidgets();
 	});
 
-	clearShapeButton.signal_clicked().connect([this]()
+	clearShapeButton.signal_clicked().connect([this]
 	{
 		nextShapeClicks.clear();
 		nextShapeChangeListeners.invoke();
 	});
-	polygonPopVertexButton.signal_clicked().connect([this, parent]()
+	polygonPopVertexButton.signal_clicked().connect([this, parent]
 	{
 		if (addShapeMode == ADD_SHAPE_POLYGON && nextShapeClicks.size() != 0)
 		{
@@ -143,11 +144,11 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 			nextShapeChangeListeners.invoke();
 		}
 	});
-	polygonFinishButton.signal_clicked().connect([this, parent]()
+	polygonFinishButton.signal_clicked().connect([this, parent]
 	{
 		if (addShapeMode == ADD_SHAPE_POLYGON && nextShapeClicks.size() >= 3)
 		{
-			parent->params->shapeStack.push(std::make_shared<ObstaclePolygon>(false, nextShapeClicks));
+			parent->params->shapeStack.push(make_shared<ObstaclePolygon>(false, nextShapeClicks));
 			nextShapeClicks.clear();
 			parent->shapeStackChangeListeners.invoke();
 			nextShapeChangeListeners.invoke();

@@ -18,7 +18,9 @@ using uptr = std::unique_ptr<T>;
 using std::make_unique;
 
 template <typename T>
-using sptr = std::unique_ptr<T>;
+using sptr = std::shared_ptr<T>;
+
+using std::make_shared;
 
 }
 

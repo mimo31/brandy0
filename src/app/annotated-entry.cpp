@@ -9,7 +9,7 @@
 namespace brandy0
 {
 
-AnnotatedEntry::AnnotatedEntry(const std::string& label)
+AnnotatedEntry::AnnotatedEntry(const str& label)
 	: label(label)
 {
 	this->label.set_xalign(0);
@@ -27,12 +27,12 @@ void AnnotatedEntry::hookInputHandler(const std::function<void()>& callback)
 	entry.signal_changed().connect(callback);
 }
 
-std::string AnnotatedEntry::getText() const
+str AnnotatedEntry::getText() const
 {
 	return entry.get_text();
 }
 
-void AnnotatedEntry::setText(const std::string& entryText)
+void AnnotatedEntry::setText(const str& entryText)
 {
 	entry.set_text(entryText);
 }
@@ -47,7 +47,7 @@ void AnnotatedEntry::indicateOk()
 	indicator.setOk();
 }
 
-void AnnotatedEntry::indicateInvalid(const std::string& message)
+void AnnotatedEntry::indicateInvalid(const str& message)
 {
 	indicator.setInvalid(message);
 }

@@ -23,12 +23,10 @@
 #include "simulator.hpp"
 #include "simulation-params.hpp"
 #include "state.hpp"
+#include "vec.hpp"
 
 namespace brandy0
 {
-
-template<typename T>
-using vec = std::vector<T>;
 
 class SimulationState : public State, public SimulationStateAbstr
 {

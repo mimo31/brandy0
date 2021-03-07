@@ -7,9 +7,8 @@
 #ifndef SHAPE_CONFIG_WINDOW_ABSTR_HPP
 #define SHAPE_CONFIG_WINDOW_ABSTR_HPP
 
-#include <vector>
-
 #include "listener-manager.hpp"
+#include "vec.hpp"
 #include "vec2d.hpp"
 
 namespace brandy0
@@ -18,7 +17,7 @@ namespace brandy0
 class ShapeConfigWindowAbstr
 {
 public:
-	std::vector<vec2d> nextShapeClicks;
+	vec<vec2d> nextShapeClicks;
 	uint32_t addShapeMode;
 
 	ListenerManager nextShapeChangeListeners;

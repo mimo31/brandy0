@@ -17,8 +17,8 @@ namespace brandy0
 
 SimulationState::SimulationState(ApplicationAbstr *const app)
 	: app(app),
-	mainWin(std::make_unique<SimulationWindow>(this)),
-	exportWin(std::make_unique<ExportWindow>(this))
+	mainWin(make_unique<SimulationWindow>(this)),
+	exportWin(make_unique<ExportWindow>(this))
 {
 }
 
@@ -36,8 +36,8 @@ void SimulationState::activate(const SimulationParams& params)
 	crashed = false;
 	crashSignal = false;
 	frames.clear();
-	this->params = std::make_unique<SimulationParams>(params);
-	sim = std::make_unique<SimulatorClassic>(params);
+	this->params = make_unique<SimulationParams>(params);
+	sim = make_unique<SimulatorClassic>(params);
 	sim->setPauseControl(&stopComputingSignal, &computingMutex);
 	frontDisplayMode = FRONT_DISPLAY_MODE_DEFAULT;
 	backDisplayMode = BACK_DISPLAY_MODE_DEFAULT;
@@ -140,7 +140,7 @@ void SimulationState::leaveVideoExport()
 
 void SimulationState::confirmVideoExport()
 {
-	videoExporter = std::make_unique<VideoExporter>(
+	videoExporter = make_unique<VideoExporter>(
 		*params,
 		backDisplayMode,
 		frontDisplayMode,
@@ -355,7 +355,7 @@ bool SimulationState::update()
 			else
 				time = computedTime;
 		}
-		curFrame = std::make_unique<SimFrame>(frames[getFrameNumber(time)]);
+		curFrame = make_unique<SimFrame>(frames[getFrameNumber(time)]);
 		framesMutex.unlock();
 	}
 	else
@@ -366,7 +366,7 @@ bool SimulationState::update()
 			if (videoExportTime > videoExportEndTime)
 				videoExportTime = videoExportEndTime;
 		}
-		curFrame = std::make_unique<SimFrame>(frames[getFrameNumber(videoExportTime)]);
+		curFrame = make_unique<SimFrame>(frames[getFrameNumber(videoExportTime)]);
 	}
 
 	updateListeners.invoke();

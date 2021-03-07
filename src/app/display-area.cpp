@@ -19,7 +19,7 @@ DisplayArea::DisplayArea(SimulationStateAbstr *const parent) : parent(parent)
 
 	parent->initListeners.plug([this, parent]()
 	{
-		drawer = std::make_unique<FrameDrawer>(*parent->params);
+		drawer = make_unique<FrameDrawer>(*parent->params);
 	});
 }
 
@@ -48,7 +48,7 @@ bool DisplayArea::render(const Glib::RefPtr<Gdk::GLContext>& /* context */)
 	}
 }
 
-void reportError(const Gdk::GLError& gle, const std::string where)
+void reportError(const Gdk::GLError& gle, const str &where)
 {
 	cerr << "make_current on glArea resulted in an error in " << where << endl;
 	cerr << gle.domain() << "-" << gle.code() << "-" << gle.what() << endl;

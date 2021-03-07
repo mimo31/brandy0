@@ -30,7 +30,7 @@ private:
 
 	Glib::RefPtr<Gdk::GLContext> glContext;
 
-	std::unique_ptr<FrameDrawer> drawer;
+	uptr<FrameDrawer> drawer;
 
 	void realize();
 	void unrealize();

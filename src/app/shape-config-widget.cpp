@@ -124,7 +124,7 @@ void lineTo(const Cairo::RefPtr<Cairo::Context>& cr, const vec2d v)
 	cr->line_to(v.x, v.y);
 }
 
-void ShapeConfigWidget::markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const std::vector<vec2d> ps) const
+void ShapeConfigWidget::markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec<vec2d> ps) const
 {
 	const cairo_matrix_t fullCoors = cr->get_matrix();
 	cairo_matrix_t baseInv = baseCoors;
@@ -147,7 +147,7 @@ void ShapeConfigWidget::markPoints(const Cairo::RefPtr<Cairo::Context>& cr, cons
 
 void ShapeConfigWidget::markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec2d p) const
 {
-	markPoints(cr, baseCoors, std::vector<vec2d>{ p });
+	markPoints(cr, baseCoors, vec<vec2d>{ p });
 }
 
 bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
@@ -193,7 +193,7 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	Grid<bool> solid(wp, hp);
 	parent->params->shapeStack.set(solid);
 
-	std::vector<vec2d> tempShape = parentWindow->nextShapeClicks;
+	vec<vec2d> tempShape = parentWindow->nextShapeClicks;
 	if (mouseInside)
 		tempShape.push_back(mouseCoors);
 	Grid<bool> tempSolid(wp, hp);
@@ -257,7 +257,7 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	}
 
 	Gdk::Cairo::set_source_rgba(cr, Gdk::RGBA("black"));
-	for (const std::shared_ptr<ObstacleShape>& shape : parent->params->shapeStack)
+	for (const sptr<ObstacleShape>& shape : parent->params->shapeStack)
 		shape->draw(cr);
 	
 	cr->set_source_rgba(.5, .5, .5, .5);
@@ -419,19 +419,19 @@ bool ShapeConfigWidget::clickHandler(GdkEventButton *const event)
 			if (mode == ADD_SHAPE_RECTANGLE)
 			{
 				const vec2d v1(v0.x, uc.y), v3(uc.x, v0.y);
-				parent->params->shapeStack.push(std::make_shared<ObstaclePolygon>(false, std::vector<vec2d>{ v0, v1, uc, v3 }));
+				parent->params->shapeStack.push(make_shared<ObstaclePolygon>(false, vec<vec2d>{ v0, v1, uc, v3 }));
 				parent->shapeStackChangeListeners.invoke();
 			}
 			else if (mode == ADD_SHAPE_ELLIPSE)
 			{
-				parent->params->shapeStack.push(std::make_shared<ObstacleEllipse>(false, v0, uc));
+				parent->params->shapeStack.push(make_shared<ObstacleEllipse>(false, v0, uc));
 				parent->shapeStackChangeListeners.invoke();
 			}
 			else if (mode == ADD_SHAPE_CIRCLE)
 			{
 				const vec2d v = uc - v0;
 				const double r = sqrt(parent->params->w * v.x * parent->params->w * v.x + parent->params->h * v.y * parent->params->h * v.y);
-				parent->params->shapeStack.push(std::make_shared<ObstacleEllipse>(false, v0, r / parent->params->w, r / parent->params->h));
+				parent->params->shapeStack.push(make_shared<ObstacleEllipse>(false, v0, r / parent->params->w, r / parent->params->h));
 				parent->shapeStackChangeListeners.invoke();
 			}
 		}

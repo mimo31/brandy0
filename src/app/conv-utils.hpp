@@ -13,6 +13,7 @@
 #include "glob.hpp"
 
 #include "annotated-entry.hpp"
+#include "str.hpp"
 #include "tests.hpp"
 
 namespace brandy0
@@ -22,11 +23,11 @@ class ConvUtils
 {
 friend Tests;
 private:
-    static bool isPositiveReal(const std::string& s);
-    static bool isReal(const std::string& s);
-    static bool isNonnegativeInt(const std::string& s);
-    static bool isNonzero(const std::string& s);
-    static bool boundedStoi(const std::string& s, uint32_t& writeto, const uint32_t maxVal);
+    static bool isPositiveReal(const str& s);
+    static bool isReal(const str& s);
+    static bool isNonnegativeInt(const str& s);
+    static bool isNonzero(const str& s);
+    static bool boundedStoi(const str& s, uint32_t& writeto, const uint32_t maxVal);
 
 public:
     static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, const uint32_t defaultVal, const uint32_t maxVal);

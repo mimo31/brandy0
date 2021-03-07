@@ -9,14 +9,16 @@
 
 #include "glob.hpp"
 
+#include "str.hpp"
+
 namespace brandy0
 {
 
 struct BackDisplayMode
 {
-	std::string name;
+	str name;
 
-	BackDisplayMode(const std::string& name) : name(name)
+	BackDisplayMode(const str& name) : name(name)
 	{
 	}
 };
@@ -38,9 +40,9 @@ constexpr uint32_t BACK_DISPLAY_MODE_DEFAULT = BACK_DISPLAY_VELOCITY_MAGNITUDE;
 
 struct FrontDisplayMode
 {
-	std::string name;
+	str name;
 
-	FrontDisplayMode(const std::string& name) : name(name)
+	FrontDisplayMode(const str& name) : name(name)
 	{
 	}
 };

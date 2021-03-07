@@ -13,8 +13,10 @@ add_executable(${PROJECT_NAME}
 	listener-manager.cpp
 	main.cpp
 	obstacle-shape.cpp
+	preset-window.cpp
 	shape-config-widget.cpp
 	shape-config-window.cpp
+	simulation-params-preset.cpp
 	simulation-state.cpp
 	simulation-window.cpp
 	simulator.cpp
@@ -35,7 +37,7 @@ add_subdirectory(tests)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
 
-include_directories(${PROJECT_NAME} . tests)
+include_directories(${PROJECT_NAME} . tests alias)
 
 target_link_libraries(${PROJECT_NAME} -pthread brandy0-lib -lavcodec -lavformat -lavutil -lswscale)
 

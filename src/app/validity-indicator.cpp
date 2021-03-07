@@ -6,6 +6,7 @@
  */
 #include "validity-indicator.hpp"
 
+#include "str.hpp"
 #include "styles.hpp"
 
 namespace brandy0
@@ -91,7 +92,7 @@ void ValidityIndicator::setDefault()
 	state = IndicatorState::DEFAULT;
 }
 
-void ValidityIndicator::setInvalid(const std::string& message)
+void ValidityIndicator::setInvalid(const str& message)
 {
 	this->message.set_text(message);
 	if (state != IndicatorState::INVALID)

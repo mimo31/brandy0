@@ -13,6 +13,7 @@
 
 #include "glob.hpp"
 
+#include "str.hpp"
 #include "validity-indicator.hpp"
 
 namespace brandy0
@@ -40,7 +41,7 @@ public:
 	 * Constructs an annotated entry.
 	 * @param label the label to be displayed to the user
 	 */
-	AnnotatedEntry(const std::string& label);
+	AnnotatedEntry(const str& label);
 	/**
 	 * Attaches this annotated entry to a Gtk::Grid. The label gets attached to 
 	 * (fromX, fromY), the entry to (fromX + 1, fromY), and the indicator to (fromX + 2, fromY)
@@ -59,12 +60,12 @@ public:
 	/**
 	 * @return the current text in the entry field
 	 */
-	std::string getText() const;
+	str getText() const;
 	/**
 	 * Sets the text in the entry field.
 	 * @param entryText the text to be set to the entry field
 	 */
-	void setText(const std::string& entryText);
+	void setText(const str& entryText);
 	/**
 	 * Sets the indicator state to @a default.
 	 */
@@ -77,7 +78,7 @@ public:
 	 * Sets the indicator state to @a invalid.
 	 * @param message the error message the indicator should display
 	 */
-	void indicateInvalid(const std::string& message);
+	void indicateInvalid(const str& message);
 	/**
 	 * @return true iff the state of the indicator is not @a invalid.
 	 */

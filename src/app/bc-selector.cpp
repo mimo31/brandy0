@@ -8,22 +8,23 @@
 
 #include "conv-utils.hpp"
 #include "simulation-params.hpp"
+#include "simulation-params-preset.hpp"
 
 namespace brandy0
 {
 
-BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputChangeHandler)
+BCSelector::BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler)
     : Gtk::Frame("boundary c. at " + atDescriptor),
     pressureLabel("pressure (type):"),
     uxEntry("velocity.x:"),
     uyEntry("velocity.y:"),
-	bc(vec2d(SimulationParams::DEFAULT_U, SimulationParams::DEFAULT_U), SimulationParams::DEFAULT_PRESSURE_BC),
+	bc(SimulationParamsPreset::defaultBc),
 	inputChangeHandler(inputChangeHandler)
 {
     pressureSelector.append("Dirichlet");
     pressureSelector.append("Neumann");
     pressureSelector.set_active(0);
-    selectedPressure = PressureBoundaryCond::DIRICHLET;
+    selectedPressure = PressureBoundaryCond::NEUMANN;
 
     grid.attach(pressureLabel, 0, 0);
     grid.attach(pressureSelector, 1, 0);
@@ -36,12 +37,12 @@ BCSelector::BCSelector(const std::string& atDescriptor, const VoidFunc& inputCha
     pressureSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onPressureTypeChange));
     uxEntry.hookInputHandler([=]()
     {
-        ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulationParams::DEFAULT_U, SimulationParams::MAX_U);
+        ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulationParamsPreset::DEFAULT_U, SimulationParamsPreset::MAX_U);
         inputChangeHandler();
     });
     uyEntry.hookInputHandler([=]()
     {
-        ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulationParams::DEFAULT_U, SimulationParams::MAX_U);
+        ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulationParamsPreset::DEFAULT_U, SimulationParamsPreset::MAX_U);
         inputChangeHandler();
     });
 }

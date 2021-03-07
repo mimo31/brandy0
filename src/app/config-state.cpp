@@ -6,19 +6,23 @@
  */
 #include "config-state.hpp"
 
+#include "simulation-params-preset.hpp"
+
 namespace brandy0
 {
 
 ConfigState::ConfigState(ApplicationAbstr *const app)
 	: app(app),
-	mainWin(std::make_unique<ConfigWindow>(this)),
-	shapeWin(std::make_unique<ShapeConfigWindow>(this))
+	mainWin(make_unique<ConfigWindow>(this)),
+	shapeWin(make_unique<ShapeConfigWindow>(this)),
+	presetWin(make_unique<PresetWindow>(this))
 {
 }
 
 void ConfigState::activate()
 {
 	shapeConfigOpened = false;
+	presetsOpened = false;
 	setDefaultParams();
 	showWindows();
 	initListeners.invoke();
@@ -27,6 +31,7 @@ void ConfigState::activate()
 void ConfigState::activate(const SimulationParams& params)
 {
 	shapeConfigOpened = false;
+	presetsOpened = false;
 	setParams(params);
 	showWindows();
 	initListeners.invoke();
@@ -48,15 +53,13 @@ void ConfigState::deactivate()
 
 void ConfigState::setDefaultParams()
 {
-	const BoundaryCond bc(vec2d(SimulationParams::DEFAULT_U, SimulationParams::DEFAULT_U), SimulationParams::DEFAULT_PRESSURE_BC);
-	setParams(SimulationParams(SimulationParams::DEFAULT_W, SimulationParams::DEFAULT_H, SimulationParams::DEFAULT_WP, SimulationParams::DEFAULT_HP,
-			   	SimulationParams::DEFAULT_DT, bc, bc, bc, bc, SimulationParams::DEFAULT_RHO, SimulationParams::DEFAULT_MU, ObstacleShapeStack(), SimulationParams::DEFAULT_STOP_AFTER,
-				SimulationParams::DEFAULT_STEPS_PER_FRAME, SimulationParams::DEFAULT_FRAME_CAPACITY));
+	setParams(SimulationParamsPreset::defaultParams);
 }
 
 void ConfigState::setParams(const SimulationParams& params)
 {
-	this->params = std::make_unique<SimulationParams>(params);
+	this->params = make_unique<SimulationParams>(params);
+	paramsOverwriteListeners.invoke();
 }
 
 void ConfigState::submitAll()
@@ -86,6 +89,24 @@ void ConfigState::closeAll()
 {
 	if (shapeConfigOpened)
 		shapeWin->close();
+}
+
+void ConfigState::openPresets()
+{
+	if (!presetsOpened)
+	{
+		presetsOpened = true;
+		presetsOpenListeners.invoke();
+		app->addWindow(*presetWin);
+		presetWin->show();
+	}
+}
+
+void ConfigState::confirmPreset(const SimulationParams &preset)
+{
+	setParams(preset);
+	presetWin->hide();
+	presetsOpened = false;
 }
 
 }

@@ -11,6 +11,7 @@
 #include <giomm/resource.h>
 
 #include "display-modes.hpp"
+#include "str.hpp"
 
 namespace brandy0
 {
@@ -58,7 +59,7 @@ void initBuffers()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-GLuint createShader(int type, const char *src, const std::string& name)
+GLuint createShader(int type, const char *src, const str& name)
 {
 	auto shader = glCreateShader(type);
 	glShaderSource(shader, 1, &src, nullptr);
@@ -71,7 +72,7 @@ GLuint createShader(int type, const char *src, const std::string& name)
 		int log_len;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len);
 
-		std::string log_space(log_len + 1, ' ');
+		str log_space(log_len + 1, ' ');
 		glGetShaderInfoLog(shader, log_len, nullptr, (GLchar*)log_space.c_str());
 
 		cerr << "Compile failure in " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader " << name << ": " << log_space << endl;
@@ -84,20 +85,18 @@ GLuint createShader(int type, const char *src, const std::string& name)
 
 struct UniformLoc
 {
-	std::string name;
+	str name;
 	GLuint *pos;
 
-	UniformLoc(const std::string& name, GLuint *const pos) : name(name), pos(pos)
+	UniformLoc(const str& name, GLuint *const pos) : name(name), pos(pos)
 	{
 	}
 };
 
-typedef std::vector<UniformLoc> UniformLocVec;
-
-GLuint loadProgram(const std::string& vshaderName, const std::string& fshaderName, const UniformLocVec& uniforms)
+GLuint loadProgram(const str& vshaderName, const str& fshaderName, const vec<UniformLoc>& uniforms)
 {
-	const std::string vertex_path = "/shaders/" + vshaderName + ".vs.glsl";
-	const std::string fragment_path = "/shaders/" + fshaderName + ".fs.glsl";
+	const str vertex_path = "/shaders/" + vshaderName + ".vs.glsl";
+	const str fragment_path = "/shaders/" + fshaderName + ".fs.glsl";
 
 	auto vshader_bytes = Gio::Resource::lookup_data_global(vertex_path);
 	if (!vshader_bytes)
@@ -141,7 +140,7 @@ GLuint loadProgram(const std::string& vshaderName, const std::string& fshaderNam
 		int log_len;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
 
-		std::string log_space(log_len + 1, ' ');
+		str log_space(log_len + 1, ' ');
 
 		glGetProgramInfoLog(program, log_len, nullptr, (GLchar*)log_space.c_str());
 
@@ -250,7 +249,7 @@ void FrameDrawer::computeMat(float *mat) const
 	}
 }
 
-void FrameDrawer::addStreamLine(const SimFrame& frame, LineSegmentVec& segs, const vec2d& ini)
+void FrameDrawer::addStreamLine(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& ini)
 {
 	Point ipoi = to_poi(ini);
 	if (!ipoi.inside(0, 0, wp - 1, hp - 1) || solid(ipoi))
@@ -287,7 +286,7 @@ void FrameDrawer::addStreamLine(const SimFrame& frame, LineSegmentVec& segs, con
 	}
 }
 
-void FrameDrawer::addArrow(const SimFrame& frame, LineSegmentVec& segs, const vec2d& pos, const double norm_len)
+void FrameDrawer::addArrow(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& pos, const double norm_len)
 {
 	constexpr double a = .004;
 
@@ -457,7 +456,7 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 	// draw front graphics
 	if (frontDisplayMode != FRONT_DISPLAY_NONE)
 	{
-		LineSegmentVec segs;
+		vec<LineSegment> segs;
 
 		constexpr double line_d = .0147;
 

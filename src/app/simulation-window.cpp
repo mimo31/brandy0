@@ -11,7 +11,7 @@
 namespace brandy0
 {
 
-const std::string exportButtonDefaultLabel = "export video";
+const str exportButtonDefaultLabel = "export video";
 
 SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	: BrandyWindow(1280, 720),
@@ -135,7 +135,7 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 
 	show_all_children();
 
-	const std::string divergedMessage = "SIMULATION DIVERGED";
+	const str divergedMessage = "SIMULATION DIVERGED";
 
 	parent->computingSwitchListeners.plug([this, parent, divergedMessage]{
 		const bool computing = parent->isComputing();

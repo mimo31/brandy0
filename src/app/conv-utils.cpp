@@ -9,7 +9,7 @@
 namespace brandy0
 {
 
-bool ConvUtils::isPositiveReal(const std::string& s)
+bool ConvUtils::isPositiveReal(const str& s)
 {
 	uint32_t ind = 0;
 	while (ind < s.length() && s[ind] != 'e' && s[ind] != 'E')
@@ -46,7 +46,7 @@ bool ConvUtils::isPositiveReal(const std::string& s)
 	return true;
 }
 
-bool ConvUtils::isReal(const std::string& s)
+bool ConvUtils::isReal(const str& s)
 {
     if (s.length() == 0)
         return false;
@@ -56,7 +56,7 @@ bool ConvUtils::isReal(const std::string& s)
         return isPositiveReal(s);
 }
 
-bool ConvUtils::isNonnegativeInt(const std::string& s)
+bool ConvUtils::isNonnegativeInt(const str& s)
 {
 	for (const char c : s)
 	{
@@ -66,7 +66,7 @@ bool ConvUtils::isNonnegativeInt(const std::string& s)
 	return true;
 }
 
-bool ConvUtils::isNonzero(const std::string& s)
+bool ConvUtils::isNonzero(const str& s)
 {
 	for (const char c : s)
 	{
@@ -76,7 +76,7 @@ bool ConvUtils::isNonzero(const std::string& s)
 	return false;
 }
 
-bool ConvUtils::boundedStoi(const std::string& s, uint32_t& writeto, const uint32_t maxVal)
+bool ConvUtils::boundedStoi(const str& s, uint32_t& writeto, const uint32_t maxVal)
 {
 	uint32_t val = 0;
 	for (uint32_t i = 0; i < s.length(); i++)
@@ -91,7 +91,7 @@ bool ConvUtils::boundedStoi(const std::string& s, uint32_t& writeto, const uint3
 
 void ConvUtils::updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, const uint32_t defaultVal, const uint32_t maxVal)
 {
-	const std::string entered = aentry.getText();
+	const str entered = aentry.getText();
 	if (entered == "" || !isPositiveReal(entered))
 		aentry.indicateInvalid("enter a positive integer");
 	else if (!boundedStoi(entered, writeto, maxVal))
@@ -107,7 +107,7 @@ void ConvUtils::updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto,
 
 void ConvUtils::updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double minVal, const double maxVal)
 {
-	const std::string entered = aentry.getText();
+	const str entered = aentry.getText();
 	if (entered == "" || !isPositiveReal(entered))
 	{
 		aentry.indicateInvalid("enter a positive real number");
@@ -140,7 +140,7 @@ void ConvUtils::updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, 
 
 void ConvUtils::updateRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double maxVal)
 {
-    const std::string entered = aentry.getText();
+    const str entered = aentry.getText();
     if (entered == "" || !isReal(entered))
     {
         aentry.indicateInvalid("enter a real number");

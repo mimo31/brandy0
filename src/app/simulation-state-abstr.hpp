@@ -11,6 +11,7 @@
 #include "ptr.hpp"
 #include "sim-frame.hpp"
 #include "simulation-params.hpp"
+#include "str.hpp"
 #include "validator-manager.hpp"
 #include "video-exporter.hpp"
 
@@ -66,7 +67,7 @@ public:
 	bool videoExportRangeValid;
 	bool videoExportEditingTime;
 	bool videoExportPlaybackPaused;
-	std::string videoExportFileLocation;
+	str videoExportFileLocation;
 	uint32_t videoExportWidth, videoExportHeight;
 	uint32_t videoExportBitrate;
 

@@ -25,6 +25,7 @@ extern "C"
 #include "graphics.hpp"
 #include "listener-manager.hpp"
 #include "sim-frame.hpp"
+#include "str.hpp"
 
 namespace brandy0
 {
@@ -37,8 +38,8 @@ private:
 	static constexpr uint32_t gop_size = 32;
 
 	FrameDrawer drawer;
-	std::string filename;
-	const std::vector<SimFrame>& frames;
+	str filename;
+	const vec<SimFrame>& frames;
 	double startTime;
 	double endTime;
 	double sPerFrame;
@@ -50,8 +51,8 @@ private:
 	double compTimeToVideoTime(const double compTime) const;
 	uint32_t videoTimeToFrame(const double videoTime) const;
 
-	void detectError(const std::string &message);
-	void detectFatalError(const std::string &message);
+	void detectError(const str &message);
+	void detectFatalError(const str &message);
 
 	AVOutputFormat *format;
 	AVFormatContext *formatctx;
@@ -74,7 +75,7 @@ private:
 public:
 	uint32_t framesToProcess, processedFrames;
 	bool finishing, complete, failed, inProgress;
-	std::string errorMessage;
+	str errorMessage;
 
 	ListenerManager updateListeners;
 
@@ -82,8 +83,8 @@ public:
 		const SimulationParams& params,
 		const uint32_t backDisplayMode,
 		const uint32_t frontDisplayMode,
-		const std::string& filename,
-		const std::vector<SimFrame>& frames,
+		const str& filename,
+		const vec<SimFrame>& frames,
 		const double startTime,
 		const double endTime,
 		const double msPerFrame,

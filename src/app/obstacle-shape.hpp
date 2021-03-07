@@ -9,14 +9,14 @@
 
 #define _USE_MATH_DEFINES
 
-#include <memory>
-#include <vector>
-
 #include <cairomm/context.h>
 
 #include "glob.hpp"
 
 #include "grid.hpp"
+#include "ptr.hpp"
+#include "str.hpp"
+#include "vec.hpp"
 #include "vec2d.hpp"
 
 namespace brandy0
@@ -24,9 +24,9 @@ namespace brandy0
 
 struct AddShapeMode
 {
-	std::string name;
+	str name;
 
-	AddShapeMode(const std::string name) : name(name)
+	AddShapeMode(const str name) : name(name)
 	{
 	}
 };
@@ -54,25 +54,26 @@ public:
 
 };
 
-typedef std::vector<std::shared_ptr<ObstacleShape>>::iterator ObstacleShapeStackIterator;
-typedef std::vector<std::shared_ptr<ObstacleShape>>::const_iterator ObstacleShapeStackConstIterator;
+typedef vec<sptr<ObstacleShape>>::iterator ObstacleShapeStackIterator;
+typedef vec<sptr<ObstacleShape>>::const_iterator ObstacleShapeStackConstIterator;
 
 class ObstacleShapeStack
 {
 private:
-	uint32_t shownPointer;
+	uint32_t shownPointer = 0;
 
 public:
-	std::vector<std::shared_ptr<ObstacleShape>> shapes;
+	vec<sptr<ObstacleShape>> shapes;
 
-	ObstacleShapeStack();
+	ObstacleShapeStack() = default;
+	ObstacleShapeStack(const vec<sptr<ObstacleShape>> &shapes);
 
 	ObstacleShapeStackIterator begin();
 	ObstacleShapeStackIterator end();
 	ObstacleShapeStackConstIterator begin() const;
 	ObstacleShapeStackConstIterator end() const;
 
-	void push(const std::shared_ptr<ObstacleShape> shape);
+	void push(const sptr<ObstacleShape> shape);
 	void undo();
 	void redo();
 	void clear();
@@ -101,10 +102,10 @@ public:
 class ObstaclePolygon : public ObstacleShape
 {
 private:
-    std::vector<vec2d> ps;
+    vec<vec2d> ps;
 
 public:
-    ObstaclePolygon(const bool negative, const std::vector<vec2d>& ps);
+    ObstaclePolygon(const bool negative, const vec<vec2d>& ps);
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
 	void fill(Grid<bool>& grid) const override;
@@ -119,6 +120,7 @@ public:
 class ObstacleCircle : public ObstacleEllipse
 {
 public:
+	ObstacleCircle(const bool negative, const vec2d center, const double r);
 	ObstacleCircle(const bool negative, const vec2d center, const vec2d v1, const double physW, const double physH);
 };
 

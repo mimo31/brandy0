@@ -14,6 +14,8 @@
 
 #include "glob.hpp"
 
+#include "str.hpp"
+
 namespace brandy0
 {
 
@@ -37,7 +39,7 @@ public:
 	~ValidityIndicator() override;
 	void setDefault();
 	void setOk();
-	void setInvalid(const std::string& message);
+	void setInvalid(const str& message);
 	IndicatorState getState() const;
 };
 
