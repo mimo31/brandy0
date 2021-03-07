@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 
 #include "point.hpp"
 
@@ -99,6 +100,15 @@ T min(const Grid<T>& grid)
 	T best = grid.data[0];
 	for (uint32_t i = 1; i < grid.w * grid.h; i++)
 		best = std::min(best, grid.data[i]);
+	return best;
+}
+
+template <typename T, typename S>
+S max(const Grid<T>& grid, const std::function<S(T)>& evaluator)
+{
+	S best = evaluator(grid.data[0]);
+	for (uint32_t i = 1; i < grid.w * grid.h; i++)
+		best = std::max(best, evaluator(grid.data[i]));
 	return best;
 }
 

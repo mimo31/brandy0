@@ -287,7 +287,7 @@ void FrameDrawer::addStreamLine(const SimFrame& frame, LineSegmentVec& segs, con
 	}
 }
 
-void FrameDrawer::addArrow(const SimFrame& frame, LineSegmentVec& segs, const vec2d& pos)
+void FrameDrawer::addArrow(const SimFrame& frame, LineSegmentVec& segs, const vec2d& pos, const double norm_len)
 {
 	constexpr double a = .004;
 
@@ -308,7 +308,7 @@ void FrameDrawer::addArrow(const SimFrame& frame, LineSegmentVec& segs, const ve
 	}
 	else
 	{
-		const double mlt = .1;
+		const double mlt = .1 / norm_len;
 		segs.push_back(LineSegment(pos, pos + u * mlt));
 		const vec2d uu = u.get_unit();
 		const vec2d av = uu * a;
@@ -461,32 +461,34 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 
 		constexpr double line_d = .0147;
 
+		const double max_ulen = sqrt(max<vec2d, double>(frame.u, [](const vec2d u){return u.len2();}));
+
 		if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_ARROWS)
 		{
-			for (double x = w / 2; x < w; x += line_d)
+			for (double x = w / 2; x < w; x += line_d * w)
 			{
-				for (double y = h / 2; y < h; y += line_d)
+				for (double y = h / 2; y < h; y += line_d * h)
 				{
 					if (!solid(to_poi(x, y)))
-						addArrow(frame, segs, vec2d(x, y));
+						addArrow(frame, segs, vec2d(x, y), max_ulen);
 				}
-				for (double y = h / 2 - line_d; y > 0; y -= line_d)
+				for (double y = h / 2 - line_d; y > 0; y -= line_d * h)
 				{
 					if (!solid(to_poi(x, y)))
-						addArrow(frame, segs, vec2d(x, y));
+						addArrow(frame, segs, vec2d(x, y), max_ulen);
 				}
 			}
-			for (double x = w / 2 - line_d; x > 0; x -= line_d)
+			for (double x = w / 2 - line_d; x > 0; x -= line_d * w)
 			{
-				for (double y = h / 2; y < h; y += line_d)
+				for (double y = h / 2; y < h; y += line_d * h)
 				{
 					if (!solid(to_poi(x, y)))
-						addArrow(frame, segs, vec2d(x, y));
+						addArrow(frame, segs, vec2d(x, y), max_ulen);
 				}
-				for (double y = h / 2 - line_d; y > 0; y -= line_d)
+				for (double y = h / 2 - line_d; y > 0; y -= line_d * h)
 				{
 					if (!solid(to_poi(x, y)))
-						addArrow(frame, segs, vec2d(x, y));
+						addArrow(frame, segs, vec2d(x, y), max_ulen);
 				}
 			}
 		}

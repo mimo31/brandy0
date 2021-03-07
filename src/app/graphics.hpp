@@ -73,7 +73,7 @@ private:
 	void computeMat(float *mat) const;
 	
 	void addStreamLine(const SimFrame& frame, LineSegmentVec&, const vec2d&);
-	void addArrow(const SimFrame& frame, LineSegmentVec& segs, const vec2d& pos);
+	void addArrow(const SimFrame& frame, LineSegmentVec& segs, const vec2d& pos, const double norm_len);
 
 	void drawAll(const SimFrame& frame);
 
