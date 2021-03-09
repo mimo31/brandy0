@@ -5,6 +5,8 @@
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{mathtools}
 
 \setlength{\parindent}{0pt}
 \newcommand{\vxlisp}{\vspace*{12pt}}
@@ -170,17 +172,144 @@ The intended typical execution of the program can be logically divided into thre
 \end{enumerate}
 The user may enter these interfaces in the above order, but they can also go back to the previous interface (unless they already are in the start interface)
 
-\subsubsection{\Inull}\label{sec:i0}
+\subsection{\Inull}\label{sec:i0}
 The \inull{} consists of one main window with two buttons. The first button leaves the \inull{} and enters the \ione. The second button pops a second window with information about the program, but the main window remains open. Closing the popped up window with about information has no other effects. Closing the main window terminates the program.
 
 % screenshot of i0 here (with the about box open)
 
-\subsubsection{\Ione}\label{sec:i1}
+\subsection{\Ione}\label{sec:i1}
 
-The \ione{} consists of two windows by default. The main window allows the user to set various numerical parameters of the future simulation. (see [link here to description of parameters] for more detailed explanation of each parameter) Intially, the entry fields for simulation parameters contain some default values, which the user may subsequently change. In the main window, there are also buttons for going back to the \inull{} and for starting the simulation. It is only possible to start the simulation if no entry fields have been set to invalid values. (The presence of such an invalid value would be indicated by a red label next to the entry field.)
+In general, the purpose of the \ione{} is to allow the user to set parameters for the simulation.
 \vxlisp
 
-The second window in the \ione{} allows the user to configure the physical shape of the container. That includes the physical dimensions of the enclosing rectangle (its width and height) and the shape, position and size of the solid obstacles inside this rectangle. The user can select the shape of the obstacle they want to add and then specify the position and size of the obstacle by clicking on the grid. For more information about specific shapes, see [link here to description of shapes]. In the top right part of the window, the user can undo the addition of shapes, redo the addition they have already undone, or clear remove all shapes (without the option to then undo this removal).
+Any user should be aware of the fact that setting extreme values (even if allowed) to some parameters might increase the likelihood of the simulation collapsing. Therefore, users are strongly encouraged to start by loading one of the parameter presets (see \ref{sec:presets} for guidance on that) before setting parameters by themselves.
+\vxlisp
+
+The \ione{} consits of three windows: the main window, the window for the configuration of shapes, and the window with preset selection. The first and the second and are opened by default. The third can be opened by pressing a button in the main window. Closing the shape configuration window enables a button in the main window to reopen the shape configuration window and it doesn't delete the state of the shape configuration. Closing the main window terminates the program.
+\vxlisp
+
+The individual windows are described in the following sections. These are followed by a sections specifying the accepted formats of real numbers entered by the user. This specification is valid for all the windows.
+\vxlisp
+
+Most entry fields are accompanied by an indicator which indicates one of three states based on the text entered in the field. It either indicates \emph{default}, meaning that the entered text is valid input and that it represents the default value for that field, or \emph{ok}, meaning that the entered text is valid and not \emph{default}, or it shows an error message in red explaining why the entered text is invalid.
+
+\subsubsection{Main Configuration Window}
+The main configuration window allows the user to set most of the paramaters for the simulation.
+
+\newcommand{\shotscale}{.4}
+\begin{figure}[h]
+	\includegraphics[scale=\shotscale]{shots/config_screen_desc}
+	\caption{The main configuration window (highlighting and numbering of its elements in blue)}
+\end{figure}
+\newcommand{\numrho}{1}
+\newcommand{\nummu}{2}
+\newcommand{\numbc}{3}
+\newcommand{\numpbc}{4}
+\newcommand{\numvx}{5}
+\newcommand{\numvy}{6}
+\newcommand{\numwp}{7}
+\newcommand{\numhp}{8}
+\newcommand{\numdt}{9}
+\newcommand{\numsteps}{10}
+\newcommand{\numcap}{11}
+\newcommand{\numbackhome}{12}
+\newcommand{\numeditor}{13}
+\newcommand{\numpreset}{14}
+\newcommand{\numstart}{15}
+
+\newcommand{\undrsep}{\vspace*{2pt}}
+
+\underline{Fluid Density Entry, [\numrho]}
+\undrsep
+
+The entry for the density of the fluid, also denoted as $\rho$ in this text. Default value is $\rho=1$, allowed minimum $\rho=10^{-5}$, allowed maximum $\rho=10^{5}$.
+\vxlisp
+
+\underline{Fluid Viscosity Entry, [\nummu]}
+\undrsep
+
+The entry for the dynamic viscosity of the fluid, also denoted as $\mu$ in this text. Default value is $\mu=1$, allowed minimum $\mu=10^{-5}$, allowed maximum $\mu=10^5$.
+\vxlisp
+
+\underline{Boundary Condition, [\numbc]}
+\undrsep
+
+A group of entries representing the boundary conditions on one side of the simulated rectangular container. There are four such groups -- one for each side of the container.
+\vxlisp
+
+\underline{Boundary Condition -- Pressure, [\numpbc]}
+\undrsep
+
+The selector of the type of the pressure boundary condition. The pressure at the boundary can either be set to satisfy the Dirichlet boundary condition $p=0$ or the Neumann boundary condition $\nabla_{\mathbf n}p=0$, where $\mathbf n$ is the normal vector at the boundary (so the Neumann type condition requires the derivate of pressure along the normal vector to be zero).
+\vxlisp
+
+\underline{Boundary Condition -- Velocity, [\numvx] for the $x$ component, [\numvy] for the $y$ component}
+\undrsep
+
+The entries for the velocity at the boundary. The velocity of the fluid is set to satisfy a Dirichlet boundary condition and these entries allow the user to specify the velocity vector at one of the sides of the container. The same velocity vector is set along the entire side of the enclosing rectangle. The positive direction for $x$ is left to right, the positive direction for $y$ is bottom to top. Default value for each of the components is $0$ and only values of absolute value not above $10^3$ are allowed.
+\vxlisp
+
+\underline{Number of Grid Points, [\numwp] for the $x$ direction, [\numhp] for the $y$ direction}
+\undrsep
+
+The entries for the number of grid points along the $x$ axis and the $y$ axis in the spacial discretization of the state of the fluid. The total number of grid points is then approximately equal to the product of these two values, but it might be lower if significant parts of the container are filled with solid obstacles as set in the shape configuration window (see \ref{sec:shapeconfig}). Default value in both directions is $64$, allowed minimum $4$, allowed maximum $16384$. The value must be an integer.
+\vxlisp
+
+\underline{Time Step, [\numdt]}
+\undrsep
+\newcommand{\dt}{\Delta t}
+
+The entry for the size of the time step in the temporal discretization of the evolution of the state of the fluid, also denoted as $\dt$ in this text. Default value is $\dt=10^{-5}$, allowed minimum $\dt=10^{-9}$, allowed maximum $\dt=10$.
+\vxlisp
+
+\underline{Steps per Frame, [\numsteps]}
+\undrsep
+
+The entry for the number of computation steps per output frame. This value is the number of computation steps (each simulating the passing of $\Delta t$ of time) needed to produce one frame of output. Therefore, the time between difference between two consecutive output frames is this multiple of $\Delta t$. However, after the buffer for frames reaches and its capacity, the temporal resolution of the frames decreaseas by a factor of $2$, so in general, the time difference beetween two consecutive output frames might this multiple of $\Delta t$ multiplied by a power of $2$.
+\vxlisp
+
+Default value is $5$, allowed maximum $1\,048\,576$. The value must be a positive integer.
+\vxlisp
+
+\underline{Frame Buffer Capacity, [\numcap]}
+\undrsep
+
+The entry for the maximum number of frames that can be stored in the buffer. Default value is $4096$, allowed minimu $16$, allowed maximum $16\,777\,216$.
+\vxlisp
+
+\underline{Return to Start Interface, [\numbackhome]}
+\undrsep
+
+The button for returning to the \inull{} (see \ref{sec:i0}). Going back to the \inull{} erases all the simulation parameters set.
+\vxlisp
+
+\underline{Reopen the Shape Configuration Window, [\numeditor]}
+\undrsep
+
+The button for reopening the window for the shape configuration (see \ref{sec:shapeconfig}). This button is only available if the shape configuration window has been closed.
+\vxlisp
+
+\underline{Open the Preset Window, [\numpreset]}
+\undrsep
+
+The button for opening the window with preset selection (see \ref{sec:presets}). Clicking this button does not directly load any preset, it only opens the corresponding window, which can be then closed, cancelling the loading of any preset.
+\vxlisp
+
+\underline{Start the Simulation, [\numstart]}
+\undrsep
+
+The button for submitting all the entered parameters and starting the simulation. It exits the \ione{} and leads to the \itwo{}.
+
+\subsubsection{Shape Configuration Window}\label{sec:shapeconfig}
+
+\subsubsection{Preset Window}\label{sec:presets}
+
+\subsubsection{Format of Real Numbers}
+
+%The \ione{} consists of two windows by default. The main window allows the user to set various numerical parameters of the future simulation. (see [link here to description of parameters] for more detailed explanation of each parameter) Intially, the entry fields for simulation parameters contain some default values, which the user may subsequently change. In the main window, there are also buttons for going back to the \inull{} and for starting the simulation. It is only possible to start the simulation if no entry fields have been set to invalid values. (The presence of such an invalid value would be indicated by a red label next to the entry field.)
+%\vxlisp
+
+%The second window in the \ione{} allows the user to configure the physical shape of the container. That includes the physical dimensions of the enclosing rectangle (its width and height) and the shape, position and size of the solid obstacles inside this rectangle. The user can select the shape of the obstacle they want to add and then specify the position and size of the obstacle by clicking on the grid. For more information about specific shapes, see [link here to description of shapes]. In the top right part of the window, the user can undo the addition of shapes, redo the addition they have already undone, or clear remove all shapes (without the option to then undo this removal).
 \vxlisp
 
 Closing the main window terminates the application. Closing the shape configuration window enables a button in the main window that reopens it.
@@ -193,5 +322,79 @@ The \itwo{} consists of one main window. This main window contains a drawing are
 % need to link to part of a screenshot to make this at least a bit comprehensible
 
 \section{Technical Documentation}
+\subsection{Chosen Technologies}
+The primary programming language of this project is C++. The main reasons for choosing C++ were the need for good performance in the computationaly intensive simulations and my experience with C++ prior to this project.
+\vxlisp
 
+The user interface of the program is built using gtkmm 3, which is a C++ wrapper around the C library GTK+ 3. Except for gtkmm, the most widely used C++ GUI library is probably Qt. Qt is natively a C++ library, whereas GTK+ is a C library and gtkmm is a C++ wrapper around it. Nevertheless, gtkmm manages to make natural use of C++ paradigms, so that there is virtually no difference to a nativaly C++ library. Therefore, both gtkmm and Qt would, in all likelihood, fufill the GUI need of this project. As a result, the choice of gtkmm was based on a personal preference for the GNOME ecosystem.
+\subsubsection{Physical Model}
+To model the behavior of the fluid, we use the Navier-Stokes equations. Let $\mathbf u$ denote the velocity of the fluid and $p$ its pressure at all the points inside the container. We assume that the fluid is incompressible, so we get the incompressibility equation
+\newcommand{\uu}{\mathbf u}
+\newcommand{\D}{\mathrm D}
+\begin{align}\label{eq:incom}
+	\nabla\cdot\uu=0.
+\end{align}
+Then we have the Navier-Stokes momentum equation
+\newcommand{\conv}{\frac{\D\uu}{\D t}}
+\begin{align}
+	\rho\conv=-\nabla p+\mu\nabla^2\uu+\rho\mathbf g,
+\end{align}
+where $\rho$ is the density of the fluid, $\mu$ its (dynamic) viscosity, $\mathbf g$ is the acceleration due to external forces (such as gravity) and $\conv$ denotes the material (also known as \emph{convective}) derivative of the velocity.
+\newcommand{\pder}[2]{\frac{\partial #1}{\partial #2}}
+\begin{align}
+	\conv=\pder\uu t+(\uu\cdot\nabla)\uu
+\end{align}
+We assume no external forces, so $\mathbf g=0$. Hence, the momentum equation we work with takes the form
+\begin{align}\label{eq:momentum}
+	\pder\uu t+(\uu\cdot\nabla)\uu=-\frac1\rho\nabla p+\nu\nabla^2\uu,
+\end{align}
+where $\nu=\mu/\rho$ is the \emph{kinematic} viscosity.
+\subsubsection{Numerical Model}
+The way of numerically solving the above equations that is not the most accurate or computationaly efficient, but it is relatively simple to implement and work with. It can be categorized as an explicit finite difference method.
+\vxlisp
+
+Let us denote the value of a particular quantity at the $i$-th iteration by $i$ in the superscript. That is, let $\uu^i$ be the velocity field at the $i$-th iteration, $p^i$ the pressure field at the $i$-th iteration, $\left(\pder\uu t\right)^i$ the time derivative of the velocity field at the $i$-th iteration. Then we approximate the derivate of $\uu$ by the forward difference.
+\begin{align}
+	\left(\pder{\uu}t\right)^i=\frac{\uu^{i+1}-\uu^i}{\dt}
+\end{align}
+So at the $i$-th iteration, \eqref{eq:momentum} takes the form
+\begin{align}
+	\frac{\uu^{i+1}-\uu^i}{\dt}+(\uu^i\cdot\nabla)\uu^i=-\frac1\rho\nabla p^i+\nu\nabla^2\uu^i.
+\end{align}
+Together with the equation $\nabla\cdot\uu^{i+1}=0$ (that is \eqref{eq:incom} at the $(i+1)$-th iteration), this allows us to solve for $\uu^{i+1}$ and $p^i$. We express
+\begin{align}
+	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i.
+\end{align}
+Substituting this into $\nabla\cdot\uu^{i+1}=0$ yields
+\newcommand{\prsc}[2]{\prescript{#1}{#2}}
+\newcommand{\prusc}[1]{\prescript{#1}{}}
+\begin{align}
+	\nabla^2p^i=\rho\nabla\cdot\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i+\frac1\dt\uu^i\right).
+\end{align}
+To simplify the manipulation of the above expression, we denote the components of vectors by a left superscript, e.g.\ $\uu=(\prusc1u,\prusc2u)$ and we use the Einstein notation. For the sake of clarity, we use Greek letters for the indices of components (both free indices and indices that are being summed over). That is, we have
+\begin{align}
+	%\prusc\alpha{\left(\nabla^2\uu^i\right)}&=\prusc\beta\nabla\prusc\beta\nabla\prusc\alpha u^i\\
+	\prusc\alpha{\left({(\uu^i\cdot\nabla)\uu^i}\right)}&=\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i,
+\end{align}
+so
+\begin{align}
+	%\nabla\cdot\left(\nabla^2\uu^i\right)=\prusc\alpha\nabla\prusc\beta\nabla\prusc\beta\nabla\prusc\alpha u^i
+	\nabla\cdot\left(\left(\uu^i\cdot\nabla\right)\uu^i\right)&=\prusc\alpha\nabla\left(\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i\right)\\
+	&=\prusc\alpha\nabla\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i+\prusc\beta u^i\prusc\alpha\nabla\prusc\beta\nabla\prusc\alpha u^i\\
+	&=\prusc\alpha\nabla\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i+\prusc\beta u^i\prusc\beta\nabla\prusc\alpha\nabla\prusc\alpha u^i.
+\end{align}
+Here we use that $\prusc\alpha\nabla\prusc\alpha u^i=0$ (this is $\nabla\cdot\uu^i=0$) and get
+\begin{align}
+	\nabla\cdot\left(\left(\uu^i\cdot\nabla\right)\uu^i\right)&=\prusc\alpha\nabla\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i\\
+	&=\left(\pder{\prusc xu^i}{x}\right)^2+2\pder{\prusc xu^i}y\pder{\prusc yu^i}x+\left(\pder{\prusc yu^i}y\right)^2,
+\end{align}
+where $\prusc xu=\prusc 1u,\prusc yu=\prusc 2u$.
+%\begin{align}
+%	0&=-\frac\dt\rho\nabla^2p^i+\dt\left(
+
+
+\subsection{Technical Challenges}
+This section focuses on some of the technical challenges encountered during the development.
+\subsubsection{Instability of the Numerical Model}
+\subsubsection{Bugs in GTK+}
 \end{document}
