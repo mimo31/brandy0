@@ -13,6 +13,7 @@
 
 #include "glob.hpp"
 
+#include "hideable.hpp"
 #include "str.hpp"
 #include "validity-indicator.hpp"
 
@@ -35,7 +36,9 @@ private:
 	/// The entry for the user to enter text
 	Gtk::Entry entry;
 	/// The indicator to show the user whether their input is valid
-	ValidityIndicator indicator;
+	Hideable<ValidityIndicator> indicator;
+	/// true iff if this annotated entry is disabled (i.e. visible but greyed-out & not sensitive)
+	bool disabled;
 public:
 	/**
 	 * Constructs an annotated entry.
@@ -83,6 +86,21 @@ public:
 	 * @return true iff the state of the indicator is not @a invalid.
 	 */
 	bool hasValidInput() const;
+	/**
+	 * Sets this annotated entry to the enabled state. 
+	 * Does nothing if already in the enabled state. 
+	 * Enabled is the default state after construction.
+	 * 
+	 * @see disable
+	 */
+	void enable();
+	/**
+	 * Sets this annotated entry to the disabled state.
+	 * Does nothing if already in the disabled state. 
+	 * 
+	 * @see enable
+	 */
+	void disable();
 };
 
 }

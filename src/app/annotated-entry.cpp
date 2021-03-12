@@ -10,7 +10,7 @@ namespace brandy0
 {
 
 AnnotatedEntry::AnnotatedEntry(const str& label)
-	: label(label)
+	: label(label), disabled(false)
 {
 	this->label.set_xalign(0);
 }
@@ -56,6 +56,28 @@ bool AnnotatedEntry::hasValidInput() const
 {
 	const IndicatorState state = indicator.getState();
 	return state == IndicatorState::DEFAULT || state == IndicatorState::OK;
+}
+
+void AnnotatedEntry::enable()
+{
+	if (disabled)
+	{
+		label.set_sensitive(true);
+		entry.set_sensitive(true);
+		indicator.pseudoShow();
+		disabled = false;
+	}
+}
+
+void AnnotatedEntry::disable()
+{
+	if (!disabled)
+	{
+		label.set_sensitive(false);
+		entry.set_sensitive(false);
+		indicator.pseudoHide();
+		disabled = true;
+	}
 }
 
 }

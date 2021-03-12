@@ -29,6 +29,8 @@ void Tests::testConv()
 	assert(!ConvUtils::isPositiveReal("-"));
 	assert(!ConvUtils::isPositiveReal("-e2"));
 	assert(!ConvUtils::isPositiveReal("-.2"));
+	assert(!ConvUtils::isPositiveReal("0"));
+	assert(!ConvUtils::isPositiveReal("0.0"));
 }
 
 void Tests::run()

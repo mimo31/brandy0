@@ -71,14 +71,14 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 
 	widthEntry.hookInputHandler([this, parent]
 			{
-			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParamsPreset::DEFAULT_W, SimulationParamsPreset::MIN_W, SimulationParamsPreset::MAX_W);
+			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParamsPreset::DefaultW, SimulationParamsPreset::MinW, SimulationParamsPreset::MaxW);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	heightEntry.hookInputHandler([this, parent]
 			{
-			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulationParamsPreset::DEFAULT_H, SimulationParamsPreset::MIN_H, SimulationParamsPreset::MAX_H);
+			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulationParamsPreset::DefaultH, SimulationParamsPreset::MinH, SimulationParamsPreset::MaxH);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}

@@ -55,47 +55,47 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 
 	rhoEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulationParamsPreset::DEFAULT_RHO, SimulationParamsPreset::MIN_RHO, SimulationParamsPreset::MAX_RHO);
+			ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulationParamsPreset::DefaultRho, SimulationParamsPreset::MinRho, SimulationParamsPreset::MaxRho);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 	muEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulationParamsPreset::DEFAULT_MU, SimulationParamsPreset::MIN_MU, SimulationParamsPreset::MAX_MU);
+			ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulationParamsPreset::DefaultMu, SimulationParamsPreset::MinMu, SimulationParamsPreset::MaxMu);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 
 	gridWidthEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParamsPreset::DEFAULT_WP, SimulationParamsPreset::MAX_WP);
+			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParamsPreset::DefaultWp, SimulationParamsPreset::MaxWp);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	gridHeightEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParamsPreset::DEFAULT_HP, SimulationParamsPreset::MAX_HP);
+			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParamsPreset::DefaultHp, SimulationParamsPreset::MaxHp);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	stepsPerFrameEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulationParamsPreset::DEFAULT_STEPS_PER_FRAME, SimulationParamsPreset::MAX_STEPS_PER_FRAME);
+			ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulationParamsPreset::DefaultStepsPerFrame, SimulationParamsPreset::MaxStepsPerFrame);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 	frameCapacityEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParamsPreset::DEFAULT_FRAME_CAPACITY, SimulationParamsPreset::MAX_FRAME_CAPACITY);
+			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParamsPreset::DefaultFrameCapacity, SimulationParamsPreset::MaxFrameCapacity);
 			parent->validityChangeListeners.invoke();
 			}
 			);
 
 	dtEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulationParamsPreset::DEFAULT_DT, SimulationParamsPreset::MIN_DT, SimulationParamsPreset::MAX_DT);
+			ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulationParamsPreset::DefaultDt, SimulationParamsPreset::MinDt, SimulationParamsPreset::MaxDt);
 			parent->validityChangeListeners.invoke();
 			}
 			);

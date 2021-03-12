@@ -14,59 +14,98 @@ namespace brandy0
 {
 
 BCSelector::BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler)
-    : Gtk::Frame("boundary c. at " + atDescriptor),
-    pressureLabel("pressure (type):"),
-    uxEntry("velocity.x:"),
-    uyEntry("velocity.y:"),
-	bc(SimulationParamsPreset::defaultBc),
+	: Gtk::Frame("boundary c. at " + atDescriptor),
+	pressureTypeLabel("pressure (type):"),
+	pEntry("pressure:"),
+	velocityTypeLabel("velocity (type):"),
+	uxEntry("velocity.x:"),
+	uyEntry("velocity.y:"),
 	inputChangeHandler(inputChangeHandler)
 {
-    pressureSelector.append("Dirichlet");
-    pressureSelector.append("Neumann");
-    pressureSelector.set_active(0);
-    selectedPressure = PressureBoundaryCond::NEUMANN;
+	pressureTypeSelector.append("Dirichlet");
+	pressureTypeSelector.append("Neumann");
 
-    grid.attach(pressureLabel, 0, 0);
-    grid.attach(pressureSelector, 1, 0);
+	grid.attach(pressureTypeLabel, 0, 0);
+	grid.attach(pressureTypeSelector, 1, 0);
 
-    uxEntry.attachTo(grid, 0, 1);
-    uyEntry.attachTo(grid, 0, 2);
+	pEntry.attachTo(grid, 0, 1);
 
-    add(grid);
+	velocityTypeSelector.append("Dirichlet");
+	velocityTypeSelector.append("Neumann");
 
-    pressureSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onPressureTypeChange));
-    uxEntry.hookInputHandler([=]()
-    {
-        ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulationParamsPreset::DEFAULT_U, SimulationParamsPreset::MAX_U);
-        inputChangeHandler();
-    });
-    uyEntry.hookInputHandler([=]()
-    {
-        ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulationParamsPreset::DEFAULT_U, SimulationParamsPreset::MAX_U);
-        inputChangeHandler();
-    });
+	grid.attach(velocityTypeLabel, 0, 2);
+	grid.attach(velocityTypeSelector, 1, 2);
+
+	uxEntry.attachTo(grid, 0, 3);
+	uyEntry.attachTo(grid, 0, 4);
+
+	add(grid);
+
+	velocityTypeSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onVelocityTypeChange));
+	pressureTypeSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onPressureTypeChange));
+	uxEntry.hookInputHandler([this, inputChangeHandler]
+	{
+		ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulationParamsPreset::DefaultU, SimulationParamsPreset::MaxU);
+		inputChangeHandler();
+	});
+	uyEntry.hookInputHandler([this, inputChangeHandler]
+	{
+		ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulationParamsPreset::DefaultU, SimulationParamsPreset::MaxU);
+		inputChangeHandler();
+	});
+	pEntry.hookInputHandler([this, inputChangeHandler]
+	{
+		ConvUtils::updateRealIndicator(pEntry, bc.p, SimulationParamsPreset::DefaultP, SimulationParamsPreset::MaxP);
+		inputChangeHandler();
+	});
 }
 
 void BCSelector::onPressureTypeChange()
 {
-    bc.p = pressureSelector.get_active_row_number() == 0 ? PressureBoundaryCond::DIRICHLET : PressureBoundaryCond::NEUMANN;
+	bc.ptype = pressureTypeSelector.get_active_row_number() == 0 ? BoundaryCondType::Dirichlet : BoundaryCondType::Neumann;
+	if (bc.ptype == BoundaryCondType::Dirichlet)
+		pEntry.enable();
+	else
+		pEntry.disable();
+	inputChangeHandler();
+}
+
+void BCSelector::onVelocityTypeChange()
+{
+	bc.utype = velocityTypeSelector.get_active_row_number() == 0 ? BoundaryCondType::Dirichlet : BoundaryCondType::Neumann;
+	if (bc.utype == BoundaryCondType::Dirichlet)
+	{
+		uxEntry.enable();
+		uyEntry.enable();
+	}
+	else
+	{
+		uxEntry.disable();
+		uyEntry.disable();
+	}
 	inputChangeHandler();
 }
 
 bool BCSelector::hasValidInput() const
 {
-    return uxEntry.hasValidInput() && uyEntry.hasValidInput();
+	return (bc.ptype == BoundaryCondType::Neumann || pEntry.hasValidInput())
+		&& (bc.utype == BoundaryCondType::Neumann || (uxEntry.hasValidInput() && uyEntry.hasValidInput()));
 }
 
 void BCSelector::setEntryFields()
 {
-    using std::to_string;
-    if (bc.p == PressureBoundaryCond::DIRICHLET)
-        pressureSelector.set_active(0);
-    else
-        pressureSelector.set_active(1);
-    uxEntry.setText(to_string(bc.u.x));
-    uyEntry.setText(to_string(bc.u.y));
+	using std::to_string;
+	if (bc.ptype == BoundaryCondType::Dirichlet)
+		pressureTypeSelector.set_active(0);
+	else
+		pressureTypeSelector.set_active(1);
+	if (bc.utype == BoundaryCondType::Dirichlet)
+		velocityTypeSelector.set_active(0);
+	else
+		velocityTypeSelector.set_active(1);
+	pEntry.setText(to_string(bc.p));
+	uxEntry.setText(to_string(bc.u.x));
+	uyEntry.setText(to_string(bc.u.y));
 }
 
 BoundaryCond BCSelector::getBc() const

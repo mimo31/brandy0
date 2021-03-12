@@ -28,16 +28,16 @@ SimulatorClassic::SimulatorClassic(const SimulationParams& params)
 	: Simulator(params), w(wp, hp), field(wp, hp), dirichlet(wp, hp), visited(wp, hp), lapL1limit(.001 * wp * hp / 64 / 64), crashLimit(1e13)
 {
 	dirichlet.set_all(false);
-	if (bcx0.p == PressureBoundaryCond::DIRICHLET)
+	if (bcx0.ptype == BoundaryCondType::Dirichlet)
 		for (uint32_t y = 0; y < hp; y++)
 			dirichlet(0, y) = true;
-	if (bcx1.p == PressureBoundaryCond::DIRICHLET)
+	if (bcx1.ptype == BoundaryCondType::Dirichlet)
 		for (uint32_t y = 0; y < hp; y++)
 			dirichlet(wp - 1, y) = true;
-	if (bcy0.p == PressureBoundaryCond::DIRICHLET)
+	if (bcy0.ptype == BoundaryCondType::Dirichlet)
 		for (uint32_t x = 0; x < wp; x++)
 			dirichlet(x, 0) = true;
-	if (bcy1.p == PressureBoundaryCond::DIRICHLET)
+	if (bcy1.ptype == BoundaryCondType::Dirichlet)
 		for (uint32_t x = 0; x < wp; x++)
 			dirichlet(x, hp - 1) = true;
 	
@@ -67,40 +67,40 @@ SimulatorClassic::SimulatorClassic(const SimulationParams& params)
 
 void SimulatorClassic::enforcePBoundary(Grid<double>& p)
 {
-	if (bcx0.p == PressureBoundaryCond::DIRICHLET)
+	if (bcx0.ptype == BoundaryCondType::Dirichlet)
 	{
 		for (uint32_t y = 0; y < hp; y++)
-			p(0, y) = 0;
+			p(0, y) = bcx0.p;
 	}
 	else
 	{
 		for (uint32_t y = 0; y < hp; y++)
 			p(0, y) = p(1, y);
 	}
-	if (bcx1.p == PressureBoundaryCond::DIRICHLET)
+	if (bcx1.ptype == BoundaryCondType::Dirichlet)
 	{
 		for (uint32_t y = 0; y < hp; y++)
-			p(wp - 1, y) = 0;
+			p(wp - 1, y) = bcx1.p;
 	}
 	else
 	{
 		for (uint32_t y = 0; y < hp; y++)
 			p(wp - 1, y) = p(wp - 2, y);
 	}
-	if (bcy0.p == PressureBoundaryCond::DIRICHLET)
+	if (bcy0.ptype == BoundaryCondType::Dirichlet)
 	{
 		for (uint32_t x = 0; x < wp; x++)
-			p(x, 0) = 0;
+			p(x, 0) = bcy0.p;
 	}
 	else
 	{
 		for (uint32_t x = 0; x < wp; x++)
 			p(x, 0) = p(x, 1);
 	}
-	if (bcy1.p == PressureBoundaryCond::DIRICHLET)
+	if (bcy1.ptype == BoundaryCondType::Dirichlet)
 	{
 		for (uint32_t x = 0; x < wp; x++)
-			p(x, hp - 1) = 0;
+			p(x, hp - 1) = bcy1.p;
 	}
 	else
 	{
@@ -147,15 +147,45 @@ void SimulatorClassic::enforcePBoundary(Grid<double>& p)
 
 void SimulatorClassic::enforceUBoundary(Grid<vec2d>& u)
 {
-	for (uint32_t y = 0; y < hp; y++)
+	if (bcx0.utype == BoundaryCondType::Dirichlet)
 	{
-		u(0, y) = bcx0.u;
-		u(wp - 1, y) = bcx1.u;
+		for (uint32_t y = 0; y < hp; y++)
+			u(0, y) = bcx0.u;
 	}
-	for (uint32_t x = 0; x < wp; x++)
+	else
 	{
-		u(x, 0) = bcy0.u;
-		u(x, hp - 1) = bcy1.u;
+		for (uint32_t y = 0; y < hp; y++)
+			u(0, y) = u(1, y);
+	}
+	if (bcx1.utype == BoundaryCondType::Dirichlet)
+	{
+		for (uint32_t y = 0; y < hp; y++)
+			u(wp - 1, y) = bcx1.u;
+	}
+	else
+	{
+		for (uint32_t y = 0; y < hp; y++)
+			u(wp - 1, y) = u(wp - 2, y);
+	}
+	if (bcy0.utype == BoundaryCondType::Dirichlet)
+	{
+		for (uint32_t x = 0; x < wp; x++)
+			u(x, 0) = bcy0.u;
+	}
+	else
+	{
+		for (uint32_t x = 0; x < wp; x++)
+			u(x, 0) = u(x, 1);
+	}
+	if (bcy1.utype == BoundaryCondType::Dirichlet)
+	{
+		for (uint32_t x = 0; x < wp; x++)
+			u(x, hp - 1) = bcy1.u;
+	}
+	else
+	{
+		for (uint32_t x = 0; x < wp; x++)
+			u(x, hp - 1) = u(x, hp - 2);
 	}
 	for (uint32_t y = 1; y < hp - 1; y++)
 	{

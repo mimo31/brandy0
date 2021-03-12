@@ -29,8 +29,11 @@ class BCSelector : public Gtk::Frame
 {
 private:
     Gtk::Grid grid;
-    Gtk::Label pressureLabel;
-    Gtk::ComboBoxText pressureSelector;
+    Gtk::Label pressureTypeLabel;
+    Gtk::ComboBoxText pressureTypeSelector;
+	AnnotatedEntry pEntry;
+	Gtk::Label velocityTypeLabel;
+	Gtk::ComboBoxText velocityTypeSelector;
     AnnotatedEntry uxEntry;
     AnnotatedEntry uyEntry;
 
@@ -39,10 +42,11 @@ private:
 	VoidFunc inputChangeHandler;
 
     void onPressureTypeChange();
+    void onVelocityTypeChange();
     void setEntryFields();
 
 public:
-    PressureBoundaryCond selectedPressure;
+    //BoundaryCondType selectedPressure;
 
     BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler);//const std::function<void()>& validityChangeHandler);
     
