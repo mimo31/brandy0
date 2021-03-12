@@ -15,22 +15,33 @@ namespace brandy0
 
 void Tests::testConv()
 {
-	assert(ConvUtils::isPositiveReal("12345"));
-	assert(ConvUtils::isPositiveReal("40e2"));
-	assert(ConvUtils::isPositiveReal(".2e2"));
-	assert(ConvUtils::isPositiveReal("1e-200"));
+	assert(ConvUtils::isNonnegativeReal("12345"));
+	assert(ConvUtils::isNonnegativeReal("40e2"));
+	assert(ConvUtils::isNonnegativeReal(".2e2"));
+	assert(ConvUtils::isNonnegativeReal("1e-200"));
+	assert(ConvUtils::isNonnegativeReal("0"));
+	assert(ConvUtils::isNonnegativeReal("0.0"));
+	assert(ConvUtils::isNonnegativeReal("0e10"));
 
-	assert(!ConvUtils::isPositiveReal(""));
-	assert(!ConvUtils::isPositiveReal("."));
-	assert(!ConvUtils::isPositiveReal("1."));
-	assert(!ConvUtils::isPositiveReal("e"));
-	assert(!ConvUtils::isPositiveReal("e2"));
-	assert(!ConvUtils::isPositiveReal("1e.3"));
-	assert(!ConvUtils::isPositiveReal("-"));
-	assert(!ConvUtils::isPositiveReal("-e2"));
-	assert(!ConvUtils::isPositiveReal("-.2"));
-	assert(!ConvUtils::isPositiveReal("0"));
-	assert(!ConvUtils::isPositiveReal("0.0"));
+	assert(!ConvUtils::isNonnegativeReal(""));
+	assert(!ConvUtils::isNonnegativeReal("."));
+	assert(!ConvUtils::isNonnegativeReal("1."));
+	assert(!ConvUtils::isNonnegativeReal("e"));
+	assert(!ConvUtils::isNonnegativeReal("e2"));
+	assert(!ConvUtils::isNonnegativeReal("1e.3"));
+	assert(!ConvUtils::isNonnegativeReal("-"));
+	assert(!ConvUtils::isNonnegativeReal("-e2"));
+	assert(!ConvUtils::isNonnegativeReal("-.2"));
+
+	assert(ConvUtils::isReal("0"));
+	assert(ConvUtils::isReal("0.0"));
+	assert(ConvUtils::isReal("0e10"));
+	assert(ConvUtils::isReal("-0"));
+	assert(ConvUtils::isReal("-0.0"));
+	assert(ConvUtils::isReal("-0e10"));
+	assert(ConvUtils::isReal("-.2"));
+	
+	assert(!ConvUtils::isReal("-e2"));
 }
 
 void Tests::run()

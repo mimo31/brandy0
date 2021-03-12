@@ -68,14 +68,14 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 
 	gridWidthEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParamsPreset::DefaultWp, SimulationParamsPreset::MaxWp);
+			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParamsPreset::DefaultWp, SimulationParamsPreset::MinWp, SimulationParamsPreset::MaxWp);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
 			);
 	gridHeightEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParamsPreset::DefaultHp, SimulationParamsPreset::MaxHp);
+			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParamsPreset::DefaultHp, SimulationParamsPreset::MinHp, SimulationParamsPreset::MaxHp);
 			parent->validityChangeListeners.invoke();
 			parent->dimensionsChangeListeners.invoke();
 			}
@@ -88,7 +88,7 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 			);
 	frameCapacityEntry.hookInputHandler([this, parent]()
 			{
-			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParamsPreset::DefaultFrameCapacity, SimulationParamsPreset::MaxFrameCapacity);
+			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParamsPreset::DefaultFrameCapacity, SimulationParamsPreset::MinFrameCapacity, SimulationParamsPreset::MaxFrameCapacity);
 			parent->validityChangeListeners.invoke();
 			}
 			);
@@ -182,16 +182,15 @@ ConfigWindow::~ConfigWindow()
 
 void ConfigWindow::setEntryFields()
 {
-	using std::to_string;
 	uptr<SimulationParams>& params = parent->params;
 
-	gridWidthEntry.setText(to_string(params->wp));
-	gridHeightEntry.setText(to_string(params->hp));
-	rhoEntry.setText(to_string(params->rho));
-	muEntry.setText(to_string(params->mu));
-	dtEntry.setText(to_string(params->dt));
-	stepsPerFrameEntry.setText(to_string(params->stepsPerFrame));
-	frameCapacityEntry.setText(to_string(params->frameCapacity));
+	gridWidthEntry.setText(std::to_string(params->wp));
+	gridHeightEntry.setText(std::to_string(params->hp));
+	rhoEntry.setText(ConvUtils::defaultToString(params->rho));
+	muEntry.setText(ConvUtils::defaultToString(params->mu));
+	dtEntry.setText(ConvUtils::defaultToString(params->dt));
+	stepsPerFrameEntry.setText(std::to_string(params->stepsPerFrame));
+	frameCapacityEntry.setText(std::to_string(params->frameCapacity));
 	x0sel.setBc(params->bcx0);
 	x1sel.setBc(params->bcx1);
 	y0sel.setBc(params->bcy0);

@@ -260,12 +260,12 @@ void ExportWindow::getFileLocationFromUser()
 
 void ExportWindow::updateStartTimeLabel()
 {
-	startTimeLabel.set_text("start = " + std::to_string(parent->videoExportStartTime) + " (of " + std::to_string(parent->computedTime) + ")");
+	startTimeLabel.set_text("start = " + ConvUtils::defaultToString(parent->videoExportStartTime) + " (of " + ConvUtils::defaultToString(parent->computedTime) + ")");
 }
 
 void ExportWindow::updateEndTimeLabel()
 {
-	endTimeLabel.set_text("end = " + std::to_string(parent->videoExportEndTime) + " (of " + std::to_string(parent->computedTime) + ")");
+	endTimeLabel.set_text("end = " + ConvUtils::defaultToString(parent->videoExportEndTime) + " (of " + ConvUtils::defaultToString(parent->computedTime) + ")");
 }
 
 void ExportWindow::updateInvalidTimesWarn()
@@ -278,7 +278,7 @@ void ExportWindow::updateInvalidTimesWarn()
 
 void ExportWindow::updatePlaybackSpeedLabel()
 {
-	playbackSpeedLabel.set_text("playback speed " + std::to_string(parent->videoExportPlaybackSpeedup) + "x");
+	playbackSpeedLabel.set_text("playback speed " + ConvUtils::defaultToString(parent->videoExportPlaybackSpeedup) + "x");
 }
 
 void ExportWindow::updateDurationLabel()
@@ -287,7 +287,7 @@ void ExportWindow::updateDurationLabel()
 	{
 		const double simtime = parent->videoExportEndTime - parent->videoExportStartTime;
 		const double realtime = simtime / (parent->params->dt * parent->params->stepsPerFrame * parent->videoExportPlaybackSpeedup) * parent->MS_PER_BASE_FRAME / 1000;
-		durationLabel.set_text("duration = " + std::to_string(simtime) + " (" + std::to_string(realtime) + " s)");
+		durationLabel.set_text("duration = " + ConvUtils::defaultToString(simtime) + " (" + ConvUtils::defaultToString(realtime) + " s)");
 		durationLabel.pseudoShow();
 	}
 	else
@@ -304,7 +304,7 @@ void ExportWindow::updateTimeLabel()
 		const double range = parent->videoExportEndTime - parent->videoExportStartTime;
 		const double tm = parent->videoExportTime;
 		const double frac = (tm - parent->videoExportStartTime) / range;
-		timeLabel.set_text("t = " + std::to_string(parent->videoExportTime) + " (" + std::to_string(100 * frac) + " %)");
+		timeLabel.set_text("t = " + ConvUtils::defaultToString(parent->videoExportTime) + " (" + std::to_string(100 * frac) + " %)");
 	}
 	else
 	{
@@ -397,10 +397,9 @@ void ExportWindow::init()
 	playbackSpeedScale.set_value(0);
 	timeScaleAutoSet = false;
 
-	using std::to_string;
-	widthEntry.setText(to_string(parent->videoExportWidth));
-	heightEntry.setText(to_string(parent->videoExportHeight));
-	bitrateEntry.setText(to_string(parent->videoExportBitrate));
+	widthEntry.setText(ConvUtils::defaultToString(parent->videoExportWidth));
+	heightEntry.setText(ConvUtils::defaultToString(parent->videoExportHeight));
+	bitrateEntry.setText(std::to_string(parent->videoExportBitrate));
 
 	updateStartTimeLabel();
 	updateEndTimeLabel();

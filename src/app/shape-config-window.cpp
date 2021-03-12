@@ -22,8 +22,8 @@ void ShapeConfigWindow::updateGeneralSensitivity()
 void ShapeConfigWindow::setEntryFields()
 {
 	uptr<SimulationParams>& params = parent->params;
-	widthEntry.setText(std::to_string(params->w));
-	heightEntry.setText(std::to_string(params->h));
+	widthEntry.setText(ConvUtils::defaultToString(params->w));
+	heightEntry.setText(ConvUtils::defaultToString(params->h));
 }
 
 void ShapeConfigWindow::updateAddShapeWidgets()

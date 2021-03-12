@@ -28,29 +28,27 @@ namespace brandy0
 class BCSelector : public Gtk::Frame
 {
 private:
-    Gtk::Grid grid;
-    Gtk::Label pressureTypeLabel;
-    Gtk::ComboBoxText pressureTypeSelector;
+	Gtk::Grid grid;
+	Gtk::Label pressureTypeLabel;
+	Gtk::ComboBoxText pressureTypeSelector;
 	AnnotatedEntry pEntry;
 	Gtk::Label velocityTypeLabel;
 	Gtk::ComboBoxText velocityTypeSelector;
-    AnnotatedEntry uxEntry;
-    AnnotatedEntry uyEntry;
+	AnnotatedEntry uxEntry;
+	AnnotatedEntry uyEntry;
 
-    BoundaryCond bc;
+	BoundaryCond bc;
 
 	VoidFunc inputChangeHandler;
 
-    void onPressureTypeChange();
-    void onVelocityTypeChange();
-    void setEntryFields();
+	void onPressureTypeChange();
+	void onVelocityTypeChange();
+	void setEntryFields();
 
 public:
-    //BoundaryCondType selectedPressure;
-
-    BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler);//const std::function<void()>& validityChangeHandler);
-    
-    bool hasValidInput() const;
+	BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler);//const std::function<void()>& validityChangeHandler);
+	
+	bool hasValidInput() const;
 	BoundaryCond getBc() const;
 	void setBc(const BoundaryCond& bc);
 };

@@ -6,6 +6,7 @@
  */
 #include "simulation-window.hpp"
 
+#include "conv-utils.hpp"
 #include "display-modes.hpp"
 
 namespace brandy0
@@ -244,8 +245,8 @@ void SimulationWindow::updateStats()
 	}
 	frameBufferLabel.set_text("frames in buffer: " + std::to_string(parent->getFramesStored()) + " / " + std::to_string(parent->params->frameCapacity));
 	curIterLabel.set_text("iter. of frame: " + std::to_string(parent->getComputedIter()) + " / " + std::to_string(parent->params->stepsPerFrame));
-	timeLabel.set_text("t = " + std::to_string(parent->time) + " (of " + std::to_string(parent->computedTime) + ")");
-	playbackSpeedLabel.set_text("playback speed " + std::to_string(parent->playbackSpeedup) + "x");
+	timeLabel.set_text("t = " + ConvUtils::defaultToString(parent->time) + " (of " + ConvUtils::defaultToString(parent->computedTime) + ")");
+	playbackSpeedLabel.set_text("playback speed " + ConvUtils::defaultToString(parent->playbackSpeedup) + "x");
 }
 
 void SimulationWindow::disableWhenExport()

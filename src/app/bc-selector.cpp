@@ -22,6 +22,8 @@ BCSelector::BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandl
 	uyEntry("velocity.y:"),
 	inputChangeHandler(inputChangeHandler)
 {
+	pressureTypeLabel.set_xalign(0);
+	velocityTypeLabel.set_xalign(0);
 	pressureTypeSelector.append("Dirichlet");
 	pressureTypeSelector.append("Neumann");
 
@@ -94,7 +96,6 @@ bool BCSelector::hasValidInput() const
 
 void BCSelector::setEntryFields()
 {
-	using std::to_string;
 	if (bc.ptype == BoundaryCondType::Dirichlet)
 		pressureTypeSelector.set_active(0);
 	else
@@ -103,9 +104,9 @@ void BCSelector::setEntryFields()
 		velocityTypeSelector.set_active(0);
 	else
 		velocityTypeSelector.set_active(1);
-	pEntry.setText(to_string(bc.p));
-	uxEntry.setText(to_string(bc.u.x));
-	uyEntry.setText(to_string(bc.u.y));
+	pEntry.setText(ConvUtils::defaultToString(bc.p));
+	uxEntry.setText(ConvUtils::defaultToString(bc.u.x));
+	uyEntry.setText(ConvUtils::defaultToString(bc.u.y));
 }
 
 BoundaryCond BCSelector::getBc() const
