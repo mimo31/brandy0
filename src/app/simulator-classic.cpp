@@ -25,7 +25,7 @@ void SimulatorClassic::visit(const Point p)
 }
 
 SimulatorClassic::SimulatorClassic(const SimulationParams& params)
-	: Simulator(params), field(wp, hp), dirichlet(wp, hp), visited(wp, hp), lapL1limit(.1 * wp * hp / 64 / 64), crashLimit(1e13)
+	: Simulator(params), w(wp, hp), field(wp, hp), dirichlet(wp, hp), visited(wp, hp), lapL1limit(.001 * wp * hp / 64 / 64), crashLimit(1e13)
 {
 	dirichlet.set_all(false);
 	if (bcx0.p == PressureBoundaryCond::DIRICHLET)
@@ -65,47 +65,47 @@ SimulatorClassic::SimulatorClassic(const SimulationParams& params)
 	}
 }
 
-void SimulatorClassic::enforcePBoundary(SimFrame& f)
+void SimulatorClassic::enforcePBoundary(Grid<double>& p)
 {
 	if (bcx0.p == PressureBoundaryCond::DIRICHLET)
 	{
 		for (uint32_t y = 0; y < hp; y++)
-			f.p(0, y) = 0;
+			p(0, y) = 0;
 	}
 	else
 	{
 		for (uint32_t y = 0; y < hp; y++)
-			f.p(0, y) = f.p(1, y);
+			p(0, y) = p(1, y);
 	}
 	if (bcx1.p == PressureBoundaryCond::DIRICHLET)
 	{
 		for (uint32_t y = 0; y < hp; y++)
-			f.p(wp - 1, y) = 0;
+			p(wp - 1, y) = 0;
 	}
 	else
 	{
 		for (uint32_t y = 0; y < hp; y++)
-			f.p(wp - 1, y) = f.p(wp - 2, y);
+			p(wp - 1, y) = p(wp - 2, y);
 	}
 	if (bcy0.p == PressureBoundaryCond::DIRICHLET)
 	{
 		for (uint32_t x = 0; x < wp; x++)
-			f.p(x, 0) = 0;
+			p(x, 0) = 0;
 	}
 	else
 	{
 		for (uint32_t x = 0; x < wp; x++)
-			f.p(x, 0) = f.p(x, 1);
+			p(x, 0) = p(x, 1);
 	}
 	if (bcy1.p == PressureBoundaryCond::DIRICHLET)
 	{
 		for (uint32_t x = 0; x < wp; x++)
-			f.p(x, hp - 1) = 0;
+			p(x, hp - 1) = 0;
 	}
 	else
 	{
 		for (uint32_t x = 0; x < wp; x++)
-			f.p(x, hp - 1) = f.p(x, hp - 2);
+			p(x, hp - 1) = p(x, hp - 2);
 	}
 	for (uint32_t y = 1; y < hp - 1; y++)
 	{
@@ -113,7 +113,7 @@ void SimulatorClassic::enforcePBoundary(SimFrame& f)
 		{
 			if (dirichlet(x, y))
 			{
-				f.p(x, y) = 0;
+				p(x, y) = 0;
 				continue;
 			}
 			if (solid(x, y) || indep(x, y))
@@ -122,55 +122,55 @@ void SimulatorClassic::enforcePBoundary(SimFrame& f)
 			double sm = 0;
 			if (indep(x - 1, y))
 			{
-				sm += f.p(x - 1, y);
+				sm += p(x - 1, y);
 				cou++;
 			}
 			if (indep(x + 1, y))
 			{
-				sm += f.p(x + 1, y);
+				sm += p(x + 1, y);
 				cou++;
 			}
 			if (indep(x, y - 1))
 			{
-				sm += f.p(x, y - 1);
+				sm += p(x, y - 1);
 				cou++;
 			}
 			if (indep(x, y + 1))
 			{
-				sm += f.p(x, y + 1);
+				sm += p(x, y + 1);
 				cou++;
 			}
-			f.p(x, y) = cou != 0 ? sm / cou : 0;
+			p(x, y) = cou != 0 ? sm / cou : 0;
 		}
 	}
 }
 
-void SimulatorClassic::enforceUBoundary(SimFrame& f)
+void SimulatorClassic::enforceUBoundary(Grid<vec2d>& u)
 {
 	for (uint32_t y = 0; y < hp; y++)
 	{
-		f.u(0, y) = bcx0.u;
-		f.u(wp - 1, y) = bcx1.u;
+		u(0, y) = bcx0.u;
+		u(wp - 1, y) = bcx1.u;
 	}
 	for (uint32_t x = 0; x < wp; x++)
 	{
-		f.u(x, 0) = bcy0.u;
-		f.u(x, hp - 1) = bcy1.u;
+		u(x, 0) = bcy0.u;
+		u(x, hp - 1) = bcy1.u;
 	}
 	for (uint32_t y = 1; y < hp - 1; y++)
 	{
 		for (uint32_t x = 1; x < wp - 1; x++)
 		{
 			if (!solid(x, y) && !indep(x, y))
-				f.u(x, y) = vec2d(0, 0);
+				u(x, y) = vec2d(0, 0);
 		}
 	}
 }
 
 void SimulatorClassic::enforceBoundary(SimFrame& f)
 {
-	enforcePBoundary(f);
-	enforceUBoundary(f);
+	enforcePBoundary(f.p);
+	enforceUBoundary(f.u);
 }
 
 void SimulatorClassic::iter()
@@ -186,10 +186,22 @@ void SimulatorClassic::iter()
 			{
 				if (indep(x, y))
 				{
-					field(x, y) = -(f0.u(x + 1, y).x - f0.u(x - 1, y).x + f0.u(x, y + 1).y - f0.u(x, y - 1).y) / dt / (2 * dx)
-						+ (f0.u(x + 1, y).x - f0.u(x - 1, y).x) * (f0.u(x + 1, y).x - f0.u(x - 1, y).x) / 4 / (dx * dx)
-					+ 2 * (f0.u(x, y + 1).x - f0.u(x, y - 1).x) / 2 / dx * (f0.u(x + 1, y).y - f0.u(x - 1, y).y) / 2 / dx
-					+ (f0.u(x, y + 1).y - f0.u(x, y - 1).y) * (f0.u(x, y + 1).y - f0.u(x, y - 1).y) / 4 / (dx * dx);
+					const vec2d lapu = (f0.u(x + 1, y) - 2 * f0.u(x, y) + f0.u(x - 1, y)) / (dx * dx)
+						+ (f0.u(x, y + 1) - 2 * f0.u(x, y) + f0.u(x, y - 1)) / (dy * dy);
+					const vec2d convec = f0.u(x, y).x * (f0.u(x + 1, y) - f0.u(x - 1, y)) / (2 * dx)
+						+ f0.u(x, y).y * (f0.u(x, y + 1) - f0.u(x, y - 1)) / (2 * dy);
+					w(x, y) = f0.u(x, y) + dt * (nu * lapu - convec);
+				}
+			}
+		}
+		enforceUBoundary(w);
+		for (uint32_t y = 1; y < hp - 1; y++)
+		{
+			for (uint32_t x = 1; x < wp - 1; x++)
+			{
+				if (indep(x, y))
+				{
+					field(x, y) = rho / dt * ((w(x + 1, y).x - w(x - 1, y).x) / (2 * dx) + (w(x, y + 1).y - w(x, y - 1).y) / (2 * dy)); 
 					if (field(x, y) > crashLimit || field(x, y) < -crashLimit)
 					{
 						crashed = true;
@@ -213,36 +225,36 @@ void SimulatorClassic::iter()
 				if (indep(x, y) && !dirichlet(x, y))
 				{
 					double sm = 0;
-					uint32_t coef = 4;
+					double coef = 2 * dx * dx + 2 * dy * dy;
 					if (!dirichlet(x + 1, y))
 					{
 						if (indep(x + 1, y))
-							sm += f0.p(x + 1, y);
+							sm += dy * dy * f0.p(x + 1, y);
 						else
-							coef--;
+							coef -= dy * dy;
 					}
 					if (!dirichlet(x - 1, y))
 					{
 						if (indep(x - 1, y))
-							sm += f0.p(x - 1, y);
+							sm += dy * dy * f0.p(x - 1, y);
 						else
-							coef--;
+							coef -= dy * dy;
 					}
 					if (!dirichlet(x, y + 1))
 					{
 						if (indep(x, y + 1))
-							sm += f0.p(x, y + 1);
+							sm += dx * dx * f0.p(x, y + 1);
 						else
-							coef--;
+							coef -= dx * dx;
 					}
 					if (!dirichlet(x, y - 1))
 					{
 						if (indep(x, y - 1))
-							sm += f0.p(x, y - 1);
+							sm += dx * dx * f0.p(x, y - 1);
 						else
-							coef--;
+							coef -= dx * dx;
 					}
-					f1.p(x, y) = (sm + (dx * dx) * field(x, y)) / coef;
+					f1.p(x, y) = (sm - (dx * dx) * (dy * dy) * field(x, y)) / coef;
 					dl1 += abs(f1.p(x, y) - f0.p(x, y));
 				}
 			}
@@ -252,7 +264,7 @@ void SimulatorClassic::iter()
 			crashed = true;
 			return;
 		}
-		enforcePBoundary(f1);
+		enforcePBoundary(f1.p);
 		if (dl1 < lapL1limit)
 			break;
 		it++;
@@ -278,18 +290,8 @@ void SimulatorClassic::iter()
 		{
 			if (indep(x, y))
 			{
-				f1.u(x, y).x = f0.u(x, y).x
-					+ dt * (
-						-f0.u(x, y).x * (f0.u(x + 1, y).x - f0.u(x - 1, y).x) / 2 / dx - f0.u(x, y).y * (f0.u(x, y + 1).x - f0.u(x, y - 1).x) / 2 / dx
-						- (f0.p(x + 1, y) - f0.p(x - 1, y)) / 2 / dx
-						+ nu * (f0.u(x + 1, y).x + f0.u(x - 1, y).x + f0.u(x, y + 1).x + f0.u(x, y - 1).x - 4 * f0.u(x, y).x) / (dx * dx)
-					);
-				f1.u(x, y).y = f0.u(x, y).y
-					+ dt * (
-						-f0.u(x, y).x * (f0.u(x + 1, y).y - f0.u(x - 1, y).y) / 2 / dx - f0.u(x, y).y * (f0.u(x, y + 1).y - f0.u(x, y - 1).y) / 2 / dx
-						- (f0.p(x, y + 1) - f0.p(x, y - 1)) / 2 / dx
-						+ nu * (f0.u(x + 1, y).y + f0.u(x - 1, y).y + f0.u(x, y + 1).y + f0.u(x, y - 1).y - 4 * f0.u(x, y).y) / (dx * dx)
-					);
+				f1.u(x, y).x = w(x, y).x - dt / rho * (f1.p(x + 1, y) - f1.p(x - 1, y)) / (2 * dx);
+				f1.u(x, y).y = w(x, y).y - dt / rho * (f1.p(x, y + 1) - f1.p(x, y - 1)) / (2 * dy);
 				if (std::isnan(f1.u(x, y).x) || std::isnan(f1.u(x, y).y))
 				{
 					crashed = true;
