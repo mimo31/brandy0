@@ -247,7 +247,7 @@ void SimulatorClassic::iter()
 	{
 		f0.p = f1.p;
 		double dl1 = 0;
-		cout.precision(15);
+		//cout.precision(15);
 		for (uint32_t y = 1; y < hp - 1; y++)
 		{
 			for (uint32_t x = 1; x < wp - 1; x++)
@@ -256,34 +256,22 @@ void SimulatorClassic::iter()
 				{
 					double sm = 0;
 					double coef = 2 * dx * dx + 2 * dy * dy;
-					if (!dirichlet(x + 1, y))
-					{
-						if (indep(x + 1, y))
-							sm += dy * dy * f0.p(x + 1, y);
-						else
-							coef -= dy * dy;
-					}
-					if (!dirichlet(x - 1, y))
-					{
-						if (indep(x - 1, y))
-							sm += dy * dy * f0.p(x - 1, y);
-						else
-							coef -= dy * dy;
-					}
-					if (!dirichlet(x, y + 1))
-					{
-						if (indep(x, y + 1))
-							sm += dx * dx * f0.p(x, y + 1);
-						else
-							coef -= dx * dx;
-					}
-					if (!dirichlet(x, y - 1))
-					{
-						if (indep(x, y - 1))
-							sm += dx * dx * f0.p(x, y - 1);
-						else
-							coef -= dx * dx;
-					}
+					if (indep(x + 1, y) || dirichlet(x + 1, y))
+						sm += dy * dy * f0.p(x + 1, y);
+					else
+						coef -= dy * dy;
+					if (indep(x - 1, y) || dirichlet(x - 1, y))
+						sm += dy * dy * f0.p(x - 1, y);
+					else
+						coef -= dy * dy;
+					if (indep(x, y + 1) || dirichlet(x, y + 1))
+						sm += dx * dx * f0.p(x, y + 1);
+					else
+						coef -= dx * dx;
+					if (indep(x, y - 1) || dirichlet(x, y - 1))
+						sm += dx * dx * f0.p(x, y - 1);
+					else
+						coef -= dx * dx;
 					f1.p(x, y) = (sm - (dx * dx) * (dy * dy) * field(x, y)) / coef;
 					dl1 += abs(f1.p(x, y) - f0.p(x, y));
 				}
