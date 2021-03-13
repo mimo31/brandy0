@@ -22,7 +22,7 @@ SimulationState::SimulationState(ApplicationAbstr *const app)
 {
 }
 
-void SimulationState::activate(const SimulationParams& params)
+void SimulationState::start(const SimulationParams& params)
 {
 	frameCount = 0;
 	frameStepSize = 1;
@@ -47,7 +47,20 @@ void SimulationState::activate(const SimulationParams& params)
 	resumeComputation();
 	lastUpdate = std::chrono::steady_clock::now();
 	redrawConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::update), 40);
+}
+
+void SimulationState::activate(const SimulationParams& params)
+{
+	start(params);
 	showMainWindow();
+}
+
+void SimulationState::run(const SimulationParams &params, const uint32_t frames)
+{
+	closeAfterFrames = frames;
+	start(params);
+	mainWin->show();
+	app->run(*mainWin);
 }
 
 void SimulationState::deactivate()
@@ -356,7 +369,14 @@ bool SimulationState::update()
 				time = computedTime;
 		}
 		curFrame = make_unique<SimFrame>(frames[getFrameNumber(time)]);
-		framesMutex.unlock();
+		if (closeAfterFrames && (frames.size() - 1) * frameStepSize >= closeAfterFrames)
+		{
+			framesMutex.unlock();
+			pauseComputation();
+			mainWin->close();
+		}
+		else
+			framesMutex.unlock();
 	}
 	else
 	{

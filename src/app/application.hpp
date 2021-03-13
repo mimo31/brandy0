@@ -42,7 +42,7 @@ public:
 	void enterNewSimulation(const SimulationParams) override;
 	void addWindow(Gtk::Window& win) override;
 	void run(Gtk::Window& win) override;
-	void run();
+	void run(int argc, const char *const *const argv);
 	~Application();
 };
 

@@ -6,6 +6,8 @@
  */
 #include "application.hpp"
 
+#include "simulation-params-preset.hpp"
+
 namespace brandy0
 {
 
@@ -26,8 +28,40 @@ Application::~Application()
 	delete simulationSt;
 }
 
-void Application::run()
+void Application::run(const int argc, const char *const *const argv)
 {
+	for (int i = 1; i < argc; i++)
+	{
+		const str arg = argv[i];
+		if (arg == "--time")
+		{
+			if (i >= argc - 2)
+				return;
+			const str presetname = argv[i + 1];
+			const str framesarg = argv[i + 2];
+			uint32_t frames = 0;
+			constexpr uint32_t limit = 100'000'000;
+			for (uint32_t j = 0; j < framesarg.length(); j++)
+			{
+				const char c = framesarg[j];
+				if (c > '9' || c < '0')
+					return;
+				frames = frames * 10 + c - '0';
+				if (frames > limit)
+					return;
+			}
+			activeSt = simulationSt;
+			uptr<SimulationParams> preset;
+			for (const SimulationParamsPreset p : SimulationParamsPreset::presets)
+			{
+				if (p.name == presetname)
+					preset = make_unique<SimulationParams>(p.params);
+			}
+			if (preset)
+				simulationSt->run(*preset, frames);
+			return;
+		}
+	}
 	activeSt = startSt;
 	startSt->run();
 }

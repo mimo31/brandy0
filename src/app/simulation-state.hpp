@@ -47,6 +47,8 @@ private:
 	uint32_t computedIter;
 	sigc::connection redrawConnection;
 
+	uint32_t closeAfterFrames = 0;
+
 	void showMainWindow();
 	void showExportWindow();
 	void checkCapacity();
@@ -56,6 +58,8 @@ private:
 	void startComputeThread();
 	bool update();
 
+	void start(const SimulationParams& params);
+
 	void updateComputedTime();
 
 	uint32_t getFrameNumber(const double t);
@@ -64,6 +68,7 @@ private:
 public:
 	SimulationState(ApplicationAbstr *const);
 	void activate(const SimulationParams&);
+	void run(const SimulationParams&, const uint32_t frames);
 	void deactivate();
 	
 	void goBackToConfig() override;

@@ -11,7 +11,7 @@
 namespace brandy0
 {
 
-void run()
+void run(const int argc, const char *const *const argv)
 {
 	#ifdef TESTING
 	
@@ -21,7 +21,7 @@ void run()
 	#else
 	
 	Application app;
-	app.run();
+	app.run(argc, argv);
 	
 	#endif // TESTING
 
@@ -30,8 +30,8 @@ void run()
 
 }
 
-int main()
+int main(const int argc, const char *const *const argv)
 {
-	brandy0::run();
+	brandy0::run(argc, argv);
 	return EXIT_SUCCESS;
 }

@@ -73,6 +73,8 @@ private:
 
 public:
 	SimulationWindow(SimulationStateAbstr *const parent);
+
+	~SimulationWindow();
 };
 
 }

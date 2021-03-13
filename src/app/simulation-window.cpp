@@ -271,4 +271,9 @@ void SimulationWindow::enableWhenNotExport()
 	videoExportButton.set_label(exportButtonDefaultLabel);
 }
 
+SimulationWindow::~SimulationWindow()
+{
+	computingGrid.remove(computingSwitch);
+}
+
 }
