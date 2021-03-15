@@ -365,33 +365,31 @@ Together with the equation $\nabla\cdot\uu^{i+1}=0$ (that is \eqref{eq:incom} at
 \begin{align}
 	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i.
 \end{align}
-Substituting this into $\nabla\cdot\uu^{i+1}=0$ yields
-\newcommand{\prsc}[2]{\prescript{#1}{#2}}
-\newcommand{\prusc}[1]{\prescript{#1}{}}
-\begin{align}
-	\nabla^2p^i=\rho\nabla\cdot\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i+\frac1\dt\uu^i\right).
-\end{align}
-To simplify the manipulation of the above expression, we denote the components of vectors by a left superscript, e.g.\ $\uu=(\prusc1u,\prusc2u)$ and we use the Einstein notation. For the sake of clarity, we use Greek letters for the indices of components (both free indices and indices that are being summed over). That is, we have
-\begin{align}
-	%\prusc\alpha{\left(\nabla^2\uu^i\right)}&=\prusc\beta\nabla\prusc\beta\nabla\prusc\alpha u^i\\
-	\prusc\alpha{\left({(\uu^i\cdot\nabla)\uu^i}\right)}&=\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i,
-\end{align}
-so
-\begin{align}
-	%\nabla\cdot\left(\nabla^2\uu^i\right)=\prusc\alpha\nabla\prusc\beta\nabla\prusc\beta\nabla\prusc\alpha u^i
-	\nabla\cdot\left(\left(\uu^i\cdot\nabla\right)\uu^i\right)&=\prusc\alpha\nabla\left(\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i\right)\\
-	&=\prusc\alpha\nabla\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i+\prusc\beta u^i\prusc\alpha\nabla\prusc\beta\nabla\prusc\alpha u^i\\
-	&=\prusc\alpha\nabla\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i+\prusc\beta u^i\prusc\beta\nabla\prusc\alpha\nabla\prusc\alpha u^i.
-\end{align}
-Here we use that $\prusc\alpha\nabla\prusc\alpha u^i=0$ (this is $\nabla\cdot\uu^i=0$) and get
-\begin{align}
-	\nabla\cdot\left(\left(\uu^i\cdot\nabla\right)\uu^i\right)&=\prusc\alpha\nabla\prusc\beta u^i\prusc\beta\nabla\prusc\alpha u^i\\
-	&=\left(\pder{\prusc xu^i}{x}\right)^2+2\pder{\prusc xu^i}y\pder{\prusc yu^i}x+\left(\pder{\prusc yu^i}y\right)^2,
-\end{align}
-where $\prusc xu=\prusc 1u,\prusc yu=\prusc 2u$.
-%\begin{align}
-%	0&=-\frac\dt\rho\nabla^2p^i+\dt\left(
+During the computation, we have yet to solve for $p^i$, so we only calculate the following intermediate vector field
+\newcommand{\ww}{\mathbf w}
+\begin{align*}
+	\ww^i\coloneqq\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i
+\end{align*}
+The above formula gives the value of the field in the interior of the grid and we use the boundary conditions for velocity to calculate its values at the boundary. Then
+\begin{align*}
+	-\frac\dt\rho\nabla p^i+\ww^i=\uu^{i+1}
+\end{align*}
+and
+\begin{align*}
+	-\frac\dt\rho\nabla^2p^i+\nabla\cdot\ww^i=\nabla\cdot\uu^{i+1}=0.
+\end{align*}
+Hence, we have the following Poisson equation for $p^i$
+\begin{align*}
+	\nabla^2p^i=\frac\rho\dt\nabla\cdot\ww^i.
+\end{align*}
+We solve this Poisson equation\footnote{There exist several well-known methods for solving a Poisson equation numerically. They include the Jacobi method, the Gauss-Seidel method, successive over-relaxation and multigrid methods. Multigrid methods generally coverge the fastest, but are noticeably more complex and difficult to implement than the other approches mentioned. Of those, we use successive over-relaxation by default as it tends to have the fastest convergence.} for $p^i$ in the interior of our grid and apply the boundary conditions for pressure to obtain $p^i$ at the boundary.
+\vxlisp
 
+At last, we compute $\uu^{i+1}$ given by
+\begin{align*}
+	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\ww^i
+\end{align*}
+and the boundary conditions for velocity.
 
 \subsection{Technical Challenges}
 This section focuses on some of the technical challenges encountered during the development.

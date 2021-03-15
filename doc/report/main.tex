@@ -1,0 +1,198 @@
+\documentclass[11pt,a4paper,twoside,openright]{report}
+
+\usepackage[top=25mm,bottom=25mm,right=25mm,left=30mm,head=12.5mm,foot=12.5mm]{geometry}
+\let\openright=\cleardoublepage
+
+\input{macros}
+
+\def\NazevPrace{Název maturitní práce}
+\def\Trida{R8.A}
+\def\AutorPrace{Viktor Fukala}
+\def\DatumOdevzdani{2021}
+
+% Vedoucí práce: Jméno a příjmení s~tituly
+\def\Vedouci{Šimon Schierreich} % TODO dodat tituly
+
+% Studijní program a obor
+\def\StudijniProgram{studijní program}
+\def\StudijniObor{studijní obor}
+
+% Text čestného prohlášení
+\def\Prohlaseni{Prohlašuji, že jsem svou práci vypracoval samostatně a použil jsem pouze prameny a literaturu
+uvedené v~seznamu bibliografických záznamů. Nemám žádné námitky proti zpřístupňování této práce v~souladu se
+zákonem č. 121/2000 Sb. o~právu autorském, o~právech souvisejících s~právem autorským a
+o~změně některých zákonů (autorský zákon) ve znění pozdějších předpisů.}
+
+% Text poděkování
+\def\Podekovani{%
+Poděkování.
+}
+
+% Abstrakt česky
+\def\Abstrakt{%
+Abstrakt.
+}
+
+% Abstrakt anglicky
+\def\AbstraktEN{%
+The \software{} developed in this \this{}, \pname{}, is a native application for Linux and Windows that predicts and visualizes the flow of an incompressible fluid around arbitrary obstacles and under various conditions in two-dimensional space. It aims to deepen the basic understanding of fluid flow among its end-users by presenting physically accurate visualizations without the sophisticated interface that often comes with fluid simulation software used in the industry. It simulates the flow based on the shapes of the obstacles and the boundary conditions for pressure and velocity, all of which can be configured by the end-user before starting the simulation. The \software{} works the fastest and most reliably for low Reynold numbers (laminar flow), whereas for high Reynold numbers (turbulent flow), the amount of required computational resources (both in time and space) increases rapidly. Nevertheless, the \software{} achieves its goal by being able to simulate a wide range of laminar flows and phenomena (such as the development of vortices) during at the transition to turbulent flows.
+}
+
+% 3 až 5 klíčových slov
+\def\KlicovaSlova{klíčové slovo, další pojem, jiný důležitý termín, a ještě jeden}
+% 3 až 5 klíčových slov anglicky
+\def\KlicovaSlovaEN{computational fluid dynamics, incompressible Navier-Stokes equations, visualization, computer simulation}
+
+
+\begin{document}
+
+\include{titlepage}
+
+% Obsah
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+\newcommand{\dt}{\Delta t}
+
+\chapter{Teoretická část}
+\pagestyle{fancy}
+
+\section{Introduction}
+Computational fluid dynamics (CFD) is the application of numerical methods to fluid flow problems. As of today, it plays a vital role in engineering areas and the related industries such as aeronautics, the automotive industry, environmental engineering, bioengineering (simulating the blood flow or the air flow in lungs, for example), or even videogames, where it is used to produce realistic video of fluids. Computer-simulated fluid flow has replaced many expensive or even technically infeasible real-world experiments, and its importance is only expected to grow with future advancements in both computing power and the efficiency of the applied algorithms.
+
+In this \this{} however, we are not focused on any of these direct applications but rather on providing the end-user with the fundamental understanding of fluid flow phenomena and a high degree of freedom in experimenting -- i.e.\ setting up simulations to their liking. We aim to present \software{} that visualizes the computed results in an attractive and immediate manner, so that our goals differ greatly from those of the software used in the industry, as that often prioritizes precision and efficiency and comes with an elaborate user interface and special functionality for the one or the other engineering or industry application.
+
+My main motivation for committing myself to the development of the \software{} constituting this \this{} was my fascination with the computers' ability to simulate (parts of) the real world and my curiosity as to how far one can get with only the general knowledge of physics and numerical analysis fundamentals and no prior expertise in CFD specifically.
+
+Our \software{} computes and visualizes the temporal evolution of the state of a fluid inside a two-dimensional, rectangular container. The state of the fluid is given by the velocity vector field and the pressure scalar field, each of which has a value at every point inside the container. This state at some given time after the start of the simulation is dependent on a multitude of parameters:
+\begin{itemize}
+	\item \textbf{the shape of the container,}\\
+		This includes the dimensions of the rectangular enclosing container and also the shapes and dimensions of the solid obstacles inside it. Both can be freely configured by the end-user before a simulation.
+	\item \textbf{the mechanical properties of the fluid,}\\
+		This includes the density and the viscosity of the fluid, of which both can be freely configured by the end-user.
+	\item \textbf{the boundary conditions at the boundary of the container, and}\\
+		At the four sides of the outer container, the user can specify what boundary conditions will be enforced. For both velocity and pressure, they can choose between a Dirichlet type or a Neumann type boundary condition. For the Dirichlet type boundary condition, they can also specify the value (of pressure or velocity) at the boundary. Under a Neumann type boundary condition we specifically understand a the Neumann boundary conditions which requires the derivative along the normal to the surface to be zero.
+		\vxlisp
+
+		At the inner boundaries, i.e.\ at the surface of the solid obstacles inside the container, the no-slip condition is enforced for velocity (meaning that a Dirichlet type boundary condition setting the velocity to the zero vector holds) and a Neumann type boundary conditions is set for pressure.
+	\item \textbf{the initial conditions.}\\
+		I.e.\ the state of the fluid at $t=0$. The state of the fluid at $t=0$ is set to zero velocity and zero pressure everywhere (except at the boundary).
+\end{itemize}
+
+\section{Physical Model}
+To model the behavior of the fluid, we use the Navier-Stokes equations. Let $\mathbf u$ denote the velocity of the fluid and $p$ its pressure at all the points inside the container. We assume that the fluid is incompressible, so we get the incompressibility equation
+\newcommand{\uu}{\mathbf u}
+\newcommand{\D}{\mathrm D}
+\begin{align}\label{eq:incom}
+	\nabla\cdot\uu=0.
+\end{align}
+Then we have the Navier-Stokes momentum equation
+\newcommand{\conv}{\frac{\D\uu}{\D t}}
+\begin{align*}
+	\rho\conv=-\nabla p+\mu\nabla^2\uu+\rho\mathbf g,
+\end{align*}
+where $\rho$ is the density of the fluid, $\mu$ its (dynamic) viscosity, $\mathbf g$ is the acceleration due to external forces (such as gravity) and $\conv$ denotes the material (also known as \emph{convective}) derivative of the velocity.
+\newcommand{\pder}[2]{\frac{\partial #1}{\partial #2}}
+\begin{align}
+	\conv=\pder\uu t+(\uu\cdot\nabla)\uu
+\end{align}
+We assume no external forces, so $\mathbf g=0$. Hence, the momentum equation that we work with takes the form
+\begin{align}\label{eq:momentum}
+	\pder\uu t+(\uu\cdot\nabla)\uu=-\frac1\rho\nabla p+\nu\nabla^2\uu,
+\end{align}
+where $\nu=\mu/\rho$ is the \emph{kinematic} viscosity.
+\section{Numerical Model}
+Our way of numerically solving the above equations that is not the most accurate or computationaly efficient, but it is relatively simple to implement and to work with. It can be categorized as an explicit finite difference method.
+%\vxlisp
+
+Let us denote the value of a particular quantity at the $i$-th iteration by $i$ in the superscript. That is, let $\uu^i$ be the velocity field at the $i$-th iteration, $p^i$ the pressure field at the $i$-th iteration, $\left(\pder\uu t\right)^i$ the time derivative of the velocity field at the $i$-th iteration. Then we approximate the derivate of $\uu$ by the forward difference.
+\begin{align}
+	\left(\pder{\uu}t\right)^i=\frac{\uu^{i+1}-\uu^i}{\dt}
+\end{align}
+So at the $i$-th iteration, \eqref{eq:momentum} takes the form
+\begin{align}
+	\frac{\uu^{i+1}-\uu^i}{\dt}+(\uu^i\cdot\nabla)\uu^i=-\frac1\rho\nabla p^i+\nu\nabla^2\uu^i.
+\end{align}
+Together with the equation $\nabla\cdot\uu^{i+1}=0$ (that is \eqref{eq:incom} at the $(i+1)$-th iteration), this allows us to solve for $\uu^{i+1}$ and $p^i$. We express
+\begin{align}
+	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i.
+\end{align}
+During the computation, we have yet to solve for $p^i$, so we only calculate the following intermediate vector field
+\newcommand{\ww}{\mathbf w}
+\begin{align*}
+	\ww^i\coloneqq\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i
+\end{align*}
+The above formula gives the value of the field in the interior of the grid and we use the boundary conditions for velocity to calculate its values at the boundary. Then
+\begin{align*}
+	-\frac\dt\rho\nabla p^i+\ww^i=\uu^{i+1}
+\end{align*}
+and
+\begin{align*}
+	-\frac\dt\rho\nabla^2p^i+\nabla\cdot\ww^i=\nabla\cdot\uu^{i+1}=0.
+\end{align*}
+Hence, we have the following Poisson equation for $p^i$
+\begin{align*}
+	\nabla^2p^i=\frac\rho\dt\nabla\cdot\ww^i.
+\end{align*}
+We solve this Poisson equation\footnote{There exist several well-known methods for solving a Poisson equation numerically. They include, most notably, the Jacobi method, the Gauss-Seidel method, successive over-relaxation, and multigrid methods. Multigrid methods generally coverge the fastest, but are noticeably more complex and difficult to implement than the other approches mentioned. Of those, we use successive over-relaxation by default as it tends to have the fastest convergence.} for $p^i$ in the interior of our grid and apply the boundary conditions for pressure to obtain $p^i$ at the boundary.
+%\vxlisp
+
+At last, we compute $\uu^{i+1}$ given by
+\begin{align*}
+	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\ww^i
+\end{align*}
+and the boundary conditions for velocity.
+
+V první části maturitní práce by se měla objevit informace o tom, jaký problém řešíte. Co si Váš projekt klade za cíl?
+
+\chapter{Implementace}
+
+Druhá kapitola obsahuje detailní informace o tom, jak probíhala implementace. Zde se objeví zdůvodnění výběru technologií, řešení problémů, na které jste narazili, informace o použitých knihovnách apod. Pochvalte se, nikdo to za Vás neudělá. Přiznejte chyby, není to ostuda.
+
+\section{Ukázka sekce}
+
+\lipsum
+
+\chapter{Technická dokumentace}
+
+Poslední kapitola obsahuje informace o tom, jak projekt, který v rámci maturitní práce vznikl, nainstalovat, spustit a používat.
+
+\section{Ukázka sekce}
+
+\lipsum[5]
+
+\subsection{A jedné podsekce}
+
+\lipsum
+
+\section{A další sekce}
+
+\lipsum
+
+\chapter*{Závěr}
+\pagestyle{empty}
+\addcontentsline{toc}{chapter}{Závěr}
+
+Závěr obsahuje shrnutí práce a vyjadřuje se k míře splnění jejího zadání. Dále by se zde mělo objevit sebehodnocení studenta a informace o tom, co nového se naučil a jak vnímal svou práci na projektu.
+
+%%% Seznam použité literatury
+\nocite{einstein}\nocite{latexcompanion}\nocite{knuthwebsite}
+\printbibliography[title={Seznam použité literatury},heading={bibintoc}]
+
+%%% Seznam obrázků
+\openright
+\listoffigures
+\addcontentsline{toc}{chapter}{Seznam obrázků}
+
+%%% Seznam tabulek
+\clearpage
+\listoftables
+\addcontentsline{toc}{chapter}{Seznam tabulek}
+
+%%% Přílohy k práci, existují-li. Každá příloha musí být alespoň jednou
+%%% odkazována z vlastního textu práce. Přílohy se číslují.
+
+%\part*{Přílohy}
+%\appendix
+
+\end{document}
