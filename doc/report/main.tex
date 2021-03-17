@@ -54,7 +54,7 @@ The \software{} developed in this \this{}, \pname{}, is a native application for
 
 \newcommand{\dt}{\Delta t}
 
-\chapter{Teoretická část}
+\chapter{Theoretical Background}
 \pagestyle{fancy}
 
 \section{Introduction}
@@ -102,8 +102,9 @@ We assume no external forces, so $\mathbf g=0$. Hence, the momentum equation tha
 \end{align}
 where $\nu=\mu/\rho$ is the \emph{kinematic} viscosity.
 \section{Numerical Model}
+% TODO: add citation
+[add citation to Barba's materials; mention what her and this model have in common and how they differ]
 Our way of numerically solving the above equations that is not the most accurate or computationaly efficient, but it is relatively simple to implement and to work with. It can be categorized as an explicit finite difference method.
-%\vxlisp
 
 Let us denote the value of a particular quantity at the $i$-th iteration by $i$ in the superscript. That is, let $\uu^i$ be the velocity field at the $i$-th iteration, $p^i$ the pressure field at the $i$-th iteration, $\left(\pder\uu t\right)^i$ the time derivative of the velocity field at the $i$-th iteration. Then we approximate the derivate of $\uu$ by the forward difference.
 \begin{align}
@@ -145,15 +146,66 @@ and the boundary conditions for velocity.
 
 V první části maturitní práce by se měla objevit informace o tom, jaký problém řešíte. Co si Váš projekt klade za cíl?
 
-\chapter{Implementace}
+\chapter{Implementation}
+
+\section{Used Technologies}
+\subsection{Base Programming Language: C++}
+The \software{} is written mostly in C++. C++ is a compiled programming language with multiple freely available compilers, which are capable of many optimizations, so that the resulting executable programs are one of the fastest when compared to other programming languages. This is important for us because computational resources (and their efficient use) are a limiting factor during the simulations. Moreover, C++ code can be written in a highly structured manner (e.g.\ using objects and classes, namespaces, templates, \icd{constexpr}, \icd{const}, static assertions, etc.), which decreases the likelihood of errors altogether or at least enables better static analysis and the discovery of potential errors at compile time (compared to the C programming language, for example). 
+
+\subsection{User Interface, Widget Toolkit}
+The most visible technology used in the \software{} is gtkmm 3, a C++ wrapper around GTK+ 3 user interface widget toolkit library. It is one of the two most widely used user interface libraries for C++, the other being Qt. Qt is written natively in C++ (in contrast to GTK being a C library), but the gtkmm wrapper for C++ makes good use of C++ paradigms, so that gtkmm interoperates with C++ code just as easily. Hence, both gtkmm and Qt seemed adequate for our \software{} and the final decision was based on a personal preference for the GNOME ecosystem.
+
+\subsection{OpenGL for Visualizations}
+Specifically for the visualization of the simulated fluid flow, we use OpenGL to produce detailed images accurately representing the computed states easily and to do so fast enough to be able to play the images as a continuous video. No complex graphics was necessary for our \software{}, so only 4 relatively simple shaders written in the OpenGL Shading Language are a part of the source code.
+
+\subsection{FFmpeg for Writting Video Files}
+% TODO: add link
+Since the \software{} was required to be able to produce video files with the visualized flow of the fluid, we used the FFmpeg libraries for video manipulation. See [link here to installation -- ffmpeg libs] for the exact information about the FFmpeg libraries used. Even though these are C libraries and so their API violates the principles of good design in C++, we use them because they are one of the most widely used tools for this kind of tasks and we are able to keep the iteraction with their API local within our codebase.
 
 Druhá kapitola obsahuje detailní informace o tom, jak probíhala implementace. Zde se objeví zdůvodnění výběru technologií, řešení problémů, na které jste narazili, informace o použitých knihovnách apod. Pochvalte se, nikdo to za Vás neudělá. Přiznejte chyby, není to ostuda.
 
-\section{Ukázka sekce}
+\subsection{CMake for Build Management}
 
-\lipsum
+\section{Course of Development}
+% TODO: add citations
+At the beginning (September 2020 -- November 2020), we searched for and tried multiple physical models (e.g.\ incompressible or compressible fluid) and numerical models (various computation schemes) and we researched other software that already solves problems similar to what we aimed to do. There certainly exist other similar programs such as Flowsquare [add citation] or OpenFOAM [add citation]. Both of these are generaly allow for more sophisticated simulations, but they also typically require configuration outside of the program's own interface (e.g.\ preparation of bitmaps file with solid obstacles (Flowsquare) or writting the complete simulation setup into a configuration file (OpenFOAM)). Our software tries to be more accessible for less technically skilled users.
 
-\chapter{Technická dokumentace}
+% TODO: add citations, add image
+For the sake of simplicity, we started to focus only on incompressible flow. Besides Wikipedia articles such as [add citation for wiki pages: Navier-Stokes equation, Jacobi method, Gauss-Siedel method, Successive over-relaxation], the most useful source of practical information were Lorena A. Barba's materials on CFD [add citation to 12 steps to Navier-Stokes] and the recordings of her CFD course at Boston University [add citation to YouTube playlist]. Throughout these initial stages of the development, we needed to perform many experiments in order to determine how reliably our numerical models work. A sizeable portion of them were unstable and resulted in the computation diverging [add image of a diverging simulation]. Generally, we can say that none of our models (including the final one) could efficiently simulate turbulence (flow with a high Reynolds number).
+
+In December, the development continued with the implementation of the main parts of the simulation configuration interface and the OpenGL visualization. The inteface for the configuration of solid obstacles was implemented mainly in January and in February, controls for the video playback and the option to export video were added. Throughout March, parts of the numerical model were improved (including its efficiecy), more options for the configuration of boundary conditions were made possible and various minor parts of the \software{} were improved, expanded, or fixed.
+
+\section{Elegant and Efficient Solutions during Development}
+This section discusses a few parts of the project that could be regarded as well tackled or as problems elegantly solved.
+
+\subsection{Obstacle Configuration Interface}
+One could argue that the obstacle configuration interface is, in contrast to other components of the \software{}, elegant and user-friendly. It displays to the user the obstacle they are about to add and the grid points that will become solid as a result of that, it allows them to sequentially undo and redo the addition of obstacle, or it allows to cancel the addition of a new obstacle. However, this might be, in part, caused by the relative isolation and clearly defined bound of this interface is supposed to do in the first place, particularly when the rest, the majority, and the core of the \software{} is rather volatile.
+
+Nevertheless, there is room for improvement even in this interface. For example, the performance (and thus the smoothness of the UI) worsens as the number of points grows large enough and the editor lacks any ability to copy or move the added obstacles.
+
+\subsection{Use of C++ Paradigms}
+It is highly debatable claim to say that in general, the structure of the codebase is well design. But let us draw the attention to at least some specific part of the code that one may regard as well-design.
+
+Firstly, notice the structs defined in the \icd{lib} directory -- namely \icd{Grid}, \icd{vec2d}, \icd{Point}. The \icd{Grid} struct is a generic two-dimensional container of fixed size and is used to represent the values of a quantity at the grid points inside a container. The \icd{vec2d} struct is a representation of a two-dimensional vector (with two coordinates of type \icd{double}) and \icd{Point} of a point with two integer coordinates. All these structs make heavy use of operator overloading, so that they can be used more easily and naturaly. That includes a natural way of addressing the data in a \icd{Grid}, so that statements like
+\begin{align*}
+	\icd{g(3, 4) = g(0, 1)}
+\end{align*}
+or even
+\begin{align*}
+	\icd{g(p1) = g(p0)},
+\end{align*}
+where \icd g is of type \icd{Grid<T>} for any type \icd{T} that is copy assignable and $\icd{p0}$, $\icd{p1}$ are of type $\icd{Point}$, can be used (provided that the specified indices or points are within the bounds of the grid). Naturally, standard vector operation are also available through overloaded operators, so
+\begin{align*}
+	&\icd{p = (u.dot(a) / u.dot(u)) * u}\\
+	&\icd{d = (a + b) / 2 + c * 1.5}
+\end{align*}
+are valid statements for \icd a, \icd b, \icd c, \icd d, \icd p, \icd u of type \icd{vec2d}.
+
+On a similar note, we implemented a generic class \icd{Hideable} (in \icd{hideable.hpp}), which allows us to hide a GTK widget while it still takes up space in its parent container. The elegance of this generic class is that \icd{Hideable<T>} inherits from \icd T, so that a widget of type \icd W can be declared as \icd{Hideable<W>} and all its methods and attributes are still accessible normally while it now also has the new methods that hide and show (unhide) it.
+
+However, other parts of the codebase are not so well designed. For example, the classes representing the program's windows and the classes representing the various stages of configuring / running a simulation try to follow a general pattern, but mainly due to the large number of different states the user interface can be in, they contain a relatively high amount of loosely structured code.
+
+\chapter{User Guide}
 
 Poslední kapitola obsahuje informace o tom, jak projekt, který v rámci maturitní práce vznikl, nainstalovat, spustit a používat.
 
