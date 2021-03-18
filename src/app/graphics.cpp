@@ -288,7 +288,7 @@ void FrameDrawer::addStreamLine(const SimFrame& frame, vec<LineSegment>& segs, c
 
 void FrameDrawer::addArrow(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& pos, const double norm_len)
 {
-	constexpr double a = .004;
+	const double a = .004 * std::max(w, h);
 
 	const Point poi = to_poi(pos);
 	if (!poi.inside(0, 0, wp - 1, hp - 1))
@@ -464,27 +464,28 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 
 		if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_ARROWS)
 		{
-			for (double x = w / 2; x < w; x += line_d * w)
+			const double spm = std::max(w, h);
+			for (double x = w / 2; x < w; x += line_d * spm)
 			{
-				for (double y = h / 2; y < h; y += line_d * h)
+				for (double y = h / 2; y < h; y += line_d * spm)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(frame, segs, vec2d(x, y), max_ulen);
 				}
-				for (double y = h / 2 - line_d; y > 0; y -= line_d * h)
+				for (double y = h / 2 - line_d * spm; y > 0; y -= line_d * spm)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(frame, segs, vec2d(x, y), max_ulen);
 				}
 			}
-			for (double x = w / 2 - line_d; x > 0; x -= line_d * w)
+			for (double x = w / 2 - line_d * spm; x > 0; x -= line_d * spm)
 			{
-				for (double y = h / 2; y < h; y += line_d * h)
+				for (double y = h / 2; y < h; y += line_d * spm)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(frame, segs, vec2d(x, y), max_ulen);
 				}
-				for (double y = h / 2 - line_d; y > 0; y -= line_d * h)
+				for (double y = h / 2 - line_d * spm; y > 0; y -= line_d * spm)
 				{
 					if (!solid(to_poi(x, y)))
 						addArrow(frame, segs, vec2d(x, y), max_ulen);
