@@ -14,6 +14,7 @@ class Tests
 {
 private:
 	void testConv();
+	void testObstacleShapes();
 	
 public:
 	void run();

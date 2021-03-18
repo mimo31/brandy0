@@ -133,6 +133,53 @@ void ObstacleEllipse::draw(const Cairo::RefPtr<Cairo::Context>& cr) const
 	}
 }
 
+bool onSegment(const vec2d v0, const vec2d v1, const vec2d p)
+{
+	const vec2d v = v1 - v0;
+	const vec2d pv = p - v0;
+	const double dot = v.dot(pv);
+	return dot * dot == v.len2() * pv.len2() && dot >= 0 && pv.len2() <= v.len2();
+}
+
+bool ObstaclePolygon::inside(const vec2d p) const
+{
+	// return true if p is coincides with one of the vertices
+	for (const vec2d v : ps)
+	{
+		if (p == v)
+			return true;
+	}
+
+	// return true if p lies on one of the sides
+	if (onSegment(ps.front(), ps.back(), p))
+		return true;
+	for (uint32_t i = 0; i < ps.size() - 1; i++)
+	{
+		if (onSegment(ps[i], ps[i + 1], p))
+			return true;
+	}
+
+	// check whether p is in the interior
+	int32_t steps = 0;
+	auto on_left = [p](const vec2d v) -> bool { return v.x < p.x || (v.x == p.x && v.y < p.y); };
+	auto add_segment = [&steps, on_left, p](const vec2d v0, const vec2d v1) -> void
+	{
+		if (on_left(v0) != on_left(v1))
+		{
+			const vec2d v = v1 - v0;
+			const vec2d pv = p - v0;
+			if (v.cross(pv) > 0)
+				steps++;
+			else
+				steps--;
+		}
+	};
+	add_segment(ps.back(), ps.front());
+	for (uint32_t i = 0; i < ps.size() - 1; i++)
+		add_segment(ps[i], ps[i + 1]);
+	return steps != 0;
+}
+
 ObstaclePolygon::ObstaclePolygon(const bool negative, const vec<vec2d>& ps)
     : ObstacleShape(negative), ps(ps)
 {
@@ -149,41 +196,14 @@ void ObstaclePolygon::draw(const Cairo::RefPtr<Cairo::Context>& cr) const
 	cr->fill();
 }
 
-bool intersects(const vec2d a0, const vec2d a1, const vec2d b0, const vec2d b1)
-{
-	const vec2d a = a1 - a0;
-	const vec2d b0p = b0 - a0;
-	const vec2d b1p = b1 - a0;
-	const double sab0 = a.cross(b0p);
-	const double sab1 = a.cross(b1p);
-	if ((sab0 > 0 && sab1 > 0) || (sab0 < 0 && sab1 < 0))
-		return false;
-	const vec2d b = b1 - b0;
-	const vec2d a0p = a0 - b0;
-	const vec2d a1p = a1 - b0;
-	const double sba0 = b.cross(a0p);
-	const double sba1 = b.cross(a1p);
-	return !((sba0 > 0 && sba1 > 0) || (sba0 < 0 && sba1 < 0));
-}
-
 void ObstaclePolygon::fill(Grid<bool>& grid) const
 {
-	// TODO: potentially room for improvement (current algorithm may produce incorrect results
-	// e.g. when the ray goes through a vertex)
-	// TODO: fix discrepancy between polygon fill and draw methods (when two parts of the polygon overlap, fill does not fill that intersection, but it should)
 	for (uint32_t y = 0; y < grid.h; y++)
 	{
 		for (uint32_t x = 0; x < grid.w; x++)
 		{
 			const vec2d crs(x / double(grid.w - 1), y / double(grid.h - 1));
-			bool inside = false;
-			for (uint32_t i = 0; i < ps.size(); i++)
-			{
-				const vec2d v0 = ps[i];
-				const vec2d v1 = i + 1 != ps.size() ? ps[i + 1] : ps[0];
-				inside = inside ^ intersects(vec2d(-1, -1.3), crs, v0, v1);
-			}
-			grid(x, y) = grid(x, y) || inside;
+			grid(x, y) = grid(x, y) || inside(crs);
 		}
 	}
 }

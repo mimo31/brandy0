@@ -16,6 +16,7 @@
 #include "grid.hpp"
 #include "ptr.hpp"
 #include "str.hpp"
+#include "tests.hpp"
 #include "vec.hpp"
 #include "vec2d.hpp"
 
@@ -101,8 +102,11 @@ public:
 
 class ObstaclePolygon : public ObstacleShape
 {
+friend Tests;
 private:
     vec<vec2d> ps;
+
+	bool inside(const vec2d p) const;
 
 public:
     ObstaclePolygon(const bool negative, const vec<vec2d>& ps);

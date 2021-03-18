@@ -29,6 +29,11 @@ struct vec2d
 	{
 	}
 
+	constexpr bool operator==(const vec2d &other) const
+	{
+		return x == other.x && y == other.y;
+	}
+
 	double len2() const
 	{
 		return x * x + y * y;
