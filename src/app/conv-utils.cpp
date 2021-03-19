@@ -6,6 +6,8 @@
  */
 #include "conv-utils.hpp"
 
+#include <iomanip>
+
 namespace brandy0
 {
 
@@ -179,6 +181,82 @@ str ConvUtils::defaultToString(const double d)
 	std::ostringstream oss;
 	oss << d;
 	return oss.str();
+}
+
+str ConvUtils::timeToString(const double d)
+{
+	return timeToString(d, d);
+}
+
+str toScientific(const double d)
+{
+	std::ostringstream oss;
+	oss << std::scientific;
+	oss.precision(3);
+	oss << d;
+	return oss.str();
+}
+
+str toFixed(const double d, const uint32_t prec)
+{
+	std::ostringstream oss;
+	oss << std::fixed;
+	oss.precision(prec);
+	oss << d;
+	return oss.str();
+}
+
+str ConvUtils::timeToString(const double d, const double order)
+{
+	if (order == 0)
+		return defaultToString(d);
+	if (order < 1e-4)
+		return toScientific(d);
+	if (order >= 1e6)
+		return toScientific(d);
+	if (order >= 1e5)
+		return toFixed(d, 0);
+	double pow = 1e-3;
+	int32_t prec = 7;
+	while (order >= pow)
+	{
+		pow *= 10;
+		prec--;
+	}
+	return toFixed(d, std::max(0, prec));
+}
+
+str ConvUtils::percentageToString(const double d)
+{
+	return toFixed(d, 3);
+}
+
+str ConvUtils::speedupToString(const double d)
+{
+	if (d >= 100)
+		return toFixed(d, 0);
+	if (d >= .1)
+		return toFixed(d, 2);
+	return toFixed(d, 5);
+}
+
+str ConvUtils::intToZeropadString(const uint32_t i, const uint32_t width)
+{
+	std::ostringstream oss;
+	oss << std::setw(width) << std::setfill('0') << i;
+	return oss.str();
+}
+
+str ConvUtils::intToZeropadStringByOrder(const uint32_t i, const uint32_t order)
+{
+	uint32_t width = 1;
+	uint32_t bound = 10;
+	while (bound <= order)
+	{
+		width++;
+		bound *= 10;
+	}
+	return intToZeropadString(i, width);
 }
 
 }

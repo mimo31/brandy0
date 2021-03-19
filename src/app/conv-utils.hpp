@@ -60,6 +60,12 @@ public:
     static void updateRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double maxVal);
 
 	static str defaultToString(const double d);
+	static str timeToString(const double d);
+	static str timeToString(const double d, const double order);
+	static str percentageToString(const double d);
+	static str speedupToString(const double d);
+	static str intToZeropadString(const uint32_t i, const uint32_t width);
+	static str intToZeropadStringByOrder(const uint32_t i, const uint32_t order);
 };
 
 }

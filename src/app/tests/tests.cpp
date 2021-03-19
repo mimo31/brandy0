@@ -43,6 +43,10 @@ void Tests::testConv()
 	assert(ConvUtils::isReal("-.2"));
 	
 	assert(!ConvUtils::isReal("-e2"));
+
+	assert(ConvUtils::timeToString(.023) == "0.02300");
+	assert(ConvUtils::timeToString(34) == "34.00");
+	assert(ConvUtils::timeToString(2.93333) == "2.933");
 }
 
 void Tests::testObstacleShapes()

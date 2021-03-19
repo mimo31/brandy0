@@ -27,6 +27,9 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	previewFrame("preview play"),
 	parameterFrame("video file parameters")
 {
+	startTimeLabel.set_size_request(300, -1);
+	timeLabel.set_size_request(200, -1);
+
 	timingGrid.attach(startTimeLabel, 0, 0);
 	timingGrid.attach(startTimeScale, 0, 1);
 	timingGrid.attach(endTimeLabel, 0, 2);
@@ -260,12 +263,12 @@ void ExportWindow::getFileLocationFromUser()
 
 void ExportWindow::updateStartTimeLabel()
 {
-	startTimeLabel.set_text("start = " + ConvUtils::defaultToString(parent->videoExportStartTime) + " (of " + ConvUtils::defaultToString(parent->computedTime) + ")");
+	startTimeLabel.set_text("start = " + ConvUtils::timeToString(parent->videoExportStartTime, parent->computedTime) + " (of " + ConvUtils::timeToString(parent->computedTime) + ")");
 }
 
 void ExportWindow::updateEndTimeLabel()
 {
-	endTimeLabel.set_text("end = " + ConvUtils::defaultToString(parent->videoExportEndTime) + " (of " + ConvUtils::defaultToString(parent->computedTime) + ")");
+	endTimeLabel.set_text("end = " + ConvUtils::timeToString(parent->videoExportEndTime, parent->computedTime) + " (of " + ConvUtils::timeToString(parent->computedTime) + ")");
 }
 
 void ExportWindow::updateInvalidTimesWarn()
@@ -278,7 +281,7 @@ void ExportWindow::updateInvalidTimesWarn()
 
 void ExportWindow::updatePlaybackSpeedLabel()
 {
-	playbackSpeedLabel.set_text("playback speed " + ConvUtils::defaultToString(parent->videoExportPlaybackSpeedup) + "x");
+	playbackSpeedLabel.set_text("playback speed " + ConvUtils::speedupToString(parent->videoExportPlaybackSpeedup) + "x");
 }
 
 void ExportWindow::updateDurationLabel()
@@ -287,7 +290,7 @@ void ExportWindow::updateDurationLabel()
 	{
 		const double simtime = parent->videoExportEndTime - parent->videoExportStartTime;
 		const double realtime = simtime / (parent->params->dt * parent->params->stepsPerFrame * parent->videoExportPlaybackSpeedup) * parent->MS_PER_BASE_FRAME / 1000;
-		durationLabel.set_text("duration = " + ConvUtils::defaultToString(simtime) + " (" + ConvUtils::defaultToString(realtime) + " s)");
+		durationLabel.set_text("duration = " + ConvUtils::timeToString(simtime) + " (" + ConvUtils::timeToString(realtime) + " s)");
 		durationLabel.pseudoShow();
 	}
 	else
@@ -304,7 +307,7 @@ void ExportWindow::updateTimeLabel()
 		const double range = parent->videoExportEndTime - parent->videoExportStartTime;
 		const double tm = parent->videoExportTime;
 		const double frac = (tm - parent->videoExportStartTime) / range;
-		timeLabel.set_text("t = " + ConvUtils::defaultToString(parent->videoExportTime) + " (" + std::to_string(100 * frac) + " %)");
+		timeLabel.set_text("t = " + ConvUtils::timeToString(parent->videoExportTime, parent->videoExportEndTime) + " (" + ConvUtils::percentageToString(100 * frac) + " %)");
 	}
 	else
 	{

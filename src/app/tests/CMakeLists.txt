@@ -1,1 +1,1 @@
-target_sources(${PROJECT_NAME} PRIVATE tests.cpp)
+target_sources(${PROJECT_NAME}-test PRIVATE tests.cpp)

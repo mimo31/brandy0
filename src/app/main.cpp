@@ -2,8 +2,6 @@
 
 #include "application.hpp"
 
-// #define TESTING
-
 #ifdef TESTING
 #include "tests.hpp"
 #endif // TESTING

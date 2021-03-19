@@ -25,6 +25,9 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	backDisplayLabel("background visual"), frontDisplayLabel("foreground visual"),
 	videoExportButton(exportButtonDefaultLabel)
 {
+	timeLabel.set_size_request(300, -1);
+	frameBufferLabel.set_size_request(200, -1);
+
 	mainGrid.attach(dArea, 0, 0, 1, 1);
 
 	playbackModeSelector.append("play until end");
@@ -243,10 +246,12 @@ void SimulationWindow::updateStats()
 	{
 		parent->time = parent->computedTime * timeScale.get_value();	
 	}
-	frameBufferLabel.set_text("frames in buffer: " + std::to_string(parent->getFramesStored()) + " / " + std::to_string(parent->params->frameCapacity));
-	curIterLabel.set_text("iter. of frame: " + std::to_string(parent->getComputedIter()) + " / " + std::to_string(parent->params->stepsPerFrame));
-	timeLabel.set_text("t = " + ConvUtils::defaultToString(parent->time) + " (of " + ConvUtils::defaultToString(parent->computedTime) + ")");
-	playbackSpeedLabel.set_text("playback speed " + ConvUtils::defaultToString(parent->playbackSpeedup) + "x");
+	const uint32_t fcap = parent->params->frameCapacity;
+	frameBufferLabel.set_text("frames in buffer: " + ConvUtils::intToZeropadStringByOrder(parent->getFramesStored(), fcap) + " / " + std::to_string(fcap));
+	const uint32_t sperframe = parent->params->stepsPerFrame;
+	curIterLabel.set_text("iter. of frame: " + ConvUtils::intToZeropadStringByOrder(parent->getComputedIter(), sperframe) + " / " + std::to_string(sperframe));
+	timeLabel.set_text("t = " + ConvUtils::timeToString(parent->time, parent->computedTime) + " (of " + ConvUtils::timeToString(parent->computedTime) + ")");
+	playbackSpeedLabel.set_text("playback speed " + ConvUtils::speedupToString(parent->playbackSpeedup) + "x");
 }
 
 void SimulationWindow::disableWhenExport()

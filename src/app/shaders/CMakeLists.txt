@@ -26,3 +26,4 @@ add_custom_target(
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${GRESOURCE_C})
+target_sources(${PROJECT_NAME}-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${GRESOURCE_C})
