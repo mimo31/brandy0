@@ -128,6 +128,7 @@ void SimulationState::enterVideoExport()
 	videoExportPlaybackSpeedup = 1;
 	videoExportRangeValid = computedTime != 0;
 	videoExportPlaybackPaused = true;
+	videoExportEditingTime = false;
 	videoExportFileLocation = "./exported.mp4";
 	videoExportWidth = DEFAULT_VIDEO_WIDTH;
 	videoExportHeight = DEFAULT_VIDEO_HEIGHT;
