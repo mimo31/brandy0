@@ -132,3 +132,21 @@
 \newcommand\software{software}
 \newcommand\vxlisp{\vspace*{12pt}}
 \newcommand\icd[1]{\texttt{#1}}
+\newcommand{\ccd}[1]{\colorbox{gray!15!white}{\texttt{#1}}}
+\newcommand{\scd}[1]{
+	\vspace*{5pt}
+
+	\ccd{#1}
+	\vspace*{5pt}
+}
+\newcommand{\nscd}[1]{\scd{\$ #1}}
+\newcommand{\sscd}[1]{\scd{\$ sudo #1}}
+\newcommand{\aptinstall}[1]{\sscd{apt install #1}}
+\newcommand{\snapinstall}[1]{\sscd{snap install #1}}
+\newcommand{\defos}{Ubuntu 20.10}
+\newcommand{\psubinst}{possible installation using \icd{snap} on \defos}
+\newcommand{\pubinst}{possible installation using \icd{apt} on \defos}
+
+\newcommand\dt{\Delta t}
+\newcommand\dx{\Delta x}
+\newcommand\dy{\Delta y}

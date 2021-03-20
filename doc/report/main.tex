@@ -52,8 +52,6 @@ The \software{} developed in this \this{}, \pname{}, is a native application for
 \setcounter{tocdepth}{2}
 \tableofcontents
 
-\newcommand{\dt}{\Delta t}
-
 \chapter{Theoretical Background}
 \pagestyle{fancy}
 
@@ -102,10 +100,14 @@ We assume no external forces, so $\mathbf g=0$. Hence, the momentum equation tha
 \end{align}
 where $\nu=\mu/\rho$ is the \emph{kinematic} viscosity.
 \section{Numerical Model}
-% say that we use the Chorin's splitting method
-% TODO: add citation
-[add citation to Barba's materials; mention what her and this model have in common and how they differ]
-Our way of numerically solving the above equations that is not the most accurate or computationaly efficient, but it is relatively simple to implement and to work with. It can be categorized as an explicit finite difference method.
+Our way of numerically solving the above equations that is not the most accurate or computationaly efficient, but it is relatively simple to implement and to work with. It is essentially the Chorin's projection method introduced in \cite{Chorin}. What we've implemented in an explicit, finite difference method.
+
+During the implementation, Lorena A. Barba's practical examples of solving the Navier-Stokes equations \cite{CFDpython} as well the recordings of her CFD course at Boston University \cite{BarbaCourse} were of great help. The solver used in \cite{CFDpython} is an implementation of Chorin's projection method, and is therefore similar to our implementation, but there are also some notable differences such as the fact that the solver in \cite{CFDpython} neglects some of the terms on the right-hand side of the pressure Poisson equation, doesn't incorporate any obstacles inside the enclosing rectangular boundary, and doesn't use the general upwind differecing scheme as we do.
+
+In order to computationally represent, process, and manipulate the state of the fluid, we must discretize in both space and time. As for the temporal discretization, we only compute the state of the fluid at times that are (non-negative) integer multiples of some small time $\dt$. These are computed successively with a state at any particular time depending on the state directly before. Each of the states must also be discretized spacialy. For that, we use a uniform Cartesian grid with a spacing of $\dx$ and $\dy$ in the $x$ and the $y$ direction respectively.
+
+\subsection{Temporal Discretization}
+What now follows is a brief description of Chorin's projection method that we use in the core of our simulator.
 
 Let us denote the value of a particular quantity at the $i$-th iteration by $i$ in the superscript. That is, let $\uu^i$ be the velocity field at the $i$-th iteration, $p^i$ the pressure field at the $i$-th iteration, $\left(\pder\uu t\right)^i$ the time derivative of the velocity field at the $i$-th iteration. Then we approximate the derivate of $\uu$ by the forward difference.
 \begin{align}
@@ -119,8 +121,8 @@ Together with the equation $\nabla\cdot\uu^{i+1}=0$ (that is \eqref{eq:incom} at
 \begin{align}
 	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i.
 \end{align}
-During the computation, we have yet to solve for $p^i$, so we only calculate the following intermediate vector field
 \newcommand{\ww}{\mathbf w}
+During the computation, we have yet to solve for $p^i$, so we only calculate the following intermediate vector field $\ww^i$.
 \begin{align*}
 	\ww^i\coloneqq\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i
 \end{align*}
@@ -136,14 +138,16 @@ Hence, we have the following Poisson equation for $p^i$
 \begin{align*}
 	\nabla^2p^i=\frac\rho\dt\nabla\cdot\ww^i.
 \end{align*}
-We solve this Poisson equation\footnote{There exist several well-known methods for solving a Poisson equation numerically. They include, most notably, the Jacobi method, the Gauss-Seidel method, successive over-relaxation, and multigrid methods. Multigrid methods generally coverge the fastest, but are noticeably more complex and difficult to implement than the other approches mentioned. Of those, we use successive over-relaxation by default as it tends to have the fastest convergence.} for $p^i$ in the interior of our grid and apply the boundary conditions for pressure to obtain $p^i$ at the boundary.
-%\vxlisp
+We solve this Poisson equation\footnote{There exist several well-known methods for solving a Poisson equation numerically. They include, most notably, the Jacobi method, the Gauss-Seidel method, successive over-relaxation, multigrid methods, and the conjugate gradient method. Multigrid methods and the conjugate gradient method generally coverge the faster, but are noticeably more complex and difficult to implement than the other approches mentioned. Of those, we use successive over-relaxation by default as it tends to have the fastest convergence. See section 9.3.3 of \cite{Epperson} for more details about the methods.} for $p^i$ in the interior of our grid and apply the boundary conditions for pressure to obtain $p^i$ at the boundary.
 
 At last, we compute $\uu^{i+1}$ given by
 \begin{align*}
 	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\ww^i
 \end{align*}
 and the boundary conditions for velocity.
+
+\subsection{Spacial Discretization}
+It remains to clarify how we compute the space derivatives of the various quantities.
 
 V první části maturitní práce by se měla objevit informace o tom, jaký problém řešíte. Co si Váš projekt klade za cíl?
 
@@ -161,11 +165,12 @@ Specifically for the visualization of the simulated fluid flow, we use OpenGL to
 
 \subsection{FFmpeg for Writting Video Files}
 % TODO: add link
-Since the \software{} was required to be able to produce video files with the visualized flow of the fluid, we used the FFmpeg libraries for video manipulation. See [link here to installation -- ffmpeg libs] for the exact information about the FFmpeg libraries used. Even though these are C libraries and so their API violates the principles of good design in C++, we use them because they are one of the most widely used tools for this kind of tasks and we are able to keep the iteraction with their API local within our codebase.
+Since the \software{} was required to be able to produce video files with the visualized flow of the fluid, we used the FFmpeg libraries for video manipulation. See [link here to installation -- FFmpeg libs] for the exact information about the FFmpeg libraries used. Even though these are C libraries and so their API violates the principles of good design in C++, we use them because they are one of the most widely used tools for this kind of tasks and we are able to keep the iteraction with their API local within our codebase.
 
 Druhá kapitola obsahuje detailní informace o tom, jak probíhala implementace. Zde se objeví zdůvodnění výběru technologií, řešení problémů, na které jste narazili, informace o použitých knihovnách apod. Pochvalte se, nikdo to za Vás neudělá. Přiznejte chyby, není to ostuda.
 
-\subsection{CMake for Build Management}
+\subsection{CMake for Build Automation}
+Compiling a C++ project can quickly become a demanding task as the complexity of the project increases. It is due to long compile times and also the necessary configuration that has to be done by whoever is trying to compile the project. CMake saves time in both of these by not rebuilding the entire project on each build and by allowing its user to define build targets and organize the project configuration into flexible CMake configuration files.
 
 \section{Course of Development}
 % TODO: add citations
@@ -248,6 +253,96 @@ Our numerical model -- the algorithm we use to solve the incompressible Navier-S
 
 \chapter{User Guide}
 
+\section{Installation}
+
+\pname{} can be distributed as a single executable file which dynamically links to libraries it depends on. The executable file itself can (in some cases) be directly downloaded from the project repository or it can be compiled from source. Either way, dependencies in the list that follows must be installed whenever \pname{} runs.
+
+\subsection{Dependencies required at run time}\label{sec:runtimedeps}
+For every dependency listed below, automatically include all its dependencies. (If using a package manager, they typically install automatically.)
+\begin{itemize}
+	\item gtkmm 3 (a C++ interface for GTK (GTK+) -- a GUI library)
+		\begin{itemize}
+			\item \pubinst{} (similarly for another linux package manager)
+				\aptinstall{libgtkmm-3.0-1v5}
+			\item Other versions, such as gtkmm 2 or gtkmm 4, are not compatible.
+		\end{itemize}
+	\item some FFmpeg libraries
+		\begin{itemize}
+			\item specifically \icd{libavcodec}, \icd{libavformat}, \icd{libavutil}, \icd{libswscale}
+			\item \pubinst
+				\sscd{add-apt-repository universe}
+				\aptinstall{libavcodec58 libavformat58 libavutil56 libswscale5}
+		\end{itemize}
+\end{itemize}
+
+\subsection{Additional dependencies required for compilation}\label{sec:compiledeps}
+\begin{itemize}
+	\item developer packages for the above run-time dependencies (unless the developer files were already included in the main package)
+		\begin{itemize}
+			\item \pubinst
+				\vspace*{5pt}
+
+				\ccd{\$ sudo apt install libgtkmm-3.0-dev libavcodec-dev libavformat-dev \textbackslash}\\
+				\ccd{libavutil-dev libswscale-dev}
+				\vspace*{5pt}
+		\end{itemize}
+	\item a C++17-compliant C++ compiler
+		\begin{itemize}
+			\item for example: possible installation of the GCC compiler using \icd{apt} on \defos
+				\aptinstall{g++}
+		\end{itemize}
+	\item CMake version 3.16 or higher (a build automation tool)
+		\begin{itemize}
+			\item \psubinst{} (recommended)
+				\snapinstall{cmake}
+			\item \pubinst
+				\aptinstall{cmake}
+			\item Older versions of CMake may work fine too, but then it is necessary to edit the minimum required version in \icd{CMakeLists.txt}.
+		\end{itemize}
+	\item make (a build automation tool)
+		\begin{itemize}
+			\item \pubinst
+				\aptinstall{make}
+		\end{itemize}
+	\item pkg-config (a build tool for fetching appropriate compiler flags)
+		\begin{itemize}
+			\item \pubinst
+				\aptinstall{pkg-config}
+		\end{itemize}
+\end{itemize}
+
+\subsection{Installation steps}
+\underline{If you already have the executable file for \pname{}}:
+\begin{enumerate}
+	\item
+		Install all dependencies mentioned in \ref{sec:runtimedeps}.
+	\item
+		Run the executable.
+\end{enumerate}
+\underline{If you need to compile the source}:
+\begin{enumerate}
+	\item
+		Install all dependencies mentioned in \ref{sec:runtimedeps} and \ref{sec:compiledeps}.
+	\item
+		Clone the repository. In what follows, it is assumed that \icd{\$REPO} is the root directory of the repository.
+	\item
+		Decide whether you want a \emph{debug} or a \emph{release} build (or both, one executable for each). A release build should produce a more optimized executable, but it will probably make the compilation take longer and limit potential debugging options.
+	\item
+		Create a directory for the build. In what follows, \icd{\$REPO/build/release} will be the build directory.
+		\nscd{mkdir -p \$REPO/build/release}
+	\item
+		Let CMake generate its build environment.
+		\nscd{cd \$REPO/build/release}
+		\nscd{cmake -DCMAKE\_BUILD\_TYPE=Release \$REPO/src}\\
+		(replace \icd{Release} with \icd{Debug} if you want a debug build)
+	\item
+		Let CMake build the project. The project defines two CMake targets: \icd{brandy0} and \icd{brandy0-test}. \icd{brandy0} builds the project normally, whereas building \icd{brandy0-test} produces an executable that only runs some tests and not the main application.
+		\nscd{cmake -{}-build . -{}-target brandy0}\\
+		(run this still inside \icd{\$REPO/build/release})
+	\item
+		Run the executable. It has been generated at \icd{\$REPO/build/release/app/brandy0}.
+\end{enumerate}
+
 Poslední kapitola obsahuje informace o tom, jak projekt, který v rámci maturitní práce vznikl, nainstalovat, spustit a používat.
 
 \chapter*{Závěr}
@@ -271,7 +366,6 @@ Poslední kapitola obsahuje informace o tom, jak projekt, který v rámci maturi
 Závěr obsahuje shrnutí práce a vyjadřuje se k míře splnění jejího zadání. Dále by se zde mělo objevit sebehodnocení studenta a informace o tom, co nového se naučil a jak vnímal svou práci na projektu.
 
 %%% Seznam použité literatury
-\nocite{einstein}\nocite{latexcompanion}\nocite{knuthwebsite}
 \printbibliography[title={Seznam použité literatury},heading={bibintoc}]
 
 %%% Seznam obrázků
