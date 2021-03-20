@@ -218,8 +218,10 @@ void SimulatorClassic::iter()
 				{
 					const vec2d lapu = (f0.u(x + 1, y) - 2 * f0.u(x, y) + f0.u(x - 1, y)) / (dx * dx)
 						+ (f0.u(x, y + 1) - 2 * f0.u(x, y) + f0.u(x, y - 1)) / (dy * dy);
-					const vec2d convec = f0.u(x, y).x * (f0.u(x + 1, y) - f0.u(x - 1, y)) / (2 * dx)
-						+ f0.u(x, y).y * (f0.u(x, y + 1) - f0.u(x, y - 1)) / (2 * dy);
+					/*const vec2d convec = f0.u(x, y).x * (f0.u(x + 1, y) - f0.u(x - 1, y)) / (2 * dx)
+						+ f0.u(x, y).y * (f0.u(x, y + 1) - f0.u(x, y - 1)) / (2 * dy);*/
+					const vec2d convec = f0.u(x, y).x * (f0.u(x, y).x > 0 ? f0.u(x, y) - f0.u(x - 1, y) : f0.u(x + 1, y) - f0.u(x, y)) / dx
+						+ f0.u(x, y).y * (f0.u(x, y).y > 0 ? f0.u(x, y) - f0.u(x, y - 1) : f0.u(x, y + 1) - f0.u(x, y)) / dy;
 					w(x, y) = f0.u(x, y) + dt * (nu * lapu - convec);
 				}
 			}
