@@ -91,9 +91,9 @@ Then we have the Navier-Stokes momentum equation
 \end{align*}
 where $\rho$ is the density of the fluid, $\mu$ its (dynamic) viscosity, $\mathbf g$ is the acceleration due to external forces (such as gravity) and $\conv$ denotes the material (also known as \emph{convective}) derivative of the velocity.
 \newcommand{\pder}[2]{\frac{\partial #1}{\partial #2}}
-\begin{align}
+\begin{align*}
 	\conv=\pder\uu t+(\uu\cdot\nabla)\uu
-\end{align}
+\end{align*}
 We assume no external forces, so $\mathbf g=0$. Hence, the momentum equation that we work with takes the form
 \begin{align}\label{eq:momentum}
 	\pder\uu t+(\uu\cdot\nabla)\uu=-\frac1\rho\nabla p+\nu\nabla^2\uu,
@@ -104,23 +104,23 @@ Our way of numerically solving the above equations that is not the most accurate
 
 During the implementation, Lorena A. Barba's practical examples of solving the Navier-Stokes equations \cite{CFDpython} as well the recordings of her CFD course at Boston University \cite{BarbaCourse} were of great help. The solver used in \cite{CFDpython} is an implementation of Chorin's projection method, and is therefore similar to our implementation, but there are also some notable differences such as the fact that the solver in \cite{CFDpython} neglects some of the terms on the right-hand side of the pressure Poisson equation, doesn't incorporate any obstacles inside the enclosing rectangular boundary, and doesn't use the general upwind differecing scheme as we do.
 
-In order to computationally represent, process, and manipulate the state of the fluid, we must discretize in both space and time. As for the temporal discretization, we only compute the state of the fluid at times that are (non-negative) integer multiples of some small time $\dt$. These are computed successively with a state at any particular time depending on the state directly before. Each of the states must also be discretized spacialy. For that, we use a uniform Cartesian grid with a spacing of $\dx$ and $\dy$ in the $x$ and the $y$ direction respectively.
+In order to computationally represent, process, and manipulate the state of the fluid, we must discretize in both space and time. As for the temporal discretization, we only compute the state of the fluid at times that are (non-negative) integer multiples of some small time $\dt$. These are computed successively with a state at any particular time depending on the state directly before. Each of the states must also be discretized spacialy. For that, we use a uniform Cartesian grid with a spacing of $\dx$ and $\dy$ in the $x$ and the $y$ direction respectively and we store values of the fluid state fields only at these grid points.
 
 \subsection{Temporal Discretization}
 What now follows is a brief description of Chorin's projection method that we use in the core of our simulator.
 
 Let us denote the value of a particular quantity at the $i$-th iteration by $i$ in the superscript. That is, let $\uu^i$ be the velocity field at the $i$-th iteration, $p^i$ the pressure field at the $i$-th iteration, $\left(\pder\uu t\right)^i$ the time derivative of the velocity field at the $i$-th iteration. Then we approximate the derivate of $\uu$ by the forward difference.
-\begin{align}
+\begin{align*}
 	\left(\pder{\uu}t\right)^i=\frac{\uu^{i+1}-\uu^i}{\dt}
-\end{align}
+\end{align*}
 So at the $i$-th iteration, \eqref{eq:momentum} takes the form
-\begin{align}
+\begin{align*}
 	\frac{\uu^{i+1}-\uu^i}{\dt}+(\uu^i\cdot\nabla)\uu^i=-\frac1\rho\nabla p^i+\nu\nabla^2\uu^i.
-\end{align}
+\end{align*}
 Together with the equation $\nabla\cdot\uu^{i+1}=0$ (that is \eqref{eq:incom} at the $(i+1)$-th iteration), this allows us to solve for $\uu^{i+1}$ and $p^i$. We express
-\begin{align}
+\begin{align*}
 	\uu^{i+1}=-\frac\dt\rho\nabla p^i+\dt\left(\nu\nabla^2\uu^i-(\uu^i\cdot\nabla)\uu^i\right)+\uu^i.
-\end{align}
+\end{align*}
 \newcommand{\ww}{\mathbf w}
 During the computation, we have yet to solve for $p^i$, so we only calculate the following intermediate vector field $\ww^i$.
 \begin{align*}
@@ -147,9 +147,37 @@ At last, we compute $\uu^{i+1}$ given by
 and the boundary conditions for velocity.
 
 \subsection{Spacial Discretization}
-It remains to clarify how we compute the space derivatives of the various quantities.
+It remains to clarify how we compute the space derivatives of the various fields. As mentioned above, we use the method of finite differences. In particular, for the Laplacian, we use the five-point stencil
+\begin{align*}
+	(\nabla^2\uu^i)_{j,k}&=\frac{\uu^i_{j+1,k}-2\uu^i_{j,k}+\uu^i_{j-1,k}}{(\dx)^2}+\frac{\uu^i_{j,k+1}-2\uu^i_{j,k}+\uu^i_{j,k-1}}{(\dy)^2}\\
+	(\nabla^2p^i)_{j,k}&=\frac{p^i_{j+1,k}-2p^i_{j,k}+p^i_{j-1,k}}{(\dx)^2}+\frac{p^i_{j,k+1}-2p^i_{j,k}+p^i_{j,k-1}}{(\dy)^2},
+\end{align*}
+where ${}_{j,k}$ in the subscript denotes that the value of the field at the $j$-th grid point in the $x$ direction and the $k$-th in the $y$ direction. For gradient and the divergence, we use the central difference
+\begin{align*}
+	(\nabla\cdot\ww^i)_{j,k}&=\frac{(\ww^i_x)_{j+1,k}-(\ww^i_x)_{j-1,k}}{2\dx}+\frac{(\ww^i_y)_{j,k+1}-(\ww^i_y)_{j,k-1}}{2\dy}\\
+	((\nabla p)_x)_{j,k}&=\frac{p_{j+1,k}-p_{j-1,k}}{2\dx}\\
+	((\nabla p)_y)_{j,k}&=\frac{p_{j,k+1}-p_{j,k-1}}{2\dy},
+\end{align*}
+where ${}_x$ (or ${}_y$) in the subscript refers to the $x$ (or the $y$) component of a vector field.
 
-V první části maturitní práce by se měla objevit informace o tom, jaký problém řešíte. Co si Váš projekt klade za cíl?
+The discretization of the advection term ($(\uu^i\cdot\nabla)\uu^i$) is slightly more involved. We use upwind differencing\footnote{For a more detailed discussion of upwind differencing and some more advanced (and accurate) methods with the same purpose (albeit in a more general setting), see chapter 3 of \cite{OsherFedkiw} or only section 3.2 for upwind differencing specifically.} to ensure that the information about the fluid velocity is properly passed in the direction of the flow. That means that we take
+\begin{align}\label{eq:advx}
+	(\uu^i_x)_{j,k}\left(\pder{\uu^i}{x}\right)_{j,k}=(\uu^i_x)_{j,k}\cdot\frac1\dx\cdot\begin{cases}
+		\uu^i_{j,k}-\uu^i_{j,k-1} & \text{for }(\uu^i_x)_{j,k}>0\\
+		\uu^i_{j,k+1}-\uu^i_{j,k} & \text{for }(\uu^i_x)_{j,k}<0
+	\end{cases}
+\end{align}
+and
+\begin{align}\label{eq:advy}
+	(\uu^i_y)_{j,k}\left(\pder{\uu^i}{y}\right)_{j,k}=(\uu^i_y)_{j,k}\cdot\frac1\dy\cdot\begin{cases}
+		\uu^i_{j,k}-\uu^i_{j-1,k} & \text{for }(\uu^i_y)_{j,k}>0\\
+		\uu^i_{j+1,k}-\uu^i_{j,k} & \text{for }(\uu^i_y)_{j,k}<0
+	\end{cases}.
+\end{align}
+By definition, the advection term is the sum of the terms in \eqref{eq:advx} and \eqref{eq:advy}.
+\begin{align*}
+	((\uu^i\cdot\nabla)\uu^i)_{j,k}=(\uu^i_x)_{j,k}\left(\pder{\uu^i}{x}\right)_{j,k}+(\uu^i_y)_{j,k}\left(\pder{\uu^i}{y}\right)_{j,k}
+\end{align*}
 
 \chapter{Implementation}
 
