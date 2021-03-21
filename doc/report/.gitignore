@@ -5,6 +5,7 @@
 *.fdb_latexmk
 *.fls
 *.lof
+*.lot
 *.log
 *.out
 *.xml
