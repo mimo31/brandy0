@@ -7,6 +7,7 @@
 #ifndef ABOUT_WINDOW_HPP
 #define ABOUT_WINDOW_HPP
 
+#include <gtkmm/frame.h>
 #include <gtkmm/grid.h>
 #include <gtkmm/label.h>
 
@@ -32,7 +33,14 @@ private:
 	/// Label with a link to the project repository
 	Gtk::Label repoLabel;
 
-	// TODO mention the used libraries
+	Gtk::Frame librariesFrame;
+	Gtk::Grid librariesGrid;
+	Gtk::Label librariesLabel;
+	Gtk::Label gtkmmNameLabel;
+	Gtk::Label gtkmmLinkLabel;
+	Gtk::Label ffmpegNameLabel;
+	Gtk::Label ffmpegLinkLabel;
+	
 public:
 	/**
 	 * Constructs the about window.
