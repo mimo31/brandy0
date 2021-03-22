@@ -41,9 +41,8 @@ void Application::run(const int argc, const char *const *const argv)
 			const str framesarg = argv[i + 2];
 			uint32_t frames = 0;
 			constexpr uint32_t limit = 100'000'000;
-			for (uint32_t j = 0; j < framesarg.length(); j++)
+			for (const char c : framesarg)
 			{
-				const char c = framesarg[j];
 				if (c > '9' || c < '0')
 					return;
 				frames = frames * 10 + c - '0';
@@ -52,7 +51,7 @@ void Application::run(const int argc, const char *const *const argv)
 			}
 			activeSt = simulationSt;
 			uptr<SimulationParams> preset;
-			for (const SimulationParamsPreset p : SimulationParamsPreset::presets)
+			for (const SimulationParamsPreset &p : SimulationParamsPreset::presets)
 			{
 				if (p.name == presetname)
 					preset = make_unique<SimulationParams>(p.params);

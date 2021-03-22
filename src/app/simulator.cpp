@@ -43,12 +43,12 @@ Simulator::Simulator(const SimulationParams& params)
 	f1.u.set_all(vec2d(0, 0));
 }
 
-vec2d Simulator::to_coor(const Point& p)
+vec2d Simulator::to_coor(const Point& p) const
 {
 	return vec2d(p.x * w / (wp - 1), p.y * h / (hp - 1));
 }
 
-vec2d Simulator::to_coor(const int32_t x, const int32_t y)
+vec2d Simulator::to_coor(const int32_t x, const int32_t y) const
 {
 	return to_coor(Point(x, y));
 }

@@ -8,6 +8,7 @@
 #define GRID_HPP
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <functional>
 
@@ -24,7 +25,7 @@ struct Grid
 
 	Grid(const uint32_t w, const uint32_t h) : w(w), h(h)
 	{
-		if (w == 0 && h == 0)
+		if (w == 0 || h == 0)
 			data = nullptr;
 		else
 			data = new T[w * h];
@@ -32,35 +33,39 @@ struct Grid
 
 	Grid(const Grid& g) : Grid(g.w, g.h)
 	{
-		if (w != 0 || h != 0)
+		if (w != 0 && h != 0)
 			std::copy_n(g.data, w * h, data);
 	}
 
 	~Grid()
 	{
-		if (w != 0 || h != 0)
+		if (w != 0 && h != 0)
 			delete[] data;
 	}
 
 	T &operator()(const uint32_t x, const uint32_t y) const
 	{
+		assert(x >= 0);
+		assert(x < w);
+		assert(y >= 0);
+		assert(y < h);
 		return data[x + y * w];
 	}
 
 	T &operator()(const Point& p) const
 	{
-		return data[p.x + p.y * w];
+		return operator()(p.x, p.y);
 	}
 
 	Grid &operator=(const Grid &other)
 	{
 		if (w * h != other.w * other.h)
 		{
-			if (w != 0 || h != 0)
+			if (w != 0 && h != 0)
 				delete[] data;
 			w = other.w;
 			h = other.h;
-			if (w != 0 || h != 0)
+			if (w != 0 && h != 0)
 				data = new T[w * h];
 		}
 		else if (w != other.w || h != other.h)
@@ -68,7 +73,7 @@ struct Grid
 			w = other.w;
 			h = other.h;
 		}
-		if (w != 0 || h != 0)
+		if (w != 0 && h != 0)
 			std::copy_n(other.data, w * h, data);
 		return *this;
 	}

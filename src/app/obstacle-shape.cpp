@@ -40,7 +40,7 @@ ObstacleShapeStackConstIterator ObstacleShapeStack::end() const
 	return shapes.begin() + shownPointer;
 }
 
-void ObstacleShapeStack::push(const std::shared_ptr<ObstacleShape> shape)
+void ObstacleShapeStack::push(const std::shared_ptr<ObstacleShape> &shape)
 {
 	while (shapes.size() > shownPointer)
 		shapes.pop_back();
@@ -78,7 +78,7 @@ bool ObstacleShapeStack::canRedo() const
 
 bool ObstacleShapeStack::empty() const
 {
-	return shapes.size() == 0;
+	return shapes.empty();
 }
 
 void ObstacleShapeStack::fill(Grid<bool>& grid) const

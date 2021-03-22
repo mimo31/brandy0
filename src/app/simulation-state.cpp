@@ -279,7 +279,7 @@ void SimulationState::runComputeThread()
 				stop = true;
 				break;
 			}
-			else if (sim->incomplete)
+			if (sim->incomplete)
 			{
 				computingMutex.lock();
 				stopComputingSignal = false;
@@ -396,7 +396,7 @@ bool SimulationState::update()
 
 uint32_t SimulationState::getFrameNumber(const double t)
 {
-	uint32_t frame = uint32_t(t / (params->stepsPerFrame * params->dt) / frameStepSize + .5);
+	uint32_t frame = round(t / (params->stepsPerFrame * params->dt) / frameStepSize);
 	if (frame >= frames.size())
 		frame = frames.size() - 1;
 	return frame;

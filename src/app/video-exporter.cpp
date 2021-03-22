@@ -25,7 +25,7 @@ double VideoExporter::compTimeToVideoTime(const double compTime) const
 
 uint32_t VideoExporter::videoTimeToFrame(const double videoTime) const
 {
-	const uint32_t res = uint32_t(startTime / dtPerFrame + videoTime / sPerFrame + .5);
+	const uint32_t res = round(startTime / dtPerFrame + videoTime / sPerFrame);
 	return res < frames.size() ? res : frames.size() - 1;
 }
 

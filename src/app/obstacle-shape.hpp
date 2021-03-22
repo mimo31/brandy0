@@ -74,7 +74,7 @@ public:
 	ObstacleShapeStackConstIterator begin() const;
 	ObstacleShapeStackConstIterator end() const;
 
-	void push(const sptr<ObstacleShape> shape);
+	void push(const sptr<ObstacleShape> &shape);
 	void undo();
 	void redo();
 	void clear();

@@ -50,40 +50,29 @@ bool ConvUtils::isNonnegativeReal(const str& s)
 
 bool ConvUtils::isReal(const str& s)
 {
-    if (s.length() == 0)
-        return false;
-    else if (s[0] == '-')
-        return isNonnegativeReal(s.substr(1));
-    else
-        return isNonnegativeReal(s);
+	if (s.length() == 0)
+		return false;
+	if (s[0] == '-')
+		return isNonnegativeReal(s.substr(1));
+	return isNonnegativeReal(s);
 }
 
 bool ConvUtils::isNonnegativeInt(const str& s)
 {
-	for (const char c : s)
-	{
-		if (c < '0' || c > '9')
-			return false;
-	}
-	return true;
+	return std::all_of(s.begin(), s.end(), [](const char c){ return c >= '0' && c <= '9'; });
 }
 
 bool ConvUtils::isNonzero(const str& s)
 {
-	for (const char c : s)
-	{
-		if (c != '0')
-			return true;
-	}
-	return false;
+	return std::any_of(s.begin(), s.end(), [](const char c){ return c != '0'; });
 }
 
 bool ConvUtils::boundedStoi(const str& s, uint32_t& writeto, const uint32_t maxVal)
 {
 	uint32_t val = 0;
-	for (uint32_t i = 0; i < s.length(); i++)
+	for (const char c : s)
 	{
-		val = val * 10 + s[i] - '0';
+		val = val * 10 + c - '0';
 		if (val > maxVal)
 			return false;
 	}
@@ -99,7 +88,7 @@ void ConvUtils::updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto,
 void ConvUtils::updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, const uint32_t defaultVal, const uint32_t minVal, const uint32_t maxVal)
 {
 	const str entered = aentry.getText();
-	if (entered == "" || !isNonnegativeInt(entered) || !isNonzero(entered))
+	if (entered.empty() || !isNonnegativeInt(entered) || !isNonzero(entered))
 		aentry.indicateInvalid("enter a positive integer");
 	else if (!boundedStoi(entered, writeto, maxVal))
 		aentry.indicateInvalid("allowed max. is " + std::to_string(maxVal));
@@ -117,7 +106,7 @@ void ConvUtils::updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto,
 void ConvUtils::updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double minVal, const double maxVal)
 {
 	const str entered = aentry.getText();
-	if (entered == "" || !isNonnegativeReal(entered))
+	if (entered.empty() || !isNonnegativeReal(entered))
 	{
 		aentry.indicateInvalid("enter a positive real number");
 	}
@@ -149,11 +138,11 @@ void ConvUtils::updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, 
 
 void ConvUtils::updateRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double maxVal)
 {
-    const str entered = aentry.getText();
-    if (entered == "" || !isReal(entered))
-    {
-        aentry.indicateInvalid("enter a real number");
-    }
+	const str entered = aentry.getText();
+	if (entered.empty() || !isReal(entered))
+	{
+		aentry.indicateInvalid("enter a real number");
+	}
 	else
 	{
 		const double val = strtod(entered.c_str(), nullptr);

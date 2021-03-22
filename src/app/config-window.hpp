@@ -60,7 +60,7 @@ private:
 	void setEntryFields();
 public:
 	ConfigWindow(ConfigStateAbstr *const parent);
-	~ConfigWindow() override;
+	//~ConfigWindow() override;
 };
 
 }

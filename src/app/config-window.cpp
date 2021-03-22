@@ -176,10 +176,6 @@ bool ConfigWindow::areInputsValid()
 			&& y1sel.hasValidInput();
 }
 
-ConfigWindow::~ConfigWindow()
-{
-}
-
 void ConfigWindow::setEntryFields()
 {
 	uptr<SimulationParams>& params = parent->params;

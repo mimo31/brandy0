@@ -13,11 +13,11 @@ namespace brandy0
 class Tests
 {
 private:
-	void testConv();
-	void testObstacleShapes();
+	static void testConv();
+	static void testObstacleShapes();
 	
 public:
-	void run();
+	static void run();
 };
 
 }

@@ -253,7 +253,7 @@ void ExportWindow::getFileLocationFromUser()
 	{
 		Glib::RefPtr<Gio::File> selectedFile = dial.get_file(), cd = Gio::File::create_for_path(".");
 		const str relpath = cd->get_relative_path(selectedFile);
-		str fname = relpath == "" ? selectedFile->get_path() : "./" + relpath;
+		str fname = relpath.empty() ? selectedFile->get_path() : "./" + relpath;
 		if (fname.length() < 4 || fname.substr(fname.length() - 4) != ".mp4")
 			fname += ".mp4";
 		parent->videoExportFileLocation = fname;
@@ -367,8 +367,8 @@ void ExportWindow::updateProgressIndicators()
 		else
 		{
 			exportProgressBar.set_fraction(parent->videoExporter->processedFrames / double(parent->videoExporter->framesToProcess));
-			const str processingFr = std::to_string(parent->videoExporter->processedFrames + 1),
-				totalFr = std::to_string(parent->videoExporter->framesToProcess);
+			const str processingFr = std::to_string(parent->videoExporter->processedFrames + 1);
+			const str totalFr = std::to_string(parent->videoExporter->framesToProcess);
 			exportProgressLabel.set_text("processing video frame " + processingFr + " / " + totalFr + "...");
 		}
 	}

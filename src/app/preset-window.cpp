@@ -17,7 +17,7 @@ PresetWindow::PresetWindow(ConfigStateAbstr *const parent)
 	warnLabel("warning: By confirming the preset, the current configuration (including that of the obstacles) will get overwritten."),
 	confirmButton("confirm preset")
 {
-	for (const SimulationParamsPreset preset : SimulationParamsPreset::presets)
+	for (const SimulationParamsPreset &preset : SimulationParamsPreset::presets)
 		presetSelector.append(preset.name);
 
 	grid.attach(presetLabel, 0, 0);

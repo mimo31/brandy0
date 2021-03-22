@@ -41,8 +41,8 @@ protected:
 	Grid<bool> solid;
 	Grid<bool> indep;
 	BoundaryCond bcx0, bcx1, bcy0, bcy1;
-	vec2d to_coor(const Point&);
-	vec2d to_coor(const int32_t x, const int32_t y);
+	vec2d to_coor(const Point&) const;
+	vec2d to_coor(const int32_t x, const int32_t y) const;
 };
 
 }

@@ -51,16 +51,16 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		}
 	});
 
-	for (uint32_t i = 0; i < BACK_DISPLAY_MODE_COUNT; i++)
-		backDisplaySelector.append(BACK_DISPLAY_MODES[i].name);
+	for (const BackDisplayMode mode : BACK_DISPLAY_MODES)
+		backDisplaySelector.append(mode.name);
 	backDisplaySelector.set_active(BACK_DISPLAY_MODE_DEFAULT);
 	backDisplaySelector.signal_changed().connect([this, parent]
 	{
 		parent->backDisplayMode = backDisplaySelector.get_active_row_number();
 	});
 
-	for (uint32_t i = 0; i < FRONT_DISPLAY_MODE_COUNT; i++)
-		frontDisplaySelector.append(FRONT_DISPLAY_MODES[i].name);
+	for (const FrontDisplayMode mode : FRONT_DISPLAY_MODES)
+		frontDisplaySelector.append(mode.name);
 	frontDisplaySelector.set_active(FRONT_DISPLAY_MODE_DEFAULT);
 	frontDisplaySelector.signal_changed().connect([this, parent]
 	{

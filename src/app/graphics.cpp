@@ -50,10 +50,10 @@ void initBuffers()
 	glGenBuffers(1, &glPaintVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, glPaintVbo);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)(2 * sizeof(GL_FLOAT)));
+	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -72,11 +72,12 @@ GLuint createShader(int type, const char *src, const str& name)
 		int log_len;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len);
 
-		str log_space(log_len + 1, ' ');
-		glGetShaderInfoLog(shader, log_len, nullptr, (GLchar*)log_space.c_str());
+		auto *log_space = new GLchar[log_len + 1];
+		glGetShaderInfoLog(shader, log_len, nullptr, log_space);
 
-		cerr << "Compile failure in " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader " << name << ": " << log_space << endl;
+		cerr << "Compile failure in " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader " << name << ": " << str(log_space) << endl;
 
+		delete[] log_space;
 		glDeleteShader(shader);
 	}
 
@@ -140,18 +141,19 @@ GLuint loadProgram(const str& vshaderName, const str& fshaderName, const vec<Uni
 		int log_len;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
 
-		str log_space(log_len + 1, ' ');
+		auto *log_space = new GLchar[log_len + 1];
 
-		glGetProgramInfoLog(program, log_len, nullptr, (GLchar*)log_space.c_str());
+		glGetProgramInfoLog(program, log_len, nullptr, log_space);
 
 		cerr << "Linking failure: " << log_space << endl;
 
+		delete[] log_space;
 		glDeleteProgram(program);
 		program = 0;
 	}
 	else
 	{
-		for (const UniformLoc uloc : uniforms)
+		for (const UniformLoc &uloc : uniforms)
 		{
 			*uloc.pos = glGetUniformLocation(program, uloc.name.c_str());
 		}
@@ -333,7 +335,7 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 			{
 				return frame.u(x, y).len();
 			}
-			else if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL || backDisplayMode == BACK_DISPLAY_VELOCITY_RELATIVE_CURL)
+			if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL || backDisplayMode == BACK_DISPLAY_VELOCITY_RELATIVE_CURL)
 			{
 				// TODO: do not evaluate at solid points
 				if (x == 0 || x == wp - 1 || y == 0 || y == hp - 1)
@@ -344,11 +346,11 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 				const double vel = (4 * frame.u(x, y).len() + frame.u(x - 1, y).len() + frame.u(x + 1, y).len() + frame.u(x, y - 1).len() + frame.u(x, y + 1).len()) / 8;
 				return vel == 0 ? 0.0 : curl / vel;
 			}
-			else if (backDisplayMode == BACK_DISPLAY_PRESSURE)
+			if (backDisplayMode == BACK_DISPLAY_PRESSURE)
 			{
 				return frame.p(x, y);
 			}
-			else if (backDisplayMode == BACK_DISPLAY_VELOCITY_DIV)
+			if (backDisplayMode == BACK_DISPLAY_VELOCITY_DIV)
 			{
 				// TODO: do not evaluate at solid points
 				if (x == 0 || x == wp - 1 || y == 0 || y == hp - 1)

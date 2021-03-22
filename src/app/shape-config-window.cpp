@@ -112,8 +112,8 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 		return widthEntry.hasValidInput() && heightEntry.hasValidInput();
 	});
 
-	for (uint32_t i = 0; i < ADD_SHAPE_MODE_COUNT; i++)
-		shapeSelector.append(ADD_SHAPE_MODES[i].name);
+	for (const AddShapeMode mode : ADD_SHAPE_MODES)
+		shapeSelector.append(mode.name);
 	shapeSelector.set_active(ADD_SHAPE_MODE_DEFAULT);
 	shapeSelector.signal_changed().connect([this]
 	{
@@ -138,7 +138,7 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	});
 	polygonPopVertexButton.signal_clicked().connect([this, parent]
 	{
-		if (addShapeMode == ADD_SHAPE_POLYGON && nextShapeClicks.size() != 0)
+		if (addShapeMode == ADD_SHAPE_POLYGON && !nextShapeClicks.empty())
 		{
 			nextShapeClicks.pop_back();
 			nextShapeChangeListeners.invoke();

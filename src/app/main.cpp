@@ -13,8 +13,7 @@ void run(const int argc, const char *const *const argv)
 {
 	#ifdef TESTING
 	
-	Tests tests;
-	tests.run();
+	Tests::run();
 	
 	#else
 	

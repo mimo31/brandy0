@@ -124,7 +124,7 @@ void lineTo(const Cairo::RefPtr<Cairo::Context>& cr, const vec2d v)
 	cr->line_to(v.x, v.y);
 }
 
-void ShapeConfigWidget::markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec<vec2d> ps) const
+void ShapeConfigWidget::markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec<vec2d> &ps) const
 {
 	const cairo_matrix_t fullCoors = cr->get_matrix();
 	cairo_matrix_t baseInv = baseCoors;
@@ -284,11 +284,8 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 		{
 			const vec2d v0 = tempShape[0];
 			cr->move_to(v0.x, v0.y);
-			for (uint32_t i = 0; i < tempShape.size(); i++)
-			{
-				const vec2d v = tempShape[i];
+			for (const vec2d v : tempShape)
 				cr->line_to(v.x, v.y);
-			}
 			cr->close_path();
 			cr->fill();
 		}
@@ -340,7 +337,7 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 				: ObstacleEllipse(false, v0, v1);
 			ell.draw(cr);
 		}
-		if (tempShape.size() >= 1)
+		if (!tempShape.empty())
 			markPoints(cr, baseCoors, tempShape);
 	}
 

@@ -16,10 +16,7 @@ void ValidatorManager::plug(const BoolFunc& validator)
 
 bool ValidatorManager::isAllValid() const
 {
-	for (const BoolFunc& v : validators)
-		if (!v())
-			return false;
-	return true;
+	return std::all_of(validators.begin(), validators.end(), [](const BoolFunc& v){ return v(); });
 }
 
 }
