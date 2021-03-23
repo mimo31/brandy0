@@ -14,6 +14,7 @@
 
 #include "glob.hpp"
 
+#include "style-manager.hpp"
 #include "str.hpp"
 
 namespace brandy0
@@ -34,8 +35,9 @@ private:
 	void setInvalidIcon();
 	Glib::RefPtr<Gtk::CssProvider> currentStyle;
 	void changeStyle(const Glib::RefPtr<Gtk::CssProvider> style);
+	StyleManager &styleManager;
 public:
-	ValidityIndicator();
+	ValidityIndicator(StyleManager &styleManager);
 	~ValidityIndicator() override;
 	void setDefault();
 	void setOk();

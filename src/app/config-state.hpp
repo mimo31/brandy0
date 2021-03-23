@@ -28,7 +28,6 @@ namespace brandy0
 class ConfigState : public State, public ConfigStateAbstr
 {
 private:
-	ApplicationAbstr *app;
 	uptr<ConfigWindow> mainWin;
 	uptr<ShapeConfigWindow> shapeWin;
 	uptr<PresetWindow> presetWin;

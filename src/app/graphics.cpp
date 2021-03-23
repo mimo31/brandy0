@@ -2,7 +2,7 @@
  * graphics.cpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/2/21
+ * Created on 2021/02/21
  */
 #include "graphics.hpp"
 

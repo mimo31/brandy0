@@ -2,7 +2,7 @@
  * shape-config-window.cpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/14
+ * Created on 2021/01/14
  */
 #include "shape-config-window.hpp"
 
@@ -53,11 +53,14 @@ void ShapeConfigWindow::updateAddShapeWidgets()
 ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
     : BrandyWindow(1280, 720),
 	dimensionsFrame("physical dimensions"),
-    widthEntry("width:"),
-    heightEntry("height:"),
+    widthEntry("width:", parent->app->styleManager),
+    heightEntry("height:", parent->app->styleManager),
 	addingShapeLabel("adding shape"),
 	addingShapeFrame("current rectangle"),
+	polygonVerticesLabel("0 vertices set"),
 	clearShapeButton("clear"),
+	polygonPopVertexButton("pop vertex"),
+	polygonFinishButton("finish"),
 	generalFrame("general controls"),
     undoButton("undo"),
     redoButton("redo"),
@@ -65,10 +68,6 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	shapeWidget(parent, this),
 	parent(parent)
 {
-	polygonVerticesLabel.set_text("0 vertices set");
-	polygonPopVertexButton.set_label("pop vertex");
-	polygonFinishButton.set_label("finish");
-
 	widthEntry.hookInputHandler([this, parent]
 			{
 			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParamsPreset::DefaultW, SimulationParamsPreset::MinW, SimulationParamsPreset::MaxW);

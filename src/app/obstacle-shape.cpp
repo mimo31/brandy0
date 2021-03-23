@@ -2,7 +2,7 @@
  * obstacle-shape.cpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/14
+ * Created on 2021/01/14
  */
 #include "obstacle-shape.hpp"
 

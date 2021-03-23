@@ -2,7 +2,7 @@
  * brandy-window.cpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/14
+ * Created on 2021/01/14
  */
 #include "brandy-window.hpp"
 

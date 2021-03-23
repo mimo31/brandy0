@@ -2,7 +2,7 @@
  * application-abstr.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/16
+ * Created on 2021/01/16
  */
 #ifndef APPLICATION_ABSTR_HPP
 #define APPLICATION_ABSTR_HPP
@@ -10,6 +10,7 @@
 #include <gtkmm/window.h>
 
 #include "simulation-params.hpp"
+#include "style-manager.hpp"
 
 namespace brandy0
 {
@@ -20,6 +21,8 @@ namespace brandy0
 class ApplicationAbstr
 {
 public:
+	StyleManager styleManager;
+
 	/**
 	 * Sets the application state to the configuration state with default simulator
 	 */

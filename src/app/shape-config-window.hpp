@@ -2,7 +2,7 @@
  * shape-config-window.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/14
+ * Created on 2021/01/14
  */
 #ifndef SHAPE_CONFIG_WINDOW_HPP
 #define SHAPE_CONFIG_WINDOW_HPP

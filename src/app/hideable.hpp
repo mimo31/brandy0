@@ -2,7 +2,7 @@
  * hideable.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/18
+ * Created on 2021/01/18
  */
 #ifndef HIDEABLE_HPP
 #define HIDEABLE_HPP
@@ -27,17 +27,24 @@ private:
 	}
 
 public:
+	template<typename... CtorArgs>
+	Hideable(CtorArgs... args) : T(args...)
+	{
+	} 
+
 	void pseudoHide()
 	{
 		hidden = true;
 		T::set_sensitive(false);
 	}
+
 	void pseudoShow()
 	{
 		hidden = false;
 		T::set_sensitive(true);
 	}
 };
+
 }
 
 #endif // HIDEABLE_HPP

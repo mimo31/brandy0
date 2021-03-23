@@ -12,7 +12,7 @@ namespace brandy0
 {
 
 ConfigState::ConfigState(ApplicationAbstr *const app)
-	: app(app),
+	: ConfigStateAbstr(app),
 	mainWin(make_unique<ConfigWindow>(this)),
 	shapeWin(make_unique<ShapeConfigWindow>(this)),
 	presetWin(make_unique<PresetWindow>(this))

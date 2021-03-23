@@ -16,7 +16,7 @@ namespace brandy0
 {
 
 SimulationState::SimulationState(ApplicationAbstr *const app)
-	: app(app),
+	: SimulationStateAbstr(app),
 	mainWin(make_unique<SimulationWindow>(this)),
 	exportWin(make_unique<ExportWindow>(this))
 {

@@ -2,7 +2,7 @@
  * export-window.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/2/20
+ * Created on 2021/02/20
  */
 #ifndef EXPORT_WINDOW_HPP
 #define EXPORT_WINDOW_HPP

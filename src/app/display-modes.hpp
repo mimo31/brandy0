@@ -2,7 +2,7 @@
  * diplay-modes.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/13
+ * Created on 2021/01/13
  */
 #ifndef DISPLAY_MODES_HPP
 #define DISPLAY_MODES_HPP

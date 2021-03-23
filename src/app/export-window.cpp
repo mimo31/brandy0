@@ -2,14 +2,14 @@
  * export-window.cpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/2/20
+ * Created on 2021/02/20
  */
 #include "export-window.hpp"
 
 #include <gtkmm/filechooserdialog.h>
 
 #include "conv-utils.hpp"
-#include "styles.hpp"
+#include "style-manager.hpp"
 #include "str.hpp"
 
 namespace brandy0
@@ -20,9 +20,9 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	selectFileButton("select file location"),
 	backButton("cancel"),
 	exportButton("export video"),
-	widthEntry("width (pixels):"),
-	heightEntry("height (pixels):"),
-	bitrateEntry("bitrate:"),
+	widthEntry("width (pixels):", parent->app->styleManager),
+	heightEntry("height (pixels):", parent->app->styleManager),
+	bitrateEntry("bitrate:", parent->app->styleManager),
 	timingFrame("video timing"),
 	previewFrame("preview play"),
 	parameterFrame("video file parameters")
@@ -77,10 +77,10 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 
 	show_all_children();
 
-	Styles::requestInit();
+	parent->app->styleManager.requestInit();
 
 	invalidTimesLabel.set_text("need start < end !");
-	invalidTimesLabel.get_style_context()->add_provider(Styles::redStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
+	invalidTimesLabel.get_style_context()->add_provider(parent->app->styleManager.redStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
 	backButton.signal_clicked().connect([this, parent]
 	{

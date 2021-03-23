@@ -2,7 +2,7 @@
  * brandy-window.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/14
+ * Created on 2021/01/14
  */
 #ifndef BRANDY_WINDOW_HPP
 #define BRANDY_WINDOW_HPP

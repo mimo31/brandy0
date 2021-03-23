@@ -1,18 +1,15 @@
 /**
- * styles.cpp
+ * style-manager.cpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/2/20
+ * Created on 2021/02/20
  */
-#include "styles.hpp"
+#include "style-manager.hpp"
 
 namespace brandy0
 {
 
-bool Styles::initialized = false;
-Glib::RefPtr<Gtk::CssProvider> Styles::redStyle, Styles::greenStyle, Styles::darkGreenStyle;
-
-void Styles::requestInit()
+void StyleManager::requestInit()
 {
 	if (!initialized)
 	{

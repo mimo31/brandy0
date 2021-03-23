@@ -2,7 +2,7 @@
  * shape-config-window-abstr.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/17
+ * Created on 2021/01/17
  */
 #ifndef SHAPE_CONFIG_WINDOW_ABSTR_HPP
 #define SHAPE_CONFIG_WINDOW_ABSTR_HPP

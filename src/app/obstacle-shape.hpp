@@ -2,7 +2,7 @@
  * obstacle-shape.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/14
+ * Created on 2021/01/14
  */
 #ifndef OBSTACLE_SHAPE_HPP
 #define OBSTACLE_SHAPE_HPP

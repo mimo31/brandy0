@@ -31,7 +31,6 @@ namespace brandy0
 class SimulationState : public State, public SimulationStateAbstr
 {
 private:
-	ApplicationAbstr *app;
 	uptr<SimulationWindow> mainWin;
 	uptr<ExportWindow> exportWin;
 	uptr<Simulator> sim;

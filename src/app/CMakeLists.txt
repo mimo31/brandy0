@@ -8,6 +8,7 @@ set(PRIMARY_SOURCES
 	bc-selector.cpp
 	brandy-window.cpp
 	config-state.cpp
+	config-state-abstr.cpp
 	config-window.cpp
 	conv-utils.cpp
 	display-area.cpp
@@ -21,12 +22,13 @@ set(PRIMARY_SOURCES
 	shape-config-window.cpp
 	simulation-params-preset.cpp
 	simulation-state.cpp
+	simulation-state-abstr.cpp
 	simulation-window.cpp
 	simulator.cpp
 	simulator-classic.cpp
 	start-state.cpp
 	start-window.cpp
-	styles.cpp
+	style-manager.cpp
 	validator-manager.cpp
 	validity-indicator.cpp
 	video-exporter.cpp

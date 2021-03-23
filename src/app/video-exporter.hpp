@@ -2,7 +2,7 @@
  * video-exporter.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/2/21
+ * Created on 2021/02/21
  */
 #ifndef VIDEO_EXPORTER_HPP
 #define VIDEO_EXPORTER_HPP

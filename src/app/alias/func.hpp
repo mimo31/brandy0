@@ -2,7 +2,7 @@
  * func.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/16
+ * Created on 2021/01/16
  */
 #ifndef FUNC_HPP
 #define FUNC_HPP

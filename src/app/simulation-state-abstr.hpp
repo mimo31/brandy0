@@ -2,11 +2,12 @@
  * simulation-state-abstr.hpp
  * 
  * Author: Viktor Fukala
- * Created on 2021/1/18
+ * Created on 2021/01/18
  */
 #ifndef SIMULATION_STATE_ABSTR_HPP
 #define SIMULATION_STATE_ABSTR_HPP
 
+#include "application-abstr.hpp"
 #include "listener-manager.hpp"
 #include "ptr.hpp"
 #include "sim-frame.hpp"
@@ -33,6 +34,9 @@ public:
 		DEFAULT_VIDEO_WIDTH = 1920, MAX_VIDEO_WIDTH = 8192,
 		DEFAULT_VIDEO_HEIGHT = 1080, MAX_VIDEO_HEIGHT = 8192,
 		DEFAULT_VIDEO_BITRATE = 320'000, MAX_VIDEO_BITRATE = 4'000'000;
+	
+	ApplicationAbstr *app;
+
 	uptr<SimulationParams> params;
 	uptr<SimFrame> curFrame;
 	
@@ -101,6 +105,8 @@ public:
 
 	virtual void videoExportValidateRange() = 0;
 	virtual void videoExportClampTime() = 0;
+
+	SimulationStateAbstr(ApplicationAbstr *const app);
 };
 
 }

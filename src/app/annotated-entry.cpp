@@ -9,8 +9,8 @@
 namespace brandy0
 {
 
-AnnotatedEntry::AnnotatedEntry(const str& label)
-	: label(label), disabled(false)
+AnnotatedEntry::AnnotatedEntry(const str& label, StyleManager &styleManager)
+	: label(label), indicator(styleManager), disabled(false)
 {
 	this->label.set_xalign(0);
 }
