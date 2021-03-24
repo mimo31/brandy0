@@ -11,7 +11,7 @@
 
 #include "glob.hpp"
 
-#include "application.hpp"
+#include "application-abstr.hpp"
 #include "config-state-abstr.hpp"
 #include "config-window.hpp"
 #include "func.hpp"

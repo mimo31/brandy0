@@ -1,4 +1,3 @@
-
 #set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,clang-analyzer-*,bugprone-*,misc-*,cppcoreguidelines-*,concurrency-*,modernize-*,performance-*,portability-*,readability-*,-readability-braces-around-statements,-modernize-use-trailing-return-type)
 
 set(PRIMARY_SOURCES

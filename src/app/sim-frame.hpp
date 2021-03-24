@@ -19,7 +19,6 @@ public:
 	Grid<double> p;
 	Grid<vec2d> u;
 
-	SimFrame() = default;
 	SimFrame(const Grid<double>& p, const Grid<vec2d>& u)
 		: p(p), u(u)
 	{

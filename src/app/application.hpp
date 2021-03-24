@@ -21,17 +21,13 @@
 namespace brandy0
 {
 
-class StartState;
-class ConfigState;
-class SimulationState;
-
 class Application : public ApplicationAbstr
 {
 private:
 	Glib::RefPtr<Gtk::Application> gtkapp;
-	StartState* startSt;
-	ConfigState* configSt;
-	SimulationState* simulationSt;
+	StartState startSt;
+	ConfigState configSt;
+	SimulationState simulationSt;
 	State* activeSt;
 	void switchStates(State *const newSt);
 public:

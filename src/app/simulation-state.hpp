@@ -14,7 +14,7 @@
 
 #include "glob.hpp"
 
-#include "application.hpp"
+#include "application-abstr.hpp"
 #include "config-window.hpp"
 #include "export-window.hpp"
 #include "ptr.hpp"

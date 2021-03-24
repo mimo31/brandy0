@@ -12,20 +12,18 @@ namespace brandy0
 {
 
 Application::Application()
+	: 
+	gtkapp(Gtk::Application::create("")),
+	startSt(this),
+	configSt(this),
+	simulationSt(this)
 {
-	gtkapp = Gtk::Application::create("");
-	startSt = new StartState(this);
-	configSt = new ConfigState(this);
-	simulationSt = new SimulationState(this);
 }
 
 Application::~Application()
 {
 	activeSt->deactivate();
 	graphicsManager.destruct();
-	delete startSt;
-	delete configSt;
-	delete simulationSt;
 }
 
 void Application::run(const int argc, const char *const *const argv)
@@ -49,7 +47,7 @@ void Application::run(const int argc, const char *const *const argv)
 				if (frames > limit)
 					return;
 			}
-			activeSt = simulationSt;
+			activeSt = &simulationSt;
 			uptr<SimulationParams> preset;
 			for (const SimulationParamsPreset &p : SimulationParamsPreset::presets)
 			{
@@ -57,12 +55,12 @@ void Application::run(const int argc, const char *const *const argv)
 					preset = make_unique<SimulationParams>(p.params);
 			}
 			if (preset)
-				simulationSt->run(*preset, frames);
+				simulationSt.run(*preset, frames);
 			return;
 		}
 	}
-	activeSt = startSt;
-	startSt->run();
+	activeSt = &startSt;
+	startSt.run();
 }
 
 void Application::switchStates(State *const newSt)
@@ -73,26 +71,26 @@ void Application::switchStates(State *const newSt)
 
 void Application::enterNewConfig()
 {
-	switchStates(configSt);
-	configSt->activate();
+	switchStates(&configSt);
+	configSt.activate();
 }
 
 void Application::enterExistingConfig(const SimulationParams params)
 {
-	switchStates(configSt);
-	configSt->activate(params);
+	switchStates(&configSt);
+	configSt.activate(params);
 }
 
 void Application::enterHome()
 {
-	switchStates(startSt);
-	startSt->activate();
+	switchStates(&startSt);
+	startSt.activate();
 }
 
 void Application::enterNewSimulation(const SimulationParams params)
 {
-	switchStates(simulationSt);
-	simulationSt->activate(params);
+	switchStates(&simulationSt);
+	simulationSt.activate(params);
 }
 
 void Application::addWindow(Gtk::Window& win)

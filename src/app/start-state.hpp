@@ -12,7 +12,7 @@
 #include "glob.hpp"
 
 #include "about-window.hpp"
-#include "application.hpp"
+#include "application-abstr.hpp"
 #include "ptr.hpp"
 #include "state.hpp"
 #include "start-state-abstr.hpp"
