@@ -46,7 +46,7 @@ public:
 	 * Constructs the about window.
 	 * @param parent the parent start state
 	 */
-	AboutWindow(StartStateAbstr *const parent);
+	AboutWindow(StartStateAbstr *parent);
 };
 
 }

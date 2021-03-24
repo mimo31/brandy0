@@ -37,7 +37,7 @@ private:
 	void showWindows();
 
 public:
-	ConfigState(ApplicationAbstr *const);
+	ConfigState(ApplicationAbstr *);
 	void activate();
 	void activate(const SimulationParams&);
 	void deactivate();

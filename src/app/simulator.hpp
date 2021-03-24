@@ -30,7 +30,7 @@ public:
 	
 	Simulator(const SimulationParams& params);
 	virtual void iter() = 0;
-	void setPauseControl(const bool *const pauseSignal, std::mutex *const controlMutex);
+	void setPauseControl(const bool *pauseSignal, std::mutex *controlMutex);
 	virtual ~Simulator() {}
 
 protected:
@@ -42,7 +42,7 @@ protected:
 	Grid<bool> indep;
 	BoundaryCond bcx0, bcx1, bcy0, bcy1;
 	vec2d to_coor(const Point&) const;
-	vec2d to_coor(const int32_t x, const int32_t y) const;
+	vec2d to_coor(int32_t x, int32_t y) const;
 };
 
 }

@@ -114,7 +114,7 @@ struct vec2d
 	}
 };
 
-vec2d operator*(const double a, const vec2d& v);
+vec2d operator*(double a, const vec2d& v);
 
 std::ostream& operator<<(std::ostream& os, const vec2d& v);
 

@@ -106,7 +106,7 @@ public:
 	virtual void videoExportValidateRange() = 0;
 	virtual void videoExportClampTime() = 0;
 
-	SimulationStateAbstr(ApplicationAbstr *const app);
+	SimulationStateAbstr(ApplicationAbstr *app);
 };
 
 }

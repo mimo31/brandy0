@@ -52,13 +52,13 @@ private:
 
 	void getFileLocationFromUser();
 
-	void setTimeScale(const double scaleVal);
+	void setTimeScale(double scaleVal);
 	void setTimeScaleFromTime();
 
 	void update();
 
 public:
-	ExportWindow(SimulationStateAbstr *const parent);
+	ExportWindow(SimulationStateAbstr *parent);
 };
 
 }

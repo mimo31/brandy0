@@ -53,7 +53,7 @@ public:
 	 * @param fromX the lowest x coordinate in the grid to use
 	 * @param fromY the y coordinate in the grid to use
 	 */
-	void attachTo(Gtk::Grid& g, const uint32_t fromX, const uint32_t fromY);
+	void attachTo(Gtk::Grid& g, uint32_t fromX, uint32_t fromY);
 	/**
 	 * Connects the given callback to the changed signal of the text entry. I.e. the given 
 	 * callback will be called whenever the text in the entry changes (the user or an external 

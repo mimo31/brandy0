@@ -34,7 +34,7 @@ private:
 	void setOkIcon();
 	void setInvalidIcon();
 	Glib::RefPtr<Gtk::CssProvider> currentStyle;
-	void changeStyle(const Glib::RefPtr<Gtk::CssProvider> style);
+	void changeStyle(Glib::RefPtr<Gtk::CssProvider> style);
 	StyleManager *styleManager;
 public:
 	ValidityIndicator(StyleManager *styleManager);

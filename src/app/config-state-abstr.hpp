@@ -44,7 +44,7 @@ public:
 	virtual void openPresets() = 0;
 	virtual void confirmPreset(const SimulationParams &preset) = 0;
 
-	ConfigStateAbstr(ApplicationAbstr *const app);
+	ConfigStateAbstr(ApplicationAbstr *app);
 };
 
 }

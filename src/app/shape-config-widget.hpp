@@ -40,17 +40,17 @@ private:
     void on_realize() override;
     void on_unrealize() override;
 	void markPoints(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec<vec2d> &ps) const;
-	void markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, const vec2d p) const;
+	void markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, vec2d p) const;
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
 	uint32_t getWidth() const;
 	uint32_t getHeight() const;
 
-	vec2d widgetToUnitCoors(const vec2d wCoors);
+	vec2d widgetToUnitCoors(vec2d wCoors);
 
-	bool clickHandler(GdkEventButton *const event);
-	bool motionHandler(GdkEventMotion *const event);
-	bool leaveHandler(GdkEventCrossing *const event);
+	bool clickHandler(GdkEventButton *event);
+	bool motionHandler(GdkEventMotion *event);
+	bool leaveHandler(GdkEventCrossing *event);
 
 	void activateRefresher();
 	void deactivateRefresher();
@@ -58,7 +58,7 @@ private:
 	void refresh();
 
 public:
-    ShapeConfigWidget(ConfigStateAbstr *const parent, ShapeConfigWindowAbstr *const parentWindow);
+    ShapeConfigWidget(ConfigStateAbstr *parent, ShapeConfigWindowAbstr *parentWindow);
 };
 
 }

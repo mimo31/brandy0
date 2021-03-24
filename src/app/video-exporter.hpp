@@ -48,9 +48,9 @@ private:
 	uint32_t height;
 	GraphicsManager *graphicsManager;
 
-	double videoTimeToCompTime(const double videoTime) const;
-	double compTimeToVideoTime(const double compTime) const;
-	uint32_t videoTimeToFrame(const double videoTime) const;
+	double videoTimeToCompTime(double videoTime) const;
+	double compTimeToVideoTime(double compTime) const;
+	uint32_t videoTimeToFrame(double videoTime) const;
 
 	void detectError(const str &message);
 	void detectFatalError(const str &message);
@@ -82,16 +82,16 @@ public:
 
 	VideoExporter(
 		const SimulationParams& params,
-		const uint32_t backDisplayMode,
-		const uint32_t frontDisplayMode,
+		uint32_t backDisplayMode,
+		uint32_t frontDisplayMode,
 		const str& filename,
 		const vec<SimFrame>& frames,
-		const double startTime,
-		const double endTime,
-		const double msPerFrame,
-		const double dtPerFrame,
-		const uint32_t width,
-		const uint32_t height,
+		double startTime,
+		double endTime,
+		double msPerFrame,
+		double dtPerFrame,
+		uint32_t width,
+		uint32_t height,
 		GraphicsManager *graphicsManager
 	);
 

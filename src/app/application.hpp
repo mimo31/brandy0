@@ -29,16 +29,16 @@ private:
 	ConfigState configSt;
 	SimulationState simulationSt;
 	State* activeSt;
-	void switchStates(State *const newSt);
+	void switchStates(State *newSt);
 public:
 	Application();
 	void enterNewConfig() override;
-	void enterExistingConfig(const SimulationParams) override;
+	void enterExistingConfig(SimulationParams) override;
 	void enterHome() override;
-	void enterNewSimulation(const SimulationParams) override;
+	void enterNewSimulation(SimulationParams) override;
 	void addWindow(Gtk::Window& win) override;
 	void run(Gtk::Window& win) override;
-	void run(int argc, const char *const *const argv);
+	void run(int argc, const char *const *argv);
 	~Application();
 };
 

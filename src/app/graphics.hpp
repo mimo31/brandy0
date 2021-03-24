@@ -69,25 +69,25 @@ private:
 
 	void generate_gl_structs();
 
-	Point to_poi(const double x, const double y) const;
+	Point to_poi(double x, double y) const;
 	Point to_poi(const vec2d& v) const;
-	vec2d to_coor(const uint32_t x, const uint32_t y) const;
-	vec2d to_coor(const Point p) const;
+	vec2d to_coor(uint32_t x, uint32_t y) const;
+	vec2d to_coor(Point p) const;
 	void computeMat(float *mat) const;
 	
 	void addStreamLine(const SimFrame& frame, vec<LineSegment>&, const vec2d&);
-	void addArrow(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& pos, const double norm_len);
+	void addArrow(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& pos, double norm_len);
 
-	void drawAll(const SimFrame& frame, GraphicsManager *const manager);
+	void drawAll(const SimFrame& frame, GraphicsManager *manager);
 
 public:
 	FrameDrawer(const SimulationParams& p);
 
-	void setFrontDisplayMode(const uint32_t fdm);
-	void setBackDisplayMode(const uint32_t bdm);
+	void setFrontDisplayMode(uint32_t fdm);
+	void setBackDisplayMode(uint32_t bdm);
 
-	void drawFrame(const SimFrame& frame, const double view_width, const double view_height, GraphicsManager *const manager);
-	void drawFrame(const SimFrame& frame, const uint32_t width, const uint32_t height, uint8_t *const data, const uint32_t linesize, GraphicsManager *const manager);
+	void drawFrame(const SimFrame& frame, double view_width, double view_height, GraphicsManager *manager);
+	void drawFrame(const SimFrame& frame, uint32_t width, uint32_t height, uint8_t *data, uint32_t linesize, GraphicsManager *manager);
 };
 
 }

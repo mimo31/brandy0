@@ -45,7 +45,7 @@ constexpr uint32_t ADD_SHAPE_MODE_DEFAULT = ADD_SHAPE_RECTANGLE;
 class ObstacleShape
 {
 protected:
-	ObstacleShape(const bool negative);
+	ObstacleShape(bool negative);
 
 public:
 	bool negative;
@@ -93,8 +93,8 @@ private:
 	double xhaxis, yhaxis;
 
 public:
-    ObstacleEllipse(const bool negative, const vec2d& p0, const vec2d& p1);
-	ObstacleEllipse(const bool negative, const vec2d& center, const double xhaxis, const double yhaxis);
+    ObstacleEllipse(bool negative, const vec2d& p0, const vec2d& p1);
+	ObstacleEllipse(bool negative, const vec2d& center, double xhaxis, double yhaxis);
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
 	void fill(Grid<bool>& grid) const override;
@@ -106,10 +106,10 @@ friend Tests;
 private:
     vec<vec2d> ps;
 
-	bool inside(const vec2d p) const;
+	bool inside(vec2d p) const;
 
 public:
-    ObstaclePolygon(const bool negative, const vec<vec2d>& ps);
+    ObstaclePolygon(bool negative, const vec<vec2d>& ps);
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
 	void fill(Grid<bool>& grid) const override;
@@ -118,14 +118,14 @@ public:
 class ObstacleRectangle : public ObstaclePolygon
 {
 public:
-	ObstacleRectangle(const bool negative, const vec2d v0, const vec2d v1);
+	ObstacleRectangle(bool negative, vec2d v0, vec2d v1);
 };
 
 class ObstacleCircle : public ObstacleEllipse
 {
 public:
-	ObstacleCircle(const bool negative, const vec2d center, const double r);
-	ObstacleCircle(const bool negative, const vec2d center, const vec2d v1, const double physW, const double physH);
+	ObstacleCircle(bool negative, vec2d center, double r);
+	ObstacleCircle(bool negative, vec2d center, vec2d v1, double physW, double physH);
 };
 
 }

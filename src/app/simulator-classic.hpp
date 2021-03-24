@@ -22,7 +22,7 @@ private:
 	Grid<bool> dirichlet;
 	Grid<bool> visited;
 
-	void visit(const Point p);
+	void visit(Point p);
 
     double lapL1limit;
 	double crashLimit;

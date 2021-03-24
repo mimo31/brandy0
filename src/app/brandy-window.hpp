@@ -16,7 +16,7 @@ class BrandyWindow : public Gtk::Window
 {
 protected:
     BrandyWindow();
-    BrandyWindow(const uint32_t defaultWidth, const uint32_t defaultHeight);
+    BrandyWindow(uint32_t defaultWidth, uint32_t defaultHeight);
 };
 
 }

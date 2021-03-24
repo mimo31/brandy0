@@ -30,7 +30,7 @@ private:
 	Gtk::Grid layoutGrid;
 
 public:
-	StartWindow(StartStateAbstr *const);
+	StartWindow(StartStateAbstr *);
 };
 
 }

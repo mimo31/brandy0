@@ -51,21 +51,21 @@ private:
 	 * @return true iff the specified string contains at least one character different from '0'
 	 */
     static bool isNonzero(const str& s);
-    static bool boundedStoi(const str& s, uint32_t& writeto, const uint32_t maxVal);
+    static bool boundedStoi(const str& s, uint32_t& writeto, uint32_t maxVal);
 
 public:
-    static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, const uint32_t defaultVal, const uint32_t maxVal);
-    static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, const uint32_t defaultVal, const uint32_t minVal, const uint32_t maxVal);
-    static void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double minVal, const double maxVal);
-    static void updateRealIndicator(AnnotatedEntry& aentry, double& writeto, const double defaultVal, const double maxVal);
+    static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, uint32_t defaultVal, uint32_t maxVal);
+    static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, uint32_t defaultVal, uint32_t minVal, uint32_t maxVal);
+    static void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, double defaultVal, double minVal, double maxVal);
+    static void updateRealIndicator(AnnotatedEntry& aentry, double& writeto, double defaultVal, double maxVal);
 
-	static str defaultToString(const double d);
-	static str timeToString(const double d);
-	static str timeToString(const double d, const double order);
-	static str percentageToString(const double d);
-	static str speedupToString(const double d);
-	static str intToZeropadString(const uint32_t i, const uint32_t width);
-	static str intToZeropadStringByOrder(const uint32_t i, const uint32_t order);
+	static str defaultToString(double d);
+	static str timeToString(double d);
+	static str timeToString(double d, double order);
+	static str percentageToString(double d);
+	static str speedupToString(double d);
+	static str intToZeropadString(uint32_t i, uint32_t width);
+	static str intToZeropadStringByOrder(uint32_t i, uint32_t order);
 };
 
 }

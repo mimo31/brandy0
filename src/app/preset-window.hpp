@@ -29,7 +29,7 @@ private:
 	Gtk::Label warnLabel;
 	Gtk::Button confirmButton;
 public:
-	PresetWindow(ConfigStateAbstr *const parent);
+	PresetWindow(ConfigStateAbstr *parent);
 };
 
 }

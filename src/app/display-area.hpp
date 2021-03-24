@@ -37,7 +37,7 @@ private:
 	bool render(const Glib::RefPtr<Gdk::GLContext>& context);
 
 public:
-	DisplayArea(SimulationStateAbstr *const parent);
+	DisplayArea(SimulationStateAbstr *parent);
 	void redraw();
 };
 

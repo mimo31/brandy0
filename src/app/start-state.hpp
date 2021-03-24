@@ -28,7 +28,7 @@ private:
 	uptr<StartWindow> mainWin;
 	uptr<AboutWindow> aboutWin;
 public:
-	StartState(ApplicationAbstr *const);
+	StartState(ApplicationAbstr *);
 	void activate();
 	void deactivate();
 	void run();

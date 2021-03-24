@@ -52,7 +52,7 @@ private:
 	void showExportWindow();
 	void checkCapacity();
 	void addLastFrame();
-	double getTime(const uint32_t frame);
+	double getTime(uint32_t frame);
 	void runComputeThread();
 	void startComputeThread();
 	bool update();
@@ -61,13 +61,13 @@ private:
 
 	void updateComputedTime();
 
-	uint32_t getFrameNumber(const double t);
+	uint32_t getFrameNumber(double t);
 	std::chrono::steady_clock::time_point lastUpdate;
 
 public:
-	SimulationState(ApplicationAbstr *const);
+	SimulationState(ApplicationAbstr *);
 	void activate(const SimulationParams&);
-	void run(const SimulationParams&, const uint32_t frames);
+	void run(const SimulationParams&, uint32_t frames);
 	void deactivate();
 	
 	void goBackToConfig() override;

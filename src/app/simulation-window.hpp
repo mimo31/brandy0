@@ -72,7 +72,7 @@ private:
 	void update();
 
 public:
-	SimulationWindow(SimulationStateAbstr *const parent);
+	SimulationWindow(SimulationStateAbstr *parent);
 
 	~SimulationWindow();
 };
