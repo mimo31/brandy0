@@ -35,9 +35,9 @@ private:
 	void setInvalidIcon();
 	Glib::RefPtr<Gtk::CssProvider> currentStyle;
 	void changeStyle(const Glib::RefPtr<Gtk::CssProvider> style);
-	StyleManager &styleManager;
+	StyleManager *styleManager;
 public:
-	ValidityIndicator(StyleManager &styleManager);
+	ValidityIndicator(StyleManager *styleManager);
 	~ValidityIndicator() override;
 	void setDefault();
 	void setOk();

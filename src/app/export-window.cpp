@@ -20,9 +20,9 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	selectFileButton("select file location"),
 	backButton("cancel"),
 	exportButton("export video"),
-	widthEntry("width (pixels):", parent->app->styleManager),
-	heightEntry("height (pixels):", parent->app->styleManager),
-	bitrateEntry("bitrate:", parent->app->styleManager),
+	widthEntry("width (pixels):", &parent->app->styleManager),
+	heightEntry("height (pixels):", &parent->app->styleManager),
+	bitrateEntry("bitrate:", &parent->app->styleManager),
 	timingFrame("video timing"),
 	previewFrame("preview play"),
 	parameterFrame("video file parameters")

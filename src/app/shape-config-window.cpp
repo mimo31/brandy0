@@ -53,8 +53,8 @@ void ShapeConfigWindow::updateAddShapeWidgets()
 ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
     : BrandyWindow(1280, 720),
 	dimensionsFrame("physical dimensions"),
-    widthEntry("width:", parent->app->styleManager),
-    heightEntry("height:", parent->app->styleManager),
+    widthEntry("width:", &parent->app->styleManager),
+    heightEntry("height:", &parent->app->styleManager),
 	addingShapeLabel("adding shape"),
 	addingShapeFrame("current rectangle"),
 	polygonVerticesLabel("0 vertices set"),

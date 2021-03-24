@@ -20,23 +20,27 @@
 namespace brandy0
 {
 
-namespace graphics
+class GraphicsManager
 {
+private:
+	bool initialized = false;
+public:
+	GLuint glWhiteProgram;
+	GLuint glWhiteMat;
+	GLuint glPaintProgram;
+	GLuint glPaintMat;
+	GLuint glWhiteVao;
+	GLuint glWhiteVbo;
+	GLuint glPaintVao;
+	GLuint glPaintVbo;
 
-extern GLuint glWhiteProgram;
-extern GLuint glWhiteMat;
-extern GLuint glPaintProgram;
-extern GLuint glPaintMat;
-extern GLuint glWhiteVao;
-extern GLuint glWhiteVbo;
-extern GLuint glPaintVao;
-extern GLuint glPaintVbo;
+	Glib::RefPtr<Gdk::GLContext> ctx;
 
-extern Glib::RefPtr<Gdk::GLContext> ctx;
+	void initBuffers();
+	void initShaders();
 
-void init();
-void destruct();
-
+	void init();
+	void destruct();
 };
 
 class FrameDrawer
@@ -74,7 +78,7 @@ private:
 	void addStreamLine(const SimFrame& frame, vec<LineSegment>&, const vec2d&);
 	void addArrow(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& pos, const double norm_len);
 
-	void drawAll(const SimFrame& frame);
+	void drawAll(const SimFrame& frame, GraphicsManager *const manager);
 
 public:
 	FrameDrawer(const SimulationParams& p);
@@ -82,8 +86,8 @@ public:
 	void setFrontDisplayMode(const uint32_t fdm);
 	void setBackDisplayMode(const uint32_t bdm);
 
-	void drawFrame(const SimFrame& frame, const double view_width, const double view_height);
-	void drawFrame(const SimFrame& frame, const uint32_t width, const uint32_t height, uint8_t *const data, const uint32_t linesize);
+	void drawFrame(const SimFrame& frame, const double view_width, const double view_height, GraphicsManager *const manager);
+	void drawFrame(const SimFrame& frame, const uint32_t width, const uint32_t height, uint8_t *const data, const uint32_t linesize, GraphicsManager *const manager);
 };
 
 }

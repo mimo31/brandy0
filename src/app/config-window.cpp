@@ -16,29 +16,29 @@ namespace brandy0
 
 ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	: descriptionLabel("Configure your simulation."),
-	rhoEntry("rho (density):", parent->app->styleManager),
-	muEntry("mu (viscosity):", parent->app->styleManager),
+	rhoEntry("rho (density):", &parent->app->styleManager),
+	muEntry("mu (viscosity):", &parent->app->styleManager),
 	x0sel("x = 0 (left)", [this, parent](){
 		parent->params->bcx0 = x0sel.getBc();
 		parent->validityChangeListeners.invoke();
-		}, parent->app->styleManager),
+		}, &parent->app->styleManager),
 	x1sel("x = w (right)", [this, parent](){
 		parent->params->bcx1 = x1sel.getBc();
 		parent->validityChangeListeners.invoke();
-		}, parent->app->styleManager),
+		}, &parent->app->styleManager),
 	y0sel("y = 0 (bottom)", [this, parent](){
 		parent->params->bcy0 = y0sel.getBc();
 		parent->validityChangeListeners.invoke();
-		}, parent->app->styleManager),
+		}, &parent->app->styleManager),
 	y1sel("y = h (top)", [this, parent](){
 		parent->params->bcy1 = y1sel.getBc();
 		parent->validityChangeListeners.invoke();
-		}, parent->app->styleManager),
-	gridWidthEntry("grid width:", parent->app->styleManager),
-	gridHeightEntry("grid height:", parent->app->styleManager),
-	dtEntry("dt (time step):", parent->app->styleManager),
-	stepsPerFrameEntry("steps per frame:", parent->app->styleManager),
-	frameCapacityEntry("frame capacity:", parent->app->styleManager),
+		}, &parent->app->styleManager),
+	gridWidthEntry("grid width:", &parent->app->styleManager),
+	gridHeightEntry("grid height:", &parent->app->styleManager),
+	dtEntry("dt (time step):", &parent->app->styleManager),
+	stepsPerFrameEntry("steps per frame:", &parent->app->styleManager),
+	frameCapacityEntry("frame capacity:", &parent->app->styleManager),
 	physFrame("physics configuration"),
 	compFrame("computation configuration"),
 	backHomeButton("back to home"),

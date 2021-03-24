@@ -46,7 +46,7 @@ private:
 	void setEntryFields();
 
 public:
-	BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler, StyleManager &styleManager);
+	BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler, StyleManager *styleManager);
 	
 	bool hasValidInput() const;
 	BoundaryCond getBc() const;

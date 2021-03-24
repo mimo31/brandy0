@@ -165,7 +165,8 @@ void SimulationState::confirmVideoExport()
 		MS_PER_BASE_FRAME / videoExportPlaybackSpeedup * frameStepSize,
 		params->dt * params->stepsPerFrame * frameStepSize,
 		videoExportWidth,
-		videoExportHeight);
+		videoExportHeight,
+		&app->graphicsManager);
 	videoExporter->updateListeners.plug([this]
 	{
 		vexpExportUpdateListeners.invoke();

@@ -9,6 +9,7 @@
 
 #include <gtkmm/window.h>
 
+#include "graphics.hpp"
 #include "simulation-params.hpp"
 #include "style-manager.hpp"
 
@@ -22,6 +23,7 @@ class ApplicationAbstr
 {
 public:
 	StyleManager styleManager;
+	GraphicsManager graphicsManager;
 
 	/**
 	 * Sets the application state to the configuration state with default simulator

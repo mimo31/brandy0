@@ -16,21 +16,7 @@
 namespace brandy0
 {
 
-namespace graphics
-{
-
-GLuint glWhiteProgram;
-GLuint glWhiteMat;
-GLuint glPaintProgram;
-GLuint glPaintMat;
-GLuint glWhiteVao;
-GLuint glWhiteVbo;
-GLuint glPaintVao;
-GLuint glPaintVbo;
-
-Glib::RefPtr<Gdk::GLContext> ctx;
-
-void initBuffers()
+void GraphicsManager::initBuffers()
 {
 	glGenVertexArrays(1, &glWhiteVao);
 	glBindVertexArray(glWhiteVao);
@@ -168,16 +154,14 @@ GLuint loadProgram(const str& vshaderName, const str& fshaderName, const vec<Uni
 	return program;
 }
 
-void initShaders()
+void GraphicsManager::initShaders()
 {
 	glWhiteProgram = loadProgram("plain", "white", { UniformLoc("mat", &glWhiteMat) });
 	glPaintProgram = loadProgram("plain-float", "rainbow", { UniformLoc("mat", &glPaintMat) });
 }
 
-void init()
+void GraphicsManager::init()
 {
-	static bool initialized = false;
-
 	if (!initialized)
 	{
 		initBuffers();
@@ -186,11 +170,9 @@ void init()
 	}
 }
 
-void destruct()
+void GraphicsManager::destruct()
 {
 	ctx.reset();
-}
-
 }
 
 FrameDrawer::FrameDrawer(const SimulationParams& p)
@@ -320,10 +302,8 @@ void FrameDrawer::addArrow(const SimFrame& frame, vec<LineSegment>& segs, const 
 	}
 }
 
-void FrameDrawer::drawAll(const SimFrame& frame)
+void FrameDrawer::drawAll(const SimFrame& frame, GraphicsManager *const manager)
 {
-	using namespace graphics;
-
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -439,13 +419,13 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 
 			computeMat(mat);
 
-			glUseProgram(glPaintProgram);
+			glUseProgram(manager->glPaintProgram);
 
-			glUniformMatrix4fv(glPaintMat, 1, GL_FALSE, mat);
+			glUniformMatrix4fv(manager->glPaintMat, 1, GL_FALSE, mat);
 			
-			glBindVertexArray(glPaintVao);
+			glBindVertexArray(manager->glPaintVao);
 
-			glBindBuffer(GL_ARRAY_BUFFER, glPaintVbo);
+			glBindBuffer(GL_ARRAY_BUFFER, manager->glPaintVbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * arsize, vertex_data, GL_STREAM_DRAW);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -526,13 +506,13 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 
 		computeMat(mat);
 
-		glUseProgram(glWhiteProgram);
+		glUseProgram(manager->glWhiteProgram);
 
-		glUniformMatrix4fv(glWhiteMat, 1, GL_FALSE, mat);
+		glUniformMatrix4fv(manager->glWhiteMat, 1, GL_FALSE, mat);
 	
-		glBindVertexArray(glWhiteVao);
+		glBindVertexArray(manager->glWhiteVao);
 
-		glBindBuffer(GL_ARRAY_BUFFER, glWhiteVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, manager->glWhiteVbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * segs.size() * 4, vertex_data, GL_STREAM_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -544,12 +524,12 @@ void FrameDrawer::drawAll(const SimFrame& frame)
 	glFlush();
 }
 
-void FrameDrawer::drawFrame(const SimFrame& frame, const double view_width, const double view_height)
+void FrameDrawer::drawFrame(const SimFrame& frame, const double view_width, const double view_height, GraphicsManager *const manager)
 {
 	vieww = view_width;
 	viewh = view_height;
 	
-	drawAll(frame);
+	drawAll(frame, manager);
 }
 
 void FrameDrawer::generate_gl_structs()
@@ -562,9 +542,9 @@ void FrameDrawer::generate_gl_structs()
 	}
 }
 
-void FrameDrawer::drawFrame(const SimFrame& frame, const uint32_t width, const uint32_t height, uint8_t *const data, const uint32_t linesize)
+void FrameDrawer::drawFrame(const SimFrame& frame, const uint32_t width, const uint32_t height, uint8_t *const data, const uint32_t linesize, GraphicsManager *const manager)
 {
-	graphics::ctx->make_current();
+	manager->ctx->make_current();
 
 	vieww = width;
 	viewh = height;
@@ -586,7 +566,7 @@ void FrameDrawer::drawFrame(const SimFrame& frame, const uint32_t width, const u
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_texture, 0);
 	glViewport(0, 0, width, height);
-	drawAll(frame);
+	drawAll(frame, manager);
 	
 	uint8_t *rawdata = new uint8_t[4 * width * height];
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, rawdata);

@@ -13,7 +13,7 @@
 namespace brandy0
 {
 
-BCSelector::BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler, StyleManager &styleManager)
+BCSelector::BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandler, StyleManager *const styleManager)
 	: Gtk::Frame("boundary c. at " + atDescriptor),
 	pressureTypeLabel("pressure (type):"),
 	pEntry("pressure:", styleManager),

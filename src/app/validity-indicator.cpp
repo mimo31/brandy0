@@ -13,7 +13,7 @@ namespace brandy0
 
 const Gtk::IconSize iconSize = Gtk::BuiltinIconSize::ICON_SIZE_MENU;
 
-ValidityIndicator::ValidityIndicator(StyleManager &styleManager)
+ValidityIndicator::ValidityIndicator(StyleManager *const styleManager)
 	: message("(default)"),
 	state(IndicatorState::DEFAULT),
 	styleManager(styleManager)
@@ -21,9 +21,9 @@ ValidityIndicator::ValidityIndicator(StyleManager &styleManager)
 	set_valign(Gtk::ALIGN_CENTER);
 	icon = new Gtk::Image("dialog-ok", iconSize);
 
-	styleManager.requestInit();
+	styleManager->requestInit();
 
-	currentStyle = styleManager.darkGreenStyle;
+	currentStyle = styleManager->darkGreenStyle;
 	message.get_style_context()->add_provider(currentStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
 	message.set_width_chars(30);
@@ -71,7 +71,7 @@ void ValidityIndicator::setOk()
 	if (state == IndicatorState::OK)
 		return;
 	message.set_text("ok");
-	changeStyle(styleManager.greenStyle);
+	changeStyle(styleManager->greenStyle);
 	if (state == IndicatorState::INVALID)
 	{
 		setOkIcon();
@@ -84,7 +84,7 @@ void ValidityIndicator::setDefault()
 	if (state == IndicatorState::DEFAULT)
 		return;
 	message.set_text("(default)");
-	changeStyle(styleManager.darkGreenStyle);
+	changeStyle(styleManager->darkGreenStyle);
 	if (state == IndicatorState::INVALID)
 	{
 		setOkIcon();
@@ -98,7 +98,7 @@ void ValidityIndicator::setInvalid(const str& message)
 	if (state != IndicatorState::INVALID)
 	{
 		setInvalidIcon();
-		changeStyle(styleManager.redStyle);
+		changeStyle(styleManager->redStyle);
 		state = IndicatorState::INVALID;
 	}
 }

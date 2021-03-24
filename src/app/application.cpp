@@ -22,7 +22,7 @@ Application::Application()
 Application::~Application()
 {
 	activeSt->deactivate();
-	graphics::destruct();
+	graphicsManager.destruct();
 	delete startSt;
 	delete configSt;
 	delete simulationSt;

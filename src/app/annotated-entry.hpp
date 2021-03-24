@@ -45,7 +45,7 @@ public:
 	 * Constructs an annotated entry.
 	 * @param label the label to be displayed to the user
 	 */
-	AnnotatedEntry(const str& label, StyleManager &styleManager);
+	AnnotatedEntry(const str& label, StyleManager *styleManager);
 	/**
 	 * Attaches this annotated entry to a Gtk::Grid. The label gets attached to 
 	 * (fromX, fromY), the entry to (fromX + 1, fromY), and the indicator to (fromX + 2, fromY)

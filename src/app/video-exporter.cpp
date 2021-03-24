@@ -51,7 +51,8 @@ VideoExporter::VideoExporter(
 		const double msPerFrame,
 		const double dtPerFrame,
 		const uint32_t width,
-		const uint32_t height
+		const uint32_t height,
+		GraphicsManager *const graphicsManager
 	) :
 		drawer(params),
 		filename(filename),
@@ -61,7 +62,8 @@ VideoExporter::VideoExporter(
 		sPerFrame(msPerFrame / 1000),
 		dtPerFrame(dtPerFrame),
 		width(width),
-		height(height)
+		height(height),
+		graphicsManager(graphicsManager)
 {
 	drawer.setFrontDisplayMode(frontDisplayMode);
 	drawer.setBackDisplayMode(backDisplayMode);
@@ -217,7 +219,7 @@ void VideoExporter::doExport()
 		const uint32_t framei = videoTimeToFrame(videoTime);
 		if (framei != drawnFramei)
 		{
-			drawer.drawFrame(frames[framei], width, height, rgbframe->data[0], rgbframe->linesize[0]);
+			drawer.drawFrame(frames[framei], width, height, rgbframe->data[0], rgbframe->linesize[0], graphicsManager);
 			sws_scale(swsctx, rgbframe->data, rgbframe->linesize, 0, height, frame->data, frame->linesize);
 			drawnFramei = framei;
 		}

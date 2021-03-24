@@ -45,9 +45,7 @@ struct Grid
 
 	T &operator()(const uint32_t x, const uint32_t y) const
 	{
-		assert(x >= 0);
 		assert(x < w);
-		assert(y >= 0);
 		assert(y < h);
 		return data[x + y * w];
 	}

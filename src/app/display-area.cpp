@@ -36,7 +36,7 @@ bool DisplayArea::render(const Glib::RefPtr<Gdk::GLContext>& /* context */)
 		
 		drawer->setBackDisplayMode(parent->backDisplayMode);
 		drawer->setFrontDisplayMode(parent->frontDisplayMode);
-		drawer->drawFrame(*parent->curFrame, get_width(), get_height());
+		drawer->drawFrame(*parent->curFrame, get_width(), get_height(), &parent->app->graphicsManager);
 
 		return true;
 	}
@@ -61,10 +61,10 @@ void DisplayArea::realize()
 	{
 		throw_if_error();
 
-		graphics::init();
+		parent->app->graphicsManager.init();
 
 		glContext = get_context();
-		graphics::ctx = glContext;
+		parent->app->graphicsManager.ctx = glContext;
 	}
 	catch (const Gdk::GLError& gle)
 	{

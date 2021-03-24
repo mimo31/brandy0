@@ -46,6 +46,7 @@ private:
 	double dtPerFrame;
 	uint32_t width;
 	uint32_t height;
+	GraphicsManager *graphicsManager;
 
 	double videoTimeToCompTime(const double videoTime) const;
 	double compTimeToVideoTime(const double compTime) const;
@@ -90,7 +91,8 @@ public:
 		const double msPerFrame,
 		const double dtPerFrame,
 		const uint32_t width,
-		const uint32_t height
+		const uint32_t height,
+		GraphicsManager *graphicsManager
 	);
 
 	void exportVideo();
