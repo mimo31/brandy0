@@ -574,9 +574,9 @@ void FrameDrawer::drawFrame(const SimFrame& frame, const uint32_t width, const u
 	{
 		for (uint32_t x = 0; x < width; x++)
 		{
-			data[y * linesize + 3 * x] = rawdata[4 * (y * width + x)];
-			data[y * linesize + 3 * x + 1] = rawdata[4 * (y * width + x) + 1];
-			data[y * linesize + 3 * x + 2] = rawdata[4 * (y * width + x) + 2];
+			data[y * linesize + 3 * x] = rawdata[4 * ((height - 1 - y) * width + x)];
+			data[y * linesize + 3 * x + 1] = rawdata[4 * ((height - 1 - y) * width + x) + 1];
+			data[y * linesize + 3 * x + 2] = rawdata[4 * ((height - 1 - y) * width + x) + 2];
 		}
 	}
 	delete [] rawdata;
