@@ -77,6 +77,7 @@ public:
 	void enterVideoExport() override;
 	void leaveVideoExport() override;
 	void confirmVideoExport() override;
+	void cancelVideoExport() override;
 
 	bool isComputing() override;
 	uint32_t getFramesStored() override;

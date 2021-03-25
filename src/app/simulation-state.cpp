@@ -142,12 +142,7 @@ void SimulationState::leaveVideoExport()
 	if (inVideoExport)
 	{
 		inVideoExport = false;
-		if (videoExporter)
-		{
-			if (!videoExporter->complete)
-				videoExporter->cancel();
-			videoExporter = nullptr;
-		}
+		cancelVideoExport();
 		vexpLeaveListeners.invoke();
 	}
 }
@@ -170,8 +165,22 @@ void SimulationState::confirmVideoExport()
 	videoExporter->updateListeners.plug([this]
 	{
 		vexpExportUpdateListeners.invoke();
+		if (videoExporter->complete)
+			vexpExportStateChangeListeners.invoke();
 	});
+	vexpExportStateChangeListeners.invoke();
 	videoExporter->exportVideo();
+}
+
+void SimulationState::cancelVideoExport()
+{
+	if (videoExporter)
+	{
+		if (!videoExporter->complete)
+			videoExporter->cancel();
+		videoExporter = nullptr;
+		vexpExportStateChangeListeners.invoke();
+	}
 }
 
 bool SimulationState::isComputing()

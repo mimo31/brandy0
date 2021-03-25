@@ -57,7 +57,8 @@ public:
 	ListenerManager vexpFileLocationChangeListeners;
 	ListenerManager vexpEntryValidityChangeListeners;
 	ListenerManager vexpExportUpdateListeners;
-	ValidatorManager entryFieldValidators;
+	ListenerManager vexpExportStateChangeListeners;
+	ValidatorManager vexpEntryFieldValidators;
 
 	double time;
 	double computedTime;
@@ -97,6 +98,7 @@ public:
 	virtual void enterVideoExport() = 0;
 	virtual void leaveVideoExport() = 0;
 	virtual void confirmVideoExport() = 0;
+	virtual void cancelVideoExport() = 0;
 
 	virtual bool isComputing() = 0;
 	virtual uint32_t getFramesStored() = 0;

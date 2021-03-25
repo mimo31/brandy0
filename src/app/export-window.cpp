@@ -15,11 +15,13 @@
 namespace brandy0
 {
 
+const str exportButtonDefaultLabel = "export video";
+
 ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	: parent(parent),
 	selectFileButton("select file location"),
 	backButton("cancel"),
-	exportButton("export video"),
+	exportButton(exportButtonDefaultLabel),
 	widthEntry("width (pixels):", &parent->app->styleManager),
 	heightEntry("height (pixels):", &parent->app->styleManager),
 	bitrateEntry("bitrate:", &parent->app->styleManager),
@@ -122,7 +124,10 @@ void ExportWindow::connectWindowEventHandlers()
 	});
 	exportButton.signal_clicked().connect([this]
 	{
-		parent->confirmVideoExport();
+		if (!parent->videoExporter || parent->videoExporter->complete)
+			parent->confirmVideoExport();
+		else
+			parent->cancelVideoExport();
 	});
 	selectFileButton.signal_clicked().connect([this]
 	{
@@ -171,7 +176,6 @@ void ExportWindow::connectStateEventHandlers()
 		updateStartTimeLabel();
 		updateDurationLabel();
 	});
-
 	parent->vexpEndTimeChangeListeners.plug([this]
 	{
 		updateEndTimeLabel();
@@ -204,13 +208,18 @@ void ExportWindow::connectStateEventHandlers()
 	{
 		updateFileLocationLabel();
 	});
-	parent->entryFieldValidators.plug([this]
+	parent->vexpEntryFieldValidators.plug([this]
 	{
 		return widthEntry.hasValidInput() && heightEntry.hasValidInput() && bitrateEntry.hasValidInput();
 	});
 	parent->vexpEntryValidityChangeListeners.plug([this]
 	{
 		updateExportButtonSensitivity();
+	});
+	parent->vexpExportStateChangeListeners.plug([this]
+	{
+		updateExportButtonLabel();
+		updateProgressIndicators();
 	});
 }
 
@@ -296,7 +305,7 @@ void ExportWindow::updatePlayPauseButtonLabel()
 
 void ExportWindow::updateExportButtonSensitivity()
 {
-	exportButton.set_sensitive(parent->videoExportRangeValid && parent->entryFieldValidators.isAllValid());
+	exportButton.set_sensitive(parent->videoExportRangeValid && parent->vexpEntryFieldValidators.isAllValid());
 }
 
 void ExportWindow::setTimeScale(const double scaleVal)
@@ -358,6 +367,14 @@ void ExportWindow::updateFileLocationLabel()
 	fileLocationLabel.set_text("will save to " + parent->videoExportFileLocation);
 }
 
+void ExportWindow::updateExportButtonLabel()
+{
+	if (parent->videoExporter && !parent->videoExporter->complete)
+		exportButton.set_label("cancel export");
+	else
+		exportButton.set_label(exportButtonDefaultLabel);
+}
+
 void ExportWindow::update()
 {
 	updateTimeLabel();
@@ -387,6 +404,7 @@ void ExportWindow::init()
 	updateExportButtonSensitivity();
 	updateProgressIndicators();
 	updateFileLocationLabel();
+	updateExportButtonLabel();
 }
 
 }

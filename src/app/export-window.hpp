@@ -51,6 +51,7 @@ private:
 	void updateExportButtonSensitivity();
 	void updateProgressIndicators();
 	void updateFileLocationLabel();
+	void updateExportButtonLabel();
 
 	void getFileLocationFromUser();
 
