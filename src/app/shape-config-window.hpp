@@ -53,6 +53,8 @@ private:
 
 	void updateAddShapeWidgets();
 
+	void connectWindowEventHandlers();
+	void connectStateEventHandlers();
 public:
     ShapeConfigWindow(ConfigStateAbstr *parent);
 };

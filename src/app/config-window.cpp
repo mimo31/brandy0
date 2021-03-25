@@ -47,80 +47,6 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	reopenButton("reopen obstacle editor"),
 	parent(parent)
 {
-	backHomeButton.signal_clicked().connect([parent]{ parent->goBackHome(); });
-	startSimButton.signal_clicked().connect([parent]{ parent->submitAll(); });
-	reopenButton.signal_clicked().connect([parent]{ parent->openShapeConfig(); });
-	presetButton.signal_clicked().connect([parent]{ parent->openPresets(); });
-
-	rhoEntry.hookInputHandler([this, parent]()
-			{
-			ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulationParamsPreset::DefaultRho, SimulationParamsPreset::MinRho, SimulationParamsPreset::MaxRho);
-			parent->validityChangeListeners.invoke();
-			}
-			);
-	muEntry.hookInputHandler([this, parent]()
-			{
-			ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulationParamsPreset::DefaultMu, SimulationParamsPreset::MinMu, SimulationParamsPreset::MaxMu);
-			parent->validityChangeListeners.invoke();
-			}
-			);
-
-	gridWidthEntry.hookInputHandler([this, parent]()
-			{
-			ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParamsPreset::DefaultWp, SimulationParamsPreset::MinWp, SimulationParamsPreset::MaxWp);
-			parent->validityChangeListeners.invoke();
-			parent->dimensionsChangeListeners.invoke();
-			}
-			);
-	gridHeightEntry.hookInputHandler([this, parent]()
-			{
-			ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParamsPreset::DefaultHp, SimulationParamsPreset::MinHp, SimulationParamsPreset::MaxHp);
-			parent->validityChangeListeners.invoke();
-			parent->dimensionsChangeListeners.invoke();
-			}
-			);
-	stepsPerFrameEntry.hookInputHandler([this, parent]()
-			{
-			ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulationParamsPreset::DefaultStepsPerFrame, SimulationParamsPreset::MaxStepsPerFrame);
-			parent->validityChangeListeners.invoke();
-			}
-			);
-	frameCapacityEntry.hookInputHandler([this, parent]()
-			{
-			ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParamsPreset::DefaultFrameCapacity, SimulationParamsPreset::MinFrameCapacity, SimulationParamsPreset::MaxFrameCapacity);
-			parent->validityChangeListeners.invoke();
-			}
-			);
-
-	dtEntry.hookInputHandler([this, parent]()
-			{
-			ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulationParamsPreset::DefaultDt, SimulationParamsPreset::MinDt, SimulationParamsPreset::MaxDt);
-			parent->validityChangeListeners.invoke();
-			}
-			);
-	
-	parent->validityChangeListeners.plug([this, parent]() {
-		startSimButton.set_sensitive(parent->inputValidators.isAllValid());
-	});
-
-	parent->paramsOverwriteListeners.plug([this]() {
-		setEntryFields();
-	});
-
-	parent->shapeConfigOpenedChangeListeners.plug([this, parent]()
-	{
-		if (parent->shapeConfigOpened)
-			reopenButton.pseudoHide();
-		else
-			reopenButton.pseudoShow();
-	});
-
-	signal_delete_event().connect([this, parent](GdkEventAny*)
-	{
-		parent->closeAll();
-		return false;
-	});
-
 	Glib::RefPtr<Gtk::CssProvider> framePaddingStyle = Gtk::CssProvider::create();
 	framePaddingStyle->load_from_data("grid { padding: 5px }");
 
@@ -158,6 +84,79 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	add(rootGrid);
 
 	show_all_children();
+
+	connectWindowEventHandlers();
+	connectStateEventHandlers();
+}
+
+void ConfigWindow::connectWindowEventHandlers()
+{
+	backHomeButton.signal_clicked().connect([this]{ parent->goBackHome(); });
+	startSimButton.signal_clicked().connect([this]{ parent->submitAll(); });
+	reopenButton.signal_clicked().connect([this]{ parent->openShapeConfig(); });
+	presetButton.signal_clicked().connect([this]{ parent->openPresets(); });
+
+	rhoEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosRealIndicator(rhoEntry, parent->params->rho, SimulationParamsPreset::DefaultRho, SimulationParamsPreset::MinRho, SimulationParamsPreset::MaxRho);
+		parent->validityChangeListeners.invoke();
+	});
+	muEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosRealIndicator(muEntry, parent->params->mu, SimulationParamsPreset::DefaultMu, SimulationParamsPreset::MinMu, SimulationParamsPreset::MaxMu);
+		parent->validityChangeListeners.invoke();
+	});
+	gridWidthEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosIntIndicator(gridWidthEntry, parent->params->wp, SimulationParamsPreset::DefaultWp, SimulationParamsPreset::MinWp, SimulationParamsPreset::MaxWp);
+		parent->validityChangeListeners.invoke();
+		parent->dimensionsChangeListeners.invoke();
+	});
+	gridHeightEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosIntIndicator(gridHeightEntry, parent->params->hp, SimulationParamsPreset::DefaultHp, SimulationParamsPreset::MinHp, SimulationParamsPreset::MaxHp);
+		parent->validityChangeListeners.invoke();
+		parent->dimensionsChangeListeners.invoke();
+	});
+	stepsPerFrameEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosIntIndicator(stepsPerFrameEntry, parent->params->stepsPerFrame, SimulationParamsPreset::DefaultStepsPerFrame, SimulationParamsPreset::MaxStepsPerFrame);
+		parent->validityChangeListeners.invoke();
+	});
+	frameCapacityEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosIntIndicator(frameCapacityEntry, parent->params->frameCapacity, SimulationParamsPreset::DefaultFrameCapacity, SimulationParamsPreset::MinFrameCapacity, SimulationParamsPreset::MaxFrameCapacity);
+		parent->validityChangeListeners.invoke();
+	});
+	dtEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosRealIndicator(dtEntry, parent->params->dt, SimulationParamsPreset::DefaultDt, SimulationParamsPreset::MinDt, SimulationParamsPreset::MaxDt);
+		parent->validityChangeListeners.invoke();
+	});
+	signal_delete_event().connect([this](GdkEventAny*)
+	{
+		parent->closeAll();
+		return false;
+	});
+}
+
+void ConfigWindow::connectStateEventHandlers()
+{
+	parent->validityChangeListeners.plug([this]
+	{
+		startSimButton.set_sensitive(parent->inputValidators.isAllValid());
+	});
+	parent->paramsOverwriteListeners.plug([this]
+	{
+		setEntryFields();
+	});
+	parent->shapeConfigOpenedChangeListeners.plug([this]
+	{
+		if (parent->shapeConfigOpened)
+			reopenButton.pseudoHide();
+		else
+			reopenButton.pseudoShow();
+	});
 }
 
 bool ConfigWindow::areInputsValid()

@@ -24,6 +24,7 @@
 
 #include "brandy-window.hpp"
 #include "display-area.hpp"
+#include "scales.hpp"
 #include "sim-frame.hpp"
 #include "simulation-state-abstr.hpp"
 #include "simulation-params.hpp"
@@ -56,7 +57,8 @@ private:
 	Gtk::Button playPauseButton;
 	Gtk::Label timeLabel, playbackSpeedLabel;
 	bool timeScaleAutoSet;
-	Gtk::Scale timeScale, playbackSpeedScale;
+	TimeScale timeScale;
+	SpeedScale playbackSpeedScale;
 
 	Gtk::Frame viewFrame;
 	Gtk::Grid viewGrid;

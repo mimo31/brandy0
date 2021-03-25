@@ -60,7 +60,7 @@ public:
 	 * caller changes it).
 	 * @param callback the callback
 	 */
-	void hookInputHandler(const std::function<void()>& callback);
+	void connectInputHandler(const std::function<void()>& callback);
 	/**
 	 * @return the current text in the entry field
 	 */

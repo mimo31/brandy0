@@ -17,6 +17,7 @@ set(PRIMARY_SOURCES
 	main.cpp
 	obstacle-shape.cpp
 	preset-window.cpp
+	scales.cpp
 	shape-config-widget.cpp
 	shape-config-window.cpp
 	simulation-params-preset.cpp

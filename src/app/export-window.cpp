@@ -62,19 +62,6 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 
 	add(mainGrid);
 
-	startTimeScale.set_draw_value(false);
-	startTimeScale.set_range(0, 1);
-
-	endTimeScale.set_draw_value(false);
-	endTimeScale.set_range(0, 1);
-
-	playbackSpeedScale.set_draw_value(false);
-	playbackSpeedScale.set_range(-1, 1);
-	playbackSpeedScale.set_has_origin(false);
-
-	timeScale.set_draw_value(false);
-	timeScale.set_range(0, 1);
-
 	show_all_children();
 
 	parent->app->styleManager.requestInit();
@@ -82,33 +69,103 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	invalidTimesLabel.set_text("need start < end !");
 	invalidTimesLabel.get_style_context()->add_provider(parent->app->styleManager.redStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
-	backButton.signal_clicked().connect([this, parent]
+	connectWindowEventHandlers();
+	connectStateEventHandlers();
+}
+
+void ExportWindow::connectWindowEventHandlers()
+{
+	backButton.signal_clicked().connect([this]
 	{
 		parent->leaveVideoExport();
 		hide();
 	});
-
-	parent->vexpEnterListeners.plug([this]
-	{
-		init();
-	});
-
-	startTimeScale.signal_value_changed().connect([this, parent]
+	startTimeScale.signal_value_changed().connect([this]
 	{
 		parent->videoExportStartTime = startTimeScale.get_value() * parent->computedTime;
 		parent->videoExportClampTime();
 		parent->videoExportValidateRange();
 		parent->vexpStartTimeChangeListeners.invoke();
 	});
-
-	endTimeScale.signal_value_changed().connect([this, parent]
+	endTimeScale.signal_value_changed().connect([this]
 	{
 		parent->videoExportEndTime = endTimeScale.get_value() * parent->computedTime;
 		parent->videoExportClampTime();
 		parent->videoExportValidateRange();
 		parent->vexpEndTimeChangeListeners.invoke();
 	});
+	playbackSpeedScale.signal_value_changed().connect([this]
+	{
+		parent->videoExportPlaybackSpeedup = playbackSpeedScale.getSpeedup();
+		parent->vexpPlaybackSpeedupChangeListeners.invoke();
+	});
+	timeScale.signal_value_changed().connect([this]
+	{
+		if (!timeScaleAutoSet)
+		{
+			parent->videoExportEditingTime = true;
+			if (parent->videoExportRangeValid)
+			{
+				parent->videoExportTime = parent->videoExportStartTime + timeScale.get_value() * (parent->videoExportEndTime - parent->videoExportStartTime);
+			}
+		}
+	});
+	timeScale.signal_button_release_event().connect([this](GdkEventButton*)
+	{
+		parent->videoExportEditingTime = false;
+		return false;
+	});
+	playPauseButton.signal_clicked().connect([this]
+	{
+		parent->videoExportPlaybackPaused = !parent->videoExportPlaybackPaused;
+		parent->vexpPlaybackStateChangeListeners.invoke();
+	});
+	exportButton.signal_clicked().connect([this]
+	{
+		parent->confirmVideoExport();
+	});
+	selectFileButton.signal_clicked().connect([this]
+	{
+		getFileLocationFromUser();
+	});
+	widthEntry.connectInputHandler([this]
+	{
+		uint32_t w;
+		ConvUtils::updatePosIntIndicator(widthEntry, w, parent->DefaultVideoWidth, parent->MaxVideoWidth);
+		if (widthEntry.hasValidInput() && w % 4 != 0)
+			widthEntry.indicateInvalid("must be divisible by 4");
+		else
+			parent->videoExportWidth = w;
+		parent->vexpEntryValidityChangeListeners.invoke();
+	});
+	heightEntry.connectInputHandler([this]
+	{
+		uint32_t h;
+		ConvUtils::updatePosIntIndicator(heightEntry, h, parent->DefaultVideoHeight, parent->MaxVideoHeight);
+		if (heightEntry.hasValidInput() && h % 4 != 0)
+			heightEntry.indicateInvalid("must be divisible by 4");
+		else
+			parent->videoExportHeight = h;
+		parent->vexpEntryValidityChangeListeners.invoke();
+	});
+	bitrateEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosIntIndicator(bitrateEntry, parent->videoExportBitrate, parent->DefaultVideoBitrate, parent->MaxVideoBitrate);
+		parent->vexpEntryValidityChangeListeners.invoke();
+	});
+	signal_delete_event().connect([this](GdkEventAny*)
+	{
+		parent->leaveVideoExport();
+		return false;
+	});
+}
 
+void ExportWindow::connectStateEventHandlers()
+{
+	parent->vexpEnterListeners.plug([this]
+	{
+		init();
+	});
 	parent->vexpStartTimeChangeListeners.plug([this]
 	{
 		updateStartTimeLabel();
@@ -120,123 +177,40 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 		updateEndTimeLabel();
 		updateDurationLabel();
 	});
-
-	playbackSpeedScale.signal_value_changed().connect([this, parent]
-	{
-		const double scaleval = playbackSpeedScale.get_value();
-		const double mult = exp(log(parent->MAX_PLAYBACK_SPEEDUP) * scaleval);
-		parent->videoExportPlaybackSpeedup = mult;
-		parent->vexpPlaybackSpeedupChangeListeners.invoke();
-	});
-
 	parent->vexpPlaybackSpeedupChangeListeners.plug([this]
 	{
 		updatePlaybackSpeedLabel();
 		updateDurationLabel();
 	});
-
-	timeScale.signal_value_changed().connect([this, parent]
-	{
-		if (!timeScaleAutoSet)
-		{
-			parent->videoExportEditingTime = true;
-			if (parent->videoExportRangeValid)
-			{
-				parent->videoExportTime = parent->videoExportStartTime + timeScale.get_value() * (parent->videoExportEndTime - parent->videoExportStartTime);
-			}
-		}
-	});
-	timeScale.signal_button_release_event().connect([this, parent](GdkEventButton*)
-	{
-		parent->videoExportEditingTime = false;
-		return false;
-	});
-
-	parent->updateListeners.plug([this, parent]
+	parent->updateListeners.plug([this]
 	{
 		if (parent->inVideoExport)
 			update();
 	});
-
-	parent->vexpRangeValidityChangeListeners.plug([this, parent]
+	parent->vexpRangeValidityChangeListeners.plug([this]
 	{
 		updateInvalidTimesWarn();
 		updateExportButtonSensitivity();
 	});
-
 	parent->vexpPlaybackStateChangeListeners.plug([this]
 	{
 		updatePlayPauseButtonLabel();
 	});
-
-	playPauseButton.signal_clicked().connect([this, parent]
-	{
-		parent->videoExportPlaybackPaused = !parent->videoExportPlaybackPaused;
-		parent->vexpPlaybackStateChangeListeners.invoke();
-	});
-
-	exportButton.signal_clicked().connect([this, parent]
-	{
-		parent->confirmVideoExport();
-	});
-
 	parent->vexpExportUpdateListeners.plug([this]
 	{
 		updateProgressIndicators();
 	});
-
-	selectFileButton.signal_clicked().connect([this, parent]
-	{
-		getFileLocationFromUser();
-	});
-
 	parent->vexpFileLocationChangeListeners.plug([this]
 	{
 		updateFileLocationLabel();
 	});
-
-	widthEntry.hookInputHandler([this, parent]
-	{
-		uint32_t w;
-		ConvUtils::updatePosIntIndicator(widthEntry, w, parent->DEFAULT_VIDEO_WIDTH, parent->MAX_VIDEO_WIDTH);
-		if (widthEntry.hasValidInput() && w % 4 != 0)
-			widthEntry.indicateInvalid("must be divisible by 4");
-		else
-			parent->videoExportWidth = w;
-		parent->vexpEntryValidityChangeListeners.invoke();
-	});
-
-	heightEntry.hookInputHandler([this, parent]
-	{
-		uint32_t h;
-		ConvUtils::updatePosIntIndicator(heightEntry, h, parent->DEFAULT_VIDEO_HEIGHT, parent->MAX_VIDEO_HEIGHT);
-		if (heightEntry.hasValidInput() && h % 4 != 0)
-			heightEntry.indicateInvalid("must be divisible by 4");
-		else
-			parent->videoExportHeight = h;
-		parent->vexpEntryValidityChangeListeners.invoke();
-	});
-
-	bitrateEntry.hookInputHandler([this, parent]
-	{
-		ConvUtils::updatePosIntIndicator(bitrateEntry, parent->videoExportBitrate, parent->DEFAULT_VIDEO_BITRATE, parent->MAX_VIDEO_BITRATE);
-		parent->vexpEntryValidityChangeListeners.invoke();
-	});
-
 	parent->entryFieldValidators.plug([this]
 	{
 		return widthEntry.hasValidInput() && heightEntry.hasValidInput() && bitrateEntry.hasValidInput();
 	});
-
 	parent->vexpEntryValidityChangeListeners.plug([this]
 	{
 		updateExportButtonSensitivity();
-	});
-
-	signal_delete_event().connect([parent](GdkEventAny*)
-	{
-		parent->leaveVideoExport();
-		return false;
 	});
 }
 
@@ -289,7 +263,7 @@ void ExportWindow::updateDurationLabel()
 	if (parent->videoExportRangeValid)
 	{
 		const double simtime = parent->videoExportEndTime - parent->videoExportStartTime;
-		const double realtime = simtime / (parent->params->dt * parent->params->stepsPerFrame * parent->videoExportPlaybackSpeedup) * parent->MS_PER_BASE_FRAME / 1000;
+		const double realtime = simtime / (parent->params->dt * parent->params->stepsPerFrame * parent->videoExportPlaybackSpeedup) * parent->MsPerBaseFrame / 1000;
 		durationLabel.set_text("duration = " + ConvUtils::timeToString(simtime) + " (" + ConvUtils::timeToString(realtime) + " s)");
 		durationLabel.pseudoShow();
 	}

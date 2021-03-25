@@ -22,7 +22,7 @@ void AnnotatedEntry::attachTo(Gtk::Grid& grid, const uint32_t fromX, const uint3
 	grid.attach(indicator, fromX + 2, fromY);
 }
 
-void AnnotatedEntry::hookInputHandler(const std::function<void()>& callback)
+void AnnotatedEntry::connectInputHandler(const std::function<void()>& callback)
 {
 	entry.signal_changed().connect(callback);
 }

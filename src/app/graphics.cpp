@@ -308,29 +308,29 @@ void FrameDrawer::drawAll(const SimFrame& frame, GraphicsManager *const manager)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// draw back graphics
-	if (backDisplayMode != BACK_DISPLAY_NONE)
+	if (backDisplayMode != BackDisplayNone)
 	{
 		std::function<double(uint32_t, uint32_t)> scfield = [this, frame](const uint32_t x, const uint32_t y){
-			if (backDisplayMode == BACK_DISPLAY_VELOCITY_MAGNITUDE)
+			if (backDisplayMode == BackDisplayVelocityMagnitude)
 			{
 				return frame.u(x, y).len();
 			}
-			if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL || backDisplayMode == BACK_DISPLAY_VELOCITY_RELATIVE_CURL)
+			if (backDisplayMode == BackDisplayVelocityCurl || backDisplayMode == BackDisplayVelocityRelativeCurl)
 			{
 				// TODO: do not evaluate at solid points
 				if (x == 0 || x == wp - 1 || y == 0 || y == hp - 1)
 					return 0.0;
 				const double curl = (frame.u(x + 1, y).y - frame.u(x - 1, y).y) / dx / 2 - (frame.u(x, y + 1).x - frame.u(x, y - 1).x) / dy / 2;
-				if (backDisplayMode == BACK_DISPLAY_VELOCITY_CURL)
+				if (backDisplayMode == BackDisplayVelocityCurl)
 					return curl;
 				const double vel = (4 * frame.u(x, y).len() + frame.u(x - 1, y).len() + frame.u(x + 1, y).len() + frame.u(x, y - 1).len() + frame.u(x, y + 1).len()) / 8;
 				return vel == 0 ? 0.0 : curl / vel;
 			}
-			if (backDisplayMode == BACK_DISPLAY_PRESSURE)
+			if (backDisplayMode == BackDisplayPressure)
 			{
 				return frame.p(x, y);
 			}
-			if (backDisplayMode == BACK_DISPLAY_VELOCITY_DIV)
+			if (backDisplayMode == BackDisplayVelocityDiv)
 			{
 				// TODO: do not evaluate at solid points
 				if (x == 0 || x == wp - 1 || y == 0 || y == hp - 1)
@@ -436,7 +436,7 @@ void FrameDrawer::drawAll(const SimFrame& frame, GraphicsManager *const manager)
 	}
 
 	// draw front graphics
-	if (frontDisplayMode != FRONT_DISPLAY_NONE)
+	if (frontDisplayMode != FrontDisplayNone)
 	{
 		vec<LineSegment> segs;
 
@@ -444,7 +444,7 @@ void FrameDrawer::drawAll(const SimFrame& frame, GraphicsManager *const manager)
 
 		const double max_ulen = sqrt(max<vec2d, double>(frame.u, [](const vec2d u){return u.len2();}));
 
-		if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_ARROWS)
+		if (frontDisplayMode == FrontDisplayVelocityArrows)
 		{
 			const double spm = std::max(w, h);
 			for (double x = w / 2; x < w; x += line_d * spm)
@@ -474,7 +474,7 @@ void FrameDrawer::drawAll(const SimFrame& frame, GraphicsManager *const manager)
 				}
 			}
 		}
-		else if (frontDisplayMode == FRONT_DISPLAY_VELOCITY_STREAMLINES)
+		else if (frontDisplayMode == FrontDisplayVelocityStreamlines)
 		{
 			for (double x = w / 2; x >= 0; x -= line_d)
 			{

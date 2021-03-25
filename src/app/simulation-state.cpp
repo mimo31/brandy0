@@ -39,8 +39,8 @@ void SimulationState::start(const SimulationParams& params)
 	this->params = make_unique<SimulationParams>(params);
 	sim = make_unique<SimulatorClassic>(params);
 	sim->setPauseControl(&stopComputingSignal, &computingMutex);
-	frontDisplayMode = FRONT_DISPLAY_MODE_DEFAULT;
-	backDisplayMode = BACK_DISPLAY_MODE_DEFAULT;
+	frontDisplayMode = FrontDisplayModeDefault;
+	backDisplayMode = BackDisplayModeDefault;
 	playbackMode = defaultPlaybackMode;
 	addLastFrame();
 	initListeners.invoke();
@@ -130,9 +130,9 @@ void SimulationState::enterVideoExport()
 	videoExportPlaybackPaused = true;
 	videoExportEditingTime = false;
 	videoExportFileLocation = "./exported.mp4";
-	videoExportWidth = DEFAULT_VIDEO_WIDTH;
-	videoExportHeight = DEFAULT_VIDEO_HEIGHT;
-	videoExportBitrate = DEFAULT_VIDEO_BITRATE;
+	videoExportWidth = DefaultVideoWidth;
+	videoExportHeight = DefaultVideoHeight;
+	videoExportBitrate = DefaultVideoBitrate;
 	vexpEnterListeners.invoke();
 	showExportWindow();
 }
@@ -162,7 +162,7 @@ void SimulationState::confirmVideoExport()
 		frames,
 		videoExportStartTime,
 		videoExportEndTime,
-		MS_PER_BASE_FRAME / videoExportPlaybackSpeedup * frameStepSize,
+		MsPerBaseFrame / videoExportPlaybackSpeedup * frameStepSize,
 		params->dt * params->stepsPerFrame * frameStepSize,
 		videoExportWidth,
 		videoExportHeight,
@@ -353,12 +353,12 @@ bool SimulationState::update()
 		updateComputedTime();
 		if (!editingTime && !playbackPaused)
 		{
-			if (playbackMode == PlaybackMode::PLAY_UNTIL_END || playbackMode == PlaybackMode::LOOP)
+			if (playbackMode == PlaybackMode::PlayUntilEnd || playbackMode == PlaybackMode::Loop)
 			{
-				time += params->stepsPerFrame * params->dt * playbackSpeedup * elapsedms / MS_PER_BASE_FRAME;
+				time += params->stepsPerFrame * params->dt * playbackSpeedup * elapsedms / MsPerBaseFrame;
 				if (time > computedTime)
 				{
-					if (playbackMode == PlaybackMode::PLAY_UNTIL_END)
+					if (playbackMode == PlaybackMode::PlayUntilEnd)
 						time = computedTime;
 					else
 						if (computedTime == 0)
@@ -384,7 +384,7 @@ bool SimulationState::update()
 	{
 		if (!videoExportPlaybackPaused && !videoExportEditingTime)
 		{
-			videoExportTime += params->stepsPerFrame * params->dt * videoExportPlaybackSpeedup * elapsedms / MS_PER_BASE_FRAME;
+			videoExportTime += params->stepsPerFrame * params->dt * videoExportPlaybackSpeedup * elapsedms / MsPerBaseFrame;
 			if (videoExportTime > videoExportEndTime)
 				videoExportTime = videoExportEndTime;
 		}

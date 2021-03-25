@@ -22,8 +22,7 @@ private:
 	{
 		if (!hidden)
 			return T::on_draw(cr);
-		else
-			return true;
+		return true;
 	}
 
 public:

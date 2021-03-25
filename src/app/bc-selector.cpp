@@ -45,17 +45,17 @@ BCSelector::BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandl
 
 	velocityTypeSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onVelocityTypeChange));
 	pressureTypeSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onPressureTypeChange));
-	uxEntry.hookInputHandler([this, inputChangeHandler]
+	uxEntry.connectInputHandler([this, inputChangeHandler]
 	{
 		ConvUtils::updateRealIndicator(uxEntry, bc.u.x, SimulationParamsPreset::DefaultU, SimulationParamsPreset::MaxU);
 		inputChangeHandler();
 	});
-	uyEntry.hookInputHandler([this, inputChangeHandler]
+	uyEntry.connectInputHandler([this, inputChangeHandler]
 	{
 		ConvUtils::updateRealIndicator(uyEntry, bc.u.y, SimulationParamsPreset::DefaultU, SimulationParamsPreset::MaxU);
 		inputChangeHandler();
 	});
-	pEntry.hookInputHandler([this, inputChangeHandler]
+	pEntry.connectInputHandler([this, inputChangeHandler]
 	{
 		ConvUtils::updateRealIndicator(pEntry, bc.p, SimulationParamsPreset::DefaultP, SimulationParamsPreset::MaxP);
 		inputChangeHandler();

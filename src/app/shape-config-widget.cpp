@@ -199,13 +199,13 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	Grid<bool> tempSolid(wp, hp);
 	tempSolid.set_all(false);
 	const uint32_t mode = parentWindow->addShapeMode;
-	if (mode == ADD_SHAPE_RECTANGLE && tempShape.size() == 2)
+	if (mode == AddShapeRectangle && tempShape.size() == 2)
 		ObstacleRectangle(false, tempShape[0], tempShape[1]).fill(tempSolid);
-	else if (mode == ADD_SHAPE_POLYGON && tempShape.size() >= 3)
+	else if (mode == AddShapePolygon && tempShape.size() >= 3)
 		ObstaclePolygon(false, tempShape).fill(tempSolid);
-	else if (mode == ADD_SHAPE_CIRCLE && tempShape.size() == 2)
+	else if (mode == AddShapeCircle && tempShape.size() == 2)
 		ObstacleCircle(false, tempShape[0], tempShape[1], w, h).fill(tempSolid);
-	else if (mode == ADD_SHAPE_ELLIPSE && tempShape.size() == 2)
+	else if (mode == AddShapeEllipse && tempShape.size() == 2)
 		ObstacleEllipse(false, tempShape[0], tempShape[1]).fill(tempSolid);
 
 	const double dx = 1 / double(wp - 1) / 2;
@@ -262,7 +262,7 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	
 	cr->set_source_rgba(.5, .5, .5, .5);
 
-	if (mode == ADD_SHAPE_RECTANGLE)
+	if (mode == AddShapeRectangle)
 	{
 		if (tempShape.size() == 2)
 		{
@@ -278,7 +278,7 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 		else if (tempShape.size() == 1)
 			markPoint(cr, baseCoors, tempShape[0]);
 	}
-	else if (mode == ADD_SHAPE_POLYGON)
+	else if (mode == AddShapePolygon)
 	{
 		if (tempShape.size() >= 3)
 		{
@@ -327,12 +327,12 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 			}
 		}
 	}
-	else if (mode == ADD_SHAPE_CIRCLE || mode == ADD_SHAPE_ELLIPSE)
+	else if (mode == AddShapeCircle || mode == AddShapeEllipse)
 	{
 		if (tempShape.size() == 2)
 		{
 			const vec2d v0 = tempShape[0], v1 = tempShape[1];
-			const ObstacleEllipse ell = mode == ADD_SHAPE_CIRCLE 
+			const ObstacleEllipse ell = mode == AddShapeCircle 
 				? ObstacleCircle(false, v0, v1, w, h)
 				: ObstacleEllipse(false, v0, v1);
 			ell.draw(cr);
@@ -409,22 +409,22 @@ bool ShapeConfigWidget::clickHandler(GdkEventButton *const event)
 	if (uc.inside(0, 0, 1, 1))
 	{
 		const uint32_t mode = parentWindow->addShapeMode;
-		if (mode != ADD_SHAPE_POLYGON && parentWindow->nextShapeClicks.size() == 1)
+		if (mode != AddShapePolygon && parentWindow->nextShapeClicks.size() == 1)
 		{
 			const vec2d v0 = parentWindow->nextShapeClicks[0];
 			parentWindow->nextShapeClicks.clear();
-			if (mode == ADD_SHAPE_RECTANGLE)
+			if (mode == AddShapeRectangle)
 			{
 				const vec2d v1(v0.x, uc.y), v3(uc.x, v0.y);
 				parent->params->shapeStack.push(make_shared<ObstaclePolygon>(false, vec<vec2d>{ v0, v1, uc, v3 }));
 				parent->shapeStackChangeListeners.invoke();
 			}
-			else if (mode == ADD_SHAPE_ELLIPSE)
+			else if (mode == AddShapeEllipse)
 			{
 				parent->params->shapeStack.push(make_shared<ObstacleEllipse>(false, v0, uc));
 				parent->shapeStackChangeListeners.invoke();
 			}
-			else if (mode == ADD_SHAPE_CIRCLE)
+			else if (mode == AddShapeCircle)
 			{
 				const vec2d v = uc - v0;
 				const double r = sqrt(parent->params->w * v.x * parent->params->w * v.x + parent->params->h * v.y * parent->params->h * v.y);

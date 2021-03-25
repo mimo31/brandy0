@@ -54,13 +54,15 @@ private:
 
 	ConfigStateAbstr *parent;
 
+	void connectWindowEventHandlers();
+	void connectStateEventHandlers();
+
 	void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, uint32_t defaultVal, uint32_t maxVal);
 	void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, double defaultVal, double minVal, double maxVal);
 	bool areInputsValid();
 	void setEntryFields();
 public:
 	ConfigWindow(ConfigStateAbstr *parent);
-	//~ConfigWindow() override;
 };
 
 }

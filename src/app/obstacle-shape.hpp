@@ -11,6 +11,8 @@
 
 #include <cairomm/context.h>
 
+#include <array>
+
 #include "glob.hpp"
 
 #include "grid.hpp"
@@ -32,15 +34,14 @@ struct AddShapeMode
 	}
 };
 
-constexpr uint32_t ADD_SHAPE_MODE_COUNT = 4;
-const AddShapeMode ADD_SHAPE_MODES[ADD_SHAPE_MODE_COUNT] = {
+const std::array<AddShapeMode, 4> AddShapeModes{
 	AddShapeMode("rectangle"), AddShapeMode("polygon"), AddShapeMode("circle"), AddShapeMode("ellipse")
 };
-constexpr uint32_t ADD_SHAPE_RECTANGLE = 0;
-constexpr uint32_t ADD_SHAPE_POLYGON = 1;
-constexpr uint32_t ADD_SHAPE_CIRCLE = 2;
-constexpr uint32_t ADD_SHAPE_ELLIPSE = 3;
-constexpr uint32_t ADD_SHAPE_MODE_DEFAULT = ADD_SHAPE_RECTANGLE;
+constexpr uint32_t AddShapeRectangle = 0;
+constexpr uint32_t AddShapePolygon = 1;
+constexpr uint32_t AddShapeCircle = 2;
+constexpr uint32_t AddShapeEllipse = 3;
+constexpr uint32_t AddShapeModeDefault = AddShapeRectangle;
 
 class ObstacleShape
 {

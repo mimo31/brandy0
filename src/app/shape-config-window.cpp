@@ -28,7 +28,7 @@ void ShapeConfigWindow::setEntryFields()
 
 void ShapeConfigWindow::updateAddShapeWidgets()
 {
-	if (addShapeMode == ADD_SHAPE_POLYGON)
+	if (addShapeMode == AddShapePolygon)
 	{
 		polygonVerticesLabel.pseudoShow();
 		const uint32_t vertSet = nextShapeClicks.size();
@@ -46,7 +46,7 @@ void ShapeConfigWindow::updateAddShapeWidgets()
 		polygonFinishButton.pseudoHide();
 	}
 
-	addingShapeFrame.set_label("current " + ADD_SHAPE_MODES[addShapeMode].name);
+	addingShapeFrame.set_label("current " + AddShapeModes[addShapeMode].name);
 	clearShapeButton.set_sensitive(!nextShapeClicks.empty());
 }
 
@@ -68,99 +68,6 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	shapeWidget(parent, this),
 	parent(parent)
 {
-	widthEntry.hookInputHandler([this, parent]
-			{
-			ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParamsPreset::DefaultW, SimulationParamsPreset::MinW, SimulationParamsPreset::MaxW);
-			parent->validityChangeListeners.invoke();
-			parent->dimensionsChangeListeners.invoke();
-			}
-			);
-	heightEntry.hookInputHandler([this, parent]
-			{
-			ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulationParamsPreset::DefaultH, SimulationParamsPreset::MinH, SimulationParamsPreset::MaxH);
-			parent->validityChangeListeners.invoke();
-			parent->dimensionsChangeListeners.invoke();
-			}
-			);
-	
-	undoButton.signal_clicked().connect([parent]{
-		parent->params->shapeStack.undo();
-		parent->shapeStackChangeListeners.invoke();
-	});
-	redoButton.signal_clicked().connect([parent]{
-		parent->params->shapeStack.redo();
-		parent->shapeStackChangeListeners.invoke();
-	});
-	clearAllButton.signal_clicked().connect([parent]{
-		parent->params->shapeStack.clear();
-		parent->shapeStackChangeListeners.invoke();
-	});
-	
-	parent->shapeStackChangeListeners.plug([this]{
-		updateGeneralSensitivity();
-	});
-	parent->paramsOverwriteListeners.plug([this]{
-		nextShapeClicks.clear();
-		addShapeMode = ADD_SHAPE_MODE_DEFAULT;
-		shapeSelector.set_active(ADD_SHAPE_MODE_DEFAULT);
-		nextShapeChangeListeners.invoke();
-		updateGeneralSensitivity();
-		setEntryFields();
-	});
-	parent->inputValidators.plug([this]{
-		return widthEntry.hasValidInput() && heightEntry.hasValidInput();
-	});
-
-	for (const AddShapeMode mode : ADD_SHAPE_MODES)
-		shapeSelector.append(mode.name);
-	shapeSelector.set_active(ADD_SHAPE_MODE_DEFAULT);
-	shapeSelector.signal_changed().connect([this]
-	{
-		const uint32_t newMode = shapeSelector.get_active_row_number();
-		if (newMode != addShapeMode)
-		{
-			nextShapeClicks.clear();
-			addShapeMode = newMode;
-			nextShapeChangeListeners.invoke();
-		}
-	});
-
-	nextShapeChangeListeners.plug([this]
-	{
-		updateAddShapeWidgets();
-	});
-
-	clearShapeButton.signal_clicked().connect([this]
-	{
-		nextShapeClicks.clear();
-		nextShapeChangeListeners.invoke();
-	});
-	polygonPopVertexButton.signal_clicked().connect([this, parent]
-	{
-		if (addShapeMode == ADD_SHAPE_POLYGON && !nextShapeClicks.empty())
-		{
-			nextShapeClicks.pop_back();
-			nextShapeChangeListeners.invoke();
-		}
-	});
-	polygonFinishButton.signal_clicked().connect([this, parent]
-	{
-		if (addShapeMode == ADD_SHAPE_POLYGON && nextShapeClicks.size() >= 3)
-		{
-			parent->params->shapeStack.push(make_shared<ObstaclePolygon>(false, nextShapeClicks));
-			nextShapeClicks.clear();
-			parent->shapeStackChangeListeners.invoke();
-			nextShapeChangeListeners.invoke();
-		}
-	});
-
-	signal_delete_event().connect([parent](GdkEventAny*)
-	{
-		parent->shapeConfigOpened = false;
-		parent->shapeConfigOpenedChangeListeners.invoke();
-		return false;
-	});
-
     widthEntry.attachTo(dimensionsGrid, 0, 0);
     heightEntry.attachTo(dimensionsGrid, 0, 1);
 	dimensionsFrame.add(dimensionsGrid);
@@ -184,10 +91,113 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 
 	rootGrid.attach(shapeWidget, 0, 2, 4, 1);
 	shapeWidget.show();
+
+	for (const AddShapeMode mode : AddShapeModes)
+		shapeSelector.append(mode.name);
+	shapeSelector.set_active(AddShapeModeDefault);
+	addShapeMode = AddShapeModeDefault;
     
     add(rootGrid);
 
     show_all_children();
+
+	connectWindowEventHandlers();
+	connectStateEventHandlers();
+}
+
+void ShapeConfigWindow::connectWindowEventHandlers()
+{
+	widthEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosRealIndicator(widthEntry, parent->params->w, SimulationParamsPreset::DefaultW, SimulationParamsPreset::MinW, SimulationParamsPreset::MaxW);
+		parent->validityChangeListeners.invoke();
+		parent->dimensionsChangeListeners.invoke();
+	});
+	heightEntry.connectInputHandler([this]
+	{
+		ConvUtils::updatePosRealIndicator(heightEntry, parent->params->h, SimulationParamsPreset::DefaultH, SimulationParamsPreset::MinH, SimulationParamsPreset::MaxH);
+		parent->validityChangeListeners.invoke();
+		parent->dimensionsChangeListeners.invoke();
+	});
+	undoButton.signal_clicked().connect([this]
+	{
+		parent->params->shapeStack.undo();
+		parent->shapeStackChangeListeners.invoke();
+	});
+	redoButton.signal_clicked().connect([this]
+	{
+		parent->params->shapeStack.redo();
+		parent->shapeStackChangeListeners.invoke();
+	});
+	clearAllButton.signal_clicked().connect([this]
+	{
+		parent->params->shapeStack.clear();
+		parent->shapeStackChangeListeners.invoke();
+	});
+	shapeSelector.signal_changed().connect([this]
+	{
+		const uint32_t newMode = shapeSelector.get_active_row_number();
+		if (newMode != addShapeMode)
+		{
+			nextShapeClicks.clear();
+			addShapeMode = newMode;
+			nextShapeChangeListeners.invoke();
+		}
+	});
+	clearShapeButton.signal_clicked().connect([this]
+	{
+		nextShapeClicks.clear();
+		nextShapeChangeListeners.invoke();
+	});
+	polygonPopVertexButton.signal_clicked().connect([this]
+	{
+		if (addShapeMode == AddShapePolygon && !nextShapeClicks.empty())
+		{
+			nextShapeClicks.pop_back();
+			nextShapeChangeListeners.invoke();
+		}
+	});
+	polygonFinishButton.signal_clicked().connect([this]
+	{
+		if (addShapeMode == AddShapePolygon && nextShapeClicks.size() >= 3)
+		{
+			parent->params->shapeStack.push(make_shared<ObstaclePolygon>(false, nextShapeClicks));
+			nextShapeClicks.clear();
+			parent->shapeStackChangeListeners.invoke();
+			nextShapeChangeListeners.invoke();
+		}
+	});
+	signal_delete_event().connect([this](GdkEventAny*)
+	{
+		parent->shapeConfigOpened = false;
+		parent->shapeConfigOpenedChangeListeners.invoke();
+		return false;
+	});
+}
+
+void ShapeConfigWindow::connectStateEventHandlers()
+{
+	parent->shapeStackChangeListeners.plug([this]
+	{
+		updateGeneralSensitivity();
+	});
+	parent->paramsOverwriteListeners.plug([this]
+	{
+		nextShapeClicks.clear();
+		addShapeMode = AddShapeModeDefault;
+		shapeSelector.set_active(AddShapeModeDefault);
+		nextShapeChangeListeners.invoke();
+		updateGeneralSensitivity();
+		setEntryFields();
+	});
+	parent->inputValidators.plug([this]
+	{
+		return widthEntry.hasValidInput() && heightEntry.hasValidInput();
+	});
+	nextShapeChangeListeners.plug([this]
+	{
+		updateAddShapeWidgets();
+	});
 }
 
 }

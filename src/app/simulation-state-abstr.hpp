@@ -21,19 +21,18 @@ namespace brandy0
 
 enum PlaybackMode
 {
-	PLAY_UNTIL_END, LOOP, LAST_FRAME_ONLY
+	PlayUntilEnd, Loop, LastFrameOnly
 };
 
 class SimulationStateAbstr
 {
 public:
-	static constexpr double MAX_PLAYBACK_SPEEDUP = 10000;
-	static constexpr double MS_PER_BASE_FRAME = 40;
-	static const PlaybackMode defaultPlaybackMode = PlaybackMode::PLAY_UNTIL_END;
+	static constexpr double MsPerBaseFrame = 40;
+	static const PlaybackMode defaultPlaybackMode = PlaybackMode::PlayUntilEnd;
 	static constexpr uint32_t
-		DEFAULT_VIDEO_WIDTH = 1920, MAX_VIDEO_WIDTH = 8192,
-		DEFAULT_VIDEO_HEIGHT = 1080, MAX_VIDEO_HEIGHT = 8192,
-		DEFAULT_VIDEO_BITRATE = 320'000, MAX_VIDEO_BITRATE = 4'000'000;
+		DefaultVideoWidth = 1920, MaxVideoWidth = 8192,
+		DefaultVideoHeight = 1080, MaxVideoHeight = 8192,
+		DefaultVideoBitrate = 320'000, MaxVideoBitrate = 4'000'000;
 	
 	ApplicationAbstr *app;
 

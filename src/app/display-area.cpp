@@ -17,7 +17,7 @@ DisplayArea::DisplayArea(SimulationStateAbstr *const parent) : parent(parent)
 	signal_unrealize().connect(sigc::mem_fun(*this, &DisplayArea::unrealize), false);
 	signal_render().connect(sigc::mem_fun(*this, &DisplayArea::render));
 
-	parent->initListeners.plug([this, parent]()
+	parent->initListeners.plug([this, parent]
 	{
 		drawer = make_unique<FrameDrawer>(*parent->params);
 	});
@@ -25,7 +25,7 @@ DisplayArea::DisplayArea(SimulationStateAbstr *const parent) : parent(parent)
 
 bool DisplayArea::render(const Glib::RefPtr<Gdk::GLContext>& /* context */)
 {
-	make_current();
+	/*make_current();*/
 
 	if (glContext)
 		glContext->make_current();
@@ -82,9 +82,6 @@ void DisplayArea::unrealize()
 	try
 	{
 		throw_if_error();
-
-		// TODO resolve the below comment
-		// delete buffers
 	}
 	catch (const Gdk::GLError& gle)
 	{

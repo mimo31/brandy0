@@ -39,11 +39,11 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		const uint32_t rownumber = playbackModeSelector.get_active_row_number();
 		PlaybackMode mode;
 		if (rownumber == 0)
-			mode = PlaybackMode::PLAY_UNTIL_END;
+			mode = PlaybackMode::PlayUntilEnd;
 		else if (rownumber == 1)
-			mode = PlaybackMode::LOOP;
+			mode = PlaybackMode::Loop;
 		else
-			mode = PlaybackMode::LAST_FRAME_ONLY;
+			mode = PlaybackMode::LastFrameOnly;
 		if (parent->playbackMode != mode)
 		{
 			parent->playbackMode = mode;
@@ -51,17 +51,17 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		}
 	});
 
-	for (const BackDisplayMode mode : BACK_DISPLAY_MODES)
+	for (const BackDisplayMode mode : BackDisplayModes)
 		backDisplaySelector.append(mode.name);
-	backDisplaySelector.set_active(BACK_DISPLAY_MODE_DEFAULT);
+	backDisplaySelector.set_active(BackDisplayModeDefault);
 	backDisplaySelector.signal_changed().connect([this, parent]
 	{
 		parent->backDisplayMode = backDisplaySelector.get_active_row_number();
 	});
 
-	for (const FrontDisplayMode mode : FRONT_DISPLAY_MODES)
+	for (const FrontDisplayMode mode : FrontDisplayModes)
 		frontDisplaySelector.append(mode.name);
-	frontDisplaySelector.set_active(FRONT_DISPLAY_MODE_DEFAULT);
+	frontDisplaySelector.set_active(FrontDisplayModeDefault);
 	frontDisplaySelector.signal_changed().connect([this, parent]
 	{
 		parent->frontDisplayMode = frontDisplaySelector.get_active_row_number();
@@ -78,9 +78,6 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		parent->goBackToConfig();
 	});
 
-	timeScale.set_draw_value(false);
-	timeScale.set_range(0, 1);
-	timeScale.set_increments(.001, .001);
 	timeScale.set_value(0);
 	timeScale.signal_button_release_event().connect([parent](GdkEventButton*)
 	{
@@ -93,24 +90,18 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		{
 			const double scaleValue = timeScale.get_value();
 			parent->time = scaleValue * parent->computedTime;
-			if (!parent->playbackPaused && parent->playbackMode == PlaybackMode::LAST_FRAME_ONLY)
+			if (!parent->playbackPaused && parent->playbackMode == PlaybackMode::LastFrameOnly)
 			{
-				parent->playbackMode = PlaybackMode::PLAY_UNTIL_END;
+				parent->playbackMode = PlaybackMode::PlayUntilEnd;
 				parent->playbackModeChangeListeners.invoke();
 			}
 			parent->editingTime = true;
 		}
 	});
 
-	playbackSpeedScale.set_draw_value(false);
-	playbackSpeedScale.set_range(-1, 1);
-	playbackSpeedScale.set_increments(.001, .001);
-	playbackSpeedScale.set_has_origin(false);
 	playbackSpeedScale.signal_value_changed().connect([this, parent]
 	{
-		const double scaleval = playbackSpeedScale.get_value();
-		const double mult = exp(log(parent->MAX_PLAYBACK_SPEEDUP) * scaleval);
-		parent->playbackSpeedup = mult;
+		parent->playbackSpeedup = playbackSpeedScale.getSpeedup();
 	});
 
 	playbackGrid.attach(playbackModeSelector, 0, 0, 1, 2);
@@ -165,8 +156,8 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	parent->initListeners.plug([this, parent]{
 		playPauseButton.set_label("pause");
 		updatePlaybackModeSelector();
-		backDisplaySelector.set_active(BACK_DISPLAY_MODE_DEFAULT);
-		frontDisplaySelector.set_active(FRONT_DISPLAY_MODE_DEFAULT);
+		backDisplaySelector.set_active(BackDisplayModeDefault);
+		frontDisplaySelector.set_active(FrontDisplayModeDefault);
 		computingSwitch.set_sensitive(true);
 		timeScaleAutoSet = true;
 		timeScale.set_value(0);
@@ -217,9 +208,9 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 void SimulationWindow::updatePlaybackModeSelector()
 {
 	uint32_t actrow;
-	if (parent->playbackMode == PlaybackMode::PLAY_UNTIL_END)
+	if (parent->playbackMode == PlaybackMode::PlayUntilEnd)
 		actrow = 0;
-	else if (parent->playbackMode == PlaybackMode::LOOP)
+	else if (parent->playbackMode == PlaybackMode::Loop)
 		actrow = 1;
 	else
 		actrow = 2;
@@ -278,6 +269,7 @@ void SimulationWindow::enableWhenNotExport()
 
 SimulationWindow::~SimulationWindow()
 {
+	// prevent segfault due to a GTK+ 3 bug (see https://gitlab.gnome.org/GNOME/gtk/-/issues/3720)
 	computingGrid.remove(computingSwitch);
 }
 

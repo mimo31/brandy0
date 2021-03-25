@@ -17,6 +17,7 @@
 #include "annotated-entry.hpp"
 #include "brandy-window.hpp"
 #include "hideable.hpp"
+#include "scales.hpp"
 #include "simulation-state-abstr.hpp"
 
 namespace brandy0
@@ -27,7 +28,8 @@ class ExportWindow : public BrandyWindow
 private:
 	SimulationStateAbstr *parent;
 
-	Gtk::Scale startTimeScale, endTimeScale, playbackSpeedScale, timeScale;
+	TimeScale startTimeScale, endTimeScale, timeScale;
+	SpeedScale playbackSpeedScale;
 	Gtk::Label startTimeLabel, endTimeLabel, playbackSpeedLabel, timeLabel, fileLocationLabel;
 	Hideable<Gtk::Label> invalidTimesLabel, durationLabel, exportProgressLabel;
 	Gtk::Button playPauseButton, selectFileButton, backButton, exportButton;
@@ -56,6 +58,9 @@ private:
 	void setTimeScaleFromTime();
 
 	void update();
+	
+	void connectWindowEventHandlers();
+	void connectStateEventHandlers();
 
 public:
 	ExportWindow(SimulationStateAbstr *parent);
