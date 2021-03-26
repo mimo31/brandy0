@@ -40,12 +40,18 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	timingGrid.attach(durationLabel, 0, 5);
 	timingGrid.attach(playbackSpeedLabel, 0, 6);
 	timingGrid.attach(playbackSpeedScale, 0, 7);
+	StyleManager::setPadding(timingGrid);
 	timingFrame.add(timingGrid);
 	mainGrid.attach(timingFrame, 0, 0, 1, 2);
 
 	previewGrid.attach(timeLabel, 0, 0);
 	previewGrid.attach(timeScale, 0, 1);
 	previewGrid.attach(playPauseButton, 0, 2);
+	StyleManager::setPadding(previewGrid);
+	timeLabel.set_hexpand(true);
+	timeScale.set_hexpand(true);
+	playPauseButton.set_hexpand(true);
+	previewGrid.set_hexpand(true);
 	previewFrame.add(previewGrid);
 	mainGrid.attach(previewFrame, 1, 0);
 
@@ -54,6 +60,11 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	bitrateEntry.attachTo(parameterGrid, 0, 2);
 	parameterGrid.attach(fileLocationLabel, 0, 3, 3, 1);
 	parameterGrid.attach(selectFileButton, 0, 4, 3, 1);
+	fileLocationLabel.set_hexpand(true);
+	selectFileButton.set_hexpand(true);
+	StyleManager::setPadding(parameterGrid);
+	parameterGrid.set_column_spacing(StyleManager::WidgetSpacing);
+
 	parameterFrame.add(parameterGrid);
 	mainGrid.attach(parameterFrame, 1, 1);
 
@@ -61,6 +72,9 @@ ExportWindow::ExportWindow(SimulationStateAbstr *const parent)
 	mainGrid.attach(exportButton, 1, 2);
 	mainGrid.attach(exportProgressLabel, 0, 3, 2, 1);
 	mainGrid.attach(exportProgressBar, 0, 4, 2, 1);
+
+	mainGrid.set_row_spacing(StyleManager::WidgetSpacing);
+	mainGrid.set_column_spacing(StyleManager::WidgetSpacing);
 
 	add(mainGrid);
 

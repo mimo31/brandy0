@@ -41,6 +41,9 @@ BCSelector::BCSelector(const str& atDescriptor, const VoidFunc& inputChangeHandl
 	uxEntry.attachTo(grid, 0, 3);
 	uyEntry.attachTo(grid, 0, 4);
 
+	grid.set_column_spacing(StyleManager::WidgetSpacing);
+	StyleManager::setPadding(grid);
+
 	add(grid);
 
 	velocityTypeSelector.signal_changed().connect(sigc::mem_fun(*this, &BCSelector::onVelocityTypeChange));

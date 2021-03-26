@@ -7,6 +7,7 @@
 #include "preset-window.hpp"
 
 #include "simulation-params-preset.hpp"
+#include "style-manager.hpp"
 
 namespace brandy0
 {
@@ -17,6 +18,8 @@ PresetWindow::PresetWindow(ConfigStateAbstr *const parent)
 	warnLabel("warning: By confirming the preset, the current configuration (including that of the obstacles) will get overwritten."),
 	confirmButton("confirm preset")
 {
+	set_resizable(false);
+
 	for (const SimulationParamsPreset &preset : SimulationParamsPreset::presets)
 		presetSelector.append(preset.name);
 
@@ -24,6 +27,8 @@ PresetWindow::PresetWindow(ConfigStateAbstr *const parent)
 	grid.attach(presetSelector, 1, 0);
 	grid.attach(warnLabel, 0, 1, 2, 1);
 	grid.attach(confirmButton, 0, 2, 2, 1);
+
+	grid.set_row_spacing(StyleManager::WidgetSpacing);
 
 	add(grid);
 

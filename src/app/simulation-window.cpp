@@ -28,7 +28,11 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	timeLabel.set_size_request(300, -1);
 	frameBufferLabel.set_size_request(200, -1);
 
-	mainGrid.attach(dArea, 0, 0, 1, 1);
+	mainGrid.set_orientation(Gtk::ORIENTATION_VERTICAL);
+
+	mainGrid.add(dArea);
+
+	mainGrid.set_row_spacing(StyleManager::WidgetSpacing);
 
 	playbackModeSelector.append("play until end");
 	playbackModeSelector.append("loop");
@@ -71,6 +75,7 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	viewGrid.attach(backDisplaySelector, 0, 1);
 	viewGrid.attach(frontDisplayLabel, 0, 2);
 	viewGrid.attach(frontDisplaySelector, 0, 3);
+	StyleManager::setPadding(viewGrid);
 	viewFrame.add(viewGrid);
 
 	toConfigButton.signal_clicked().connect([this, parent]
@@ -110,12 +115,14 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	playbackGrid.attach(timeScale, 1, 1);
 	playbackGrid.attach(playbackSpeedLabel, 1, 2);
 	playbackGrid.attach(playbackSpeedScale, 1, 3);
+	StyleManager::setPadding(playbackGrid);
 	playbackFrame.add(playbackGrid);
 
 	computingGrid.attach(computingSwitch, 0, 0);
 	computingGrid.attach(computingStatusLabel, 0, 1);
 	computingGrid.attach(frameBufferLabel, 0, 2);
 	computingGrid.attach(curIterLabel, 0, 3);
+	StyleManager::setPadding(computingGrid);
 	computingFrame.add(computingGrid);
 
 	panelGrid.attach(toConfigButton, 0, 0);
@@ -124,7 +131,9 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 	panelGrid.attach(viewFrame, 3, 0);
 	panelGrid.attach(videoExportButton, 4, 0);
 
-	mainGrid.attach(panelGrid, 0, 1);
+	panelGrid.set_column_spacing(StyleManager::WidgetSpacing);
+
+	mainGrid.add(panelGrid);
 
 	add(mainGrid);
 

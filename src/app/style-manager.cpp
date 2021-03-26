@@ -25,4 +25,11 @@ void StyleManager::requestInit()
 	}
 }
 
+void StyleManager::setPadding(Gtk::Grid &grid)
+{
+	Glib::RefPtr<Gtk::CssProvider> style = Gtk::CssProvider::create();
+	style->load_from_data("grid { padding: 5px }");
+	grid.get_style_context()->add_provider(style, GTK_STYLE_PROVIDER_PRIORITY_USER);
+}
+
 }

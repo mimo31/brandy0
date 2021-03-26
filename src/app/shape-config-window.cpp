@@ -70,6 +70,10 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 {
     widthEntry.attachTo(dimensionsGrid, 0, 0);
     heightEntry.attachTo(dimensionsGrid, 0, 1);
+
+	dimensionsGrid.set_column_spacing(StyleManager::WidgetSpacing);
+	StyleManager::setPadding(dimensionsGrid);
+
 	dimensionsFrame.add(dimensionsGrid);
 	rootGrid.attach(dimensionsFrame, 0, 0, 1, 2);
 
@@ -80,16 +84,28 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	addingShapeGrid.attach(clearShapeButton, 0, 1);
 	addingShapeGrid.attach(polygonPopVertexButton, 1, 1);
 	addingShapeGrid.attach(polygonFinishButton, 0, 2, 2, 1);
+	addingShapeGrid.set_column_spacing(StyleManager::WidgetSpacing);
+	addingShapeGrid.set_row_spacing(StyleManager::WidgetSpacing);
+	StyleManager::setPadding(addingShapeGrid);
 	addingShapeFrame.add(addingShapeGrid);
 	rootGrid.attach(addingShapeFrame, 1, 1, 2, 1);
 
 	generalGrid.attach(undoButton, 0, 0);
 	generalGrid.attach(redoButton, 0, 1);
 	generalGrid.attach(clearAllButton, 0, 2);
+	generalGrid.set_column_spacing(StyleManager::WidgetSpacing);
+	generalGrid.set_row_spacing(StyleManager::WidgetSpacing);
+	StyleManager::setPadding(generalGrid);
+	generalGrid.set_valign(Gtk::ALIGN_CENTER);
+	generalGrid.set_halign(Gtk::ALIGN_CENTER);
 	generalFrame.add(generalGrid);
 	rootGrid.attach(generalFrame, 3, 0, 1, 2);
 
 	rootGrid.attach(shapeWidget, 0, 2, 4, 1);
+
+	rootGrid.set_column_spacing(StyleManager::WidgetSpacing);
+	rootGrid.set_row_spacing(StyleManager::WidgetSpacing);
+
 	shapeWidget.show();
 
 	for (const AddShapeMode mode : AddShapeModes)

@@ -6,7 +6,7 @@
  */
 #include "about-window.hpp"
 
-#include <gtkmm/cssprovider.h>
+#include "style-manager.hpp"
 
 namespace brandy0
 {
@@ -23,11 +23,14 @@ AboutWindow::AboutWindow(StartStateAbstr *const parent)
 	ffmpegNameLabel("libavcodec, libavformat, libavutil, libswscale (FFmpeg libraries)"),
 	ffmpegLinkLabel("https://www.ffmpeg.org/")
 {
+	set_resizable(false);
+
 	mainGrid.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
 	mainGrid.add(authorLabel);
 	mainGrid.add(purposeLabel);
 	mainGrid.add(repoLabel);
+	mainGrid.set_row_spacing(StyleManager::WidgetSpacing);
 
 	librariesGrid.attach(librariesLabel, 0, 0, 2, 1);
 	gtkmmNameLabel.set_xalign(0);
@@ -40,9 +43,7 @@ AboutWindow::AboutWindow(StartStateAbstr *const parent)
 	librariesGrid.attach(ffmpegLinkLabel, 1, 2);
 	librariesGrid.set_row_spacing(5);
 	librariesGrid.set_column_spacing(5);
-	Glib::RefPtr<Gtk::CssProvider> paddingStyle = Gtk::CssProvider::create();
-	paddingStyle->load_from_data("grid { padding: 5px }");
-	librariesGrid.get_style_context()->add_provider(paddingStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
+	StyleManager::setPadding(librariesGrid);
 	librariesFrame.add(librariesGrid);
 	mainGrid.add(librariesFrame);
 

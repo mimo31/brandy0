@@ -47,14 +47,13 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	reopenButton("reopen obstacle editor"),
 	parent(parent)
 {
-	Glib::RefPtr<Gtk::CssProvider> framePaddingStyle = Gtk::CssProvider::create();
-	framePaddingStyle->load_from_data("grid { padding: 5px }");
+	set_resizable(false);
 
-	physGrid.get_style_context()->add_provider(framePaddingStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
-	compGrid.get_style_context()->add_provider(framePaddingStyle, GTK_STYLE_PROVIDER_PRIORITY_USER);
+	StyleManager::setPadding(physGrid);
+	StyleManager::setPadding(compGrid);
 
-	physGrid.set_column_spacing(5);
-	compGrid.set_column_spacing(5);
+	physGrid.set_column_spacing(StyleManager::WidgetSpacing);
+	compGrid.set_column_spacing(StyleManager::WidgetSpacing);
 
 	rhoEntry.attachTo(physGrid, 0, 0);
 	muEntry.attachTo(physGrid, 0, 1);
@@ -80,6 +79,9 @@ ConfigWindow::ConfigWindow(ConfigStateAbstr *const parent)
 	rootGrid.attach(presetButton, 1, 3);
 	rootGrid.attach(backHomeButton, 0, 4);
 	rootGrid.attach(startSimButton, 1, 4);
+
+	rootGrid.set_column_spacing(StyleManager::WidgetSpacing);
+	rootGrid.set_row_spacing(StyleManager::WidgetSpacing);
 
 	add(rootGrid);
 

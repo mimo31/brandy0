@@ -6,7 +6,7 @@
  */
 #include "start-window.hpp"
 
-#include <iostream>
+#include "style-manager.hpp"
 
 namespace brandy0
 {
@@ -17,6 +17,8 @@ StartWindow::StartWindow(StartStateAbstr *const parent)
 	aboutButton("about"),
 	descriptionLabel("Welcome to brandy0, a fluid dynamics simulator!")
 {
+	set_resizable(false);
+	
 	newButton.signal_clicked().connect([parent]
 	{
 		parent->goToNewSimulation();
@@ -32,7 +34,7 @@ StartWindow::StartWindow(StartStateAbstr *const parent)
 	layoutGrid.add(newButton);
 	layoutGrid.add(aboutButton);
 
-	layoutGrid.set_row_spacing(5);
+	layoutGrid.set_row_spacing(StyleManager::WidgetSpacing);
 
 	add(layoutGrid);
 
