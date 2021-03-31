@@ -13,8 +13,6 @@
 
 #include <array>
 
-#include "glob.hpp"
-
 #include "grid.hpp"
 #include "ptr.hpp"
 #include "str.hpp"

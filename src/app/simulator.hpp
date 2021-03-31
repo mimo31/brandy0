@@ -9,8 +9,6 @@
 
 #include <mutex>
 
-#include "glob.hpp"
-
 #include "grid.hpp"
 #include "sim-frame.hpp"
 #include "simulation-params.hpp"

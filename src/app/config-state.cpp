@@ -13,19 +13,15 @@ namespace brandy0
 
 ConfigState::ConfigState(ApplicationAbstr *const app)
 	: ConfigStateAbstr(app),
-	mainWin(make_unique<ConfigWindow>(this)),
-	shapeWin(make_unique<ShapeConfigWindow>(this)),
-	presetWin(make_unique<PresetWindow>(this))
+	mainWin(this),
+	shapeWin(this),
+	presetWin(this)
 {
 }
 
 void ConfigState::activate()
 {
-	shapeConfigOpened = false;
-	presetsOpened = false;
-	setDefaultParams();
-	showWindows();
-	initListeners.invoke();
+	activate(SimulationParamsPreset::DefaultParams);
 }
 
 void ConfigState::activate(const SimulationParams& params)
@@ -40,26 +36,23 @@ void ConfigState::activate(const SimulationParams& params)
 void ConfigState::showWindows()
 {
 	openShapeConfig();
-	app->addWindow(*mainWin);
-	mainWin->show();
+	app->addWindow(mainWin);
+	mainWin.show();
 }
 
 void ConfigState::deactivate()
 {
-	shapeWin->hide();
-	mainWin->hide();
+	shapeWin.hide();
+	mainWin.hide();
 	params = nullptr;
-}
-
-void ConfigState::setDefaultParams()
-{
-	setParams(SimulationParamsPreset::defaultParams);
 }
 
 void ConfigState::setParams(const SimulationParams& params)
 {
 	this->params = make_unique<SimulationParams>(params);
 	paramsOverwriteListeners.invoke();
+	dimensionsChangeListeners.invoke();
+	shapeStackChangeListeners.invoke();
 }
 
 void ConfigState::submitAll()
@@ -78,8 +71,8 @@ void ConfigState::openShapeConfig()
 {
 	if (!shapeConfigOpened)
 	{
-		app->addWindow(*shapeWin);
-		shapeWin->show();
+		app->addWindow(shapeWin);
+		shapeWin.show();
 		shapeConfigOpened = true;
 		shapeConfigOpenedChangeListeners.invoke();
 	}
@@ -88,7 +81,9 @@ void ConfigState::openShapeConfig()
 void ConfigState::closeAll()
 {
 	if (shapeConfigOpened)
-		shapeWin->close();
+		shapeWin.close();
+	if (presetsOpened)
+		presetWin.close();
 }
 
 void ConfigState::openPresets()
@@ -97,15 +92,15 @@ void ConfigState::openPresets()
 	{
 		presetsOpened = true;
 		presetsOpenListeners.invoke();
-		app->addWindow(*presetWin);
-		presetWin->show();
+		app->addWindow(presetWin);
+		presetWin.show();
 	}
 }
 
 void ConfigState::confirmPreset(const SimulationParams &preset)
 {
 	setParams(preset);
-	presetWin->hide();
+	presetWin.hide();
 	presetsOpened = false;
 }
 

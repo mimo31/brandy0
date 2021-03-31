@@ -115,15 +115,12 @@ void ExportWindow::connectWindowEventHandlers()
 		parent->videoExportPlaybackSpeedup = playbackSpeedScale.getSpeedup();
 		parent->vexpPlaybackSpeedupChangeListeners.invoke();
 	});
-	timeScale.signal_value_changed().connect([this]
+	timeScale.connectUserChangedHandler([this]
 	{
-		if (!timeScaleAutoSet)
+		parent->videoExportEditingTime = true;
+		if (parent->videoExportRangeValid)
 		{
-			parent->videoExportEditingTime = true;
-			if (parent->videoExportRangeValid)
-			{
-				parent->videoExportTime = parent->videoExportStartTime + timeScale.get_value() * (parent->videoExportEndTime - parent->videoExportStartTime);
-			}
+			parent->videoExportTime = parent->videoExportStartTime + timeScale.get_value() * (parent->videoExportEndTime - parent->videoExportStartTime);
 		}
 	});
 	timeScale.signal_button_release_event().connect([this](GdkEventButton*)
@@ -322,20 +319,13 @@ void ExportWindow::updateExportButtonSensitivity()
 	exportButton.set_sensitive(parent->videoExportRangeValid && parent->vexpEntryFieldValidators.isAllValid());
 }
 
-void ExportWindow::setTimeScale(const double scaleVal)
-{
-	timeScaleAutoSet = true;
-	timeScale.set_value(scaleVal);
-	timeScaleAutoSet = false;
-}
-
 void ExportWindow::setTimeScaleFromTime()
 {
 	if (parent->videoExportRangeValid)
 	{
 		const double fromStart = parent->videoExportTime - parent->videoExportStartTime;
 		const double range = parent->videoExportEndTime - parent->videoExportStartTime;
-		setTimeScale(fromStart / range);
+		timeScale.quietSetValue(fromStart / range);
 	}
 }
 
@@ -403,7 +393,6 @@ void ExportWindow::init()
 	startTimeScale.set_value(0);
 	endTimeScale.set_value(1);
 	playbackSpeedScale.set_value(0);
-	timeScaleAutoSet = false;
 
 	widthEntry.setText(ConvUtils::defaultToString(parent->videoExportWidth));
 	heightEntry.setText(ConvUtils::defaultToString(parent->videoExportHeight));

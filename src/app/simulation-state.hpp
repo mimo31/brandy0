@@ -12,8 +12,6 @@
 
 #include <gtkmm/application.h>
 
-#include "glob.hpp"
-
 #include "application-abstr.hpp"
 #include "config-window.hpp"
 #include "export-window.hpp"

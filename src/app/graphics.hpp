@@ -20,46 +20,105 @@
 namespace brandy0
 {
 
+/**
+ * Manages the program's resources used for OpenGL drawing.
+ */
 class GraphicsManager
 {
 private:
+	/// true iff the init method has already been called on this instance
 	bool initialized = false;
+
+	/**
+	 * Creates the required OpenGL buffers and sets the attributes which should contain the numbers of the buffers
+	 */
+	void initBuffers();
+	/**
+	 * Load and compiles the required OpenGL shaders and programs and sets the attributes which should contain the numbers of the shaders and the programs
+	 */
+	void initShaders();
 public:
+	/// Number of the compiled shader program for drawing white objects
 	GLuint glWhiteProgram;
+	/// Number of the uniform for the transformation matrix inside the program for drawing white objects
 	GLuint glWhiteMat;
+	/// Number of the compiled shader program for drawing in 1D (rainbow) color
 	GLuint glPaintProgram;
+	/// Number of the uniform for the transformation matrix inside the program for drawing in 1D (rainbow) color
 	GLuint glPaintMat;
+	/// Number of the Vertex Array Object for the program for white objects
 	GLuint glWhiteVao;
+	/// Number of the Vertex Buffer Object for the program for white objects
 	GLuint glWhiteVbo;
+	/// Number of the Vertex Array Object for the program for rainbow objects
 	GLuint glPaintVao;
+	/// Number of the Vertex Buffer Object for the program for rainbow objects
 	GLuint glPaintVbo;
 
+	/**
+	 * Context for OpenGL drawing.
+	 * This attribute should be set externally by the DisplayArea when it realizes.
+	 * It (this attribute) is independent on the state of the buffers, programs, and uniforms attributes
+	 */
 	Glib::RefPtr<Gdk::GLContext> ctx;
 
-	void initBuffers();
-	void initShaders();
-
+	/**
+	 * Initializes all the number of something attributes by creating the OpenGL objects accoringly.
+	 * Does nothing if this method has already been called on this instance.
+	 */
 	void init();
+	/**
+	 * Invalidates resource claims held by this instance. In particular, clears the pointer to an OpenGL context
+	 */
 	void destruct();
 };
 
+/**
+ * Draws the visualizations (given computed data in the form of frames).
+ * Can draw to the DisplayArea (by directly using the provided OpenGL context),
+ * or to a byte array (by creating a newframe buffer)
+ */
 class FrameDrawer
 {
 private:
+	/**
+	 * A representation of a line segment in 2D as a pair of two 2D vectors.
+	 */
 	struct LineSegment
 	{
-		vec2d p0, p1;
+		/// One endpoint of the line segment
+		vec2d p0;
+		/// The other endpoint of the line segment
+		vec2d p1;
 
+		/**
+		 * Constructs a LineSegment object
+		 * @param p0 one endpoint
+		 * @param p1 the other endpoint
+		 */
 		LineSegment(const vec2d &p0, const vec2d &p1) : p0(p0), p1(p1)
 		{
 		}
 	};
 
-	double w, h;
-	uint32_t wp, hp;
-	double dx, dy;
-	double vieww, viewh;
+	/// Physical width of the simulated fluid container
+	double w;
+	/// Physical height of the simulated fluid container
+	double h;
+	/// Width of the simulation grid
+	uint32_t wp;
+	/// Height of the simulation grid
+	uint32_t hp;
+	/// Spacial grid step in the x direction
+	double dx;
+	/// Spacial grid step in the y direction
+	double dy;
+	/// Width (in pixels) of the target area that should be drawn into
+	double vieww;
+	/// Height (in pixels) of the target area that should be drawn into
+	double viewh;
 
+	/// Grid of whether any grid point is solid
 	Grid<bool> solid;
 
 	uint32_t frontDisplayMode, backDisplayMode;

@@ -39,10 +39,10 @@ public:
 	static constexpr BoundaryCondType DefaultVelocityType = BoundaryCondType::Dirichlet;
 	static constexpr BoundaryCondType DefaultPressureType = BoundaryCondType::Neumann;
 
-	static const BoundaryCond defaultBc;
-	static const SimulationParams defaultParams;
+	static const BoundaryCond DefaultBc;
+	static const SimulationParams DefaultParams;
 
-	static const vec<SimulationParamsPreset> presets;
+	static const vec<SimulationParamsPreset> Presets;
 
 };
 

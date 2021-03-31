@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "point.hpp"
+#include "print.hpp"
 
 namespace brandy0
 {

@@ -28,6 +28,8 @@ Application::~Application()
 
 void Application::run(const int argc, const char *const *const argv)
 {
+	// look for an argument "--time" and parse arguments after it to run a simulation directly
+	// (used mainly for automated time measurements of simulation run time)
 	for (int i = 1; i < argc; i++)
 	{
 		const str arg = argv[i];
@@ -49,7 +51,7 @@ void Application::run(const int argc, const char *const *const argv)
 			}
 			activeSt = &simulationSt;
 			uptr<SimulationParams> preset;
-			for (const SimulationParamsPreset &p : SimulationParamsPreset::presets)
+			for (const SimulationParamsPreset &p : SimulationParamsPreset::Presets)
 			{
 				if (p.name == presetname)
 					preset = make_unique<SimulationParams>(p.params);
@@ -59,6 +61,8 @@ void Application::run(const int argc, const char *const *const argv)
 			return;
 		}
 	}
+
+	// starts the application normally iff there was no "--time" argument
 	activeSt = &startSt;
 	startSt.run();
 }

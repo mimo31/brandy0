@@ -7,8 +7,6 @@
 #ifndef SIMULATOR_CLASSIC_HPP
 #define SIMULATOR_CLASSIC_HPP
 
-#include "glob.hpp"
-
 #include "simulator.hpp"
 
 namespace brandy0

@@ -12,8 +12,6 @@
 #include <gtkmm/image.h>
 #include <gtkmm/label.h>
 
-#include "glob.hpp"
-
 #include "style-manager.hpp"
 #include "str.hpp"
 

@@ -161,7 +161,7 @@ void ConfigWindow::connectStateEventHandlers()
 	});
 }
 
-bool ConfigWindow::areInputsValid()
+bool ConfigWindow::areInputsValid() const
 {
 	return rhoEntry.hasValidInput()
 			&& muEntry.hasValidInput()

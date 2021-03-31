@@ -22,11 +22,20 @@ double SpeedScale::getSpeedup() const
 	return exp(log(MaxSpeedup) * get_value());
 }
 
-TimeScale::TimeScale()
+void MutableScale::quietSetValue(const double value)
 {
-	set_draw_value(false);
-	set_range(0, 1);
-	set_increments(.001, .001);
+	settingValue = true;
+	set_value(value);
+	settingValue = false;
+}
+
+void MutableScale::connectUserChangedHandler(const VoidFunc &f)
+{
+	signal_value_changed().connect([this, f]
+	{
+		if (!settingValue)
+			f();
+	});
 }
 
 }

@@ -41,8 +41,8 @@ AboutWindow::AboutWindow(StartStateAbstr *const parent)
 	librariesGrid.attach(gtkmmLinkLabel, 1, 1);
 	librariesGrid.attach(ffmpegNameLabel, 0, 2);
 	librariesGrid.attach(ffmpegLinkLabel, 1, 2);
-	librariesGrid.set_row_spacing(5);
-	librariesGrid.set_column_spacing(5);
+	librariesGrid.set_row_spacing(StyleManager::WidgetSpacing);
+	librariesGrid.set_column_spacing(StyleManager::WidgetSpacing);
 	StyleManager::setPadding(librariesGrid);
 	librariesFrame.add(librariesGrid);
 	mainGrid.add(librariesFrame);

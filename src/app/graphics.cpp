@@ -11,6 +11,7 @@
 #include <giomm/resource.h>
 
 #include "display-modes.hpp"
+#include "print.hpp"
 #include "str.hpp"
 
 namespace brandy0

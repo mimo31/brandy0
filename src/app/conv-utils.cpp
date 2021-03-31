@@ -59,7 +59,7 @@ bool ConvUtils::isReal(const str& s)
 
 bool ConvUtils::isNonnegativeInt(const str& s)
 {
-	return std::all_of(s.begin(), s.end(), [](const char c){ return c >= '0' && c <= '9'; });
+	return !s.empty() && std::all_of(s.begin(), s.end(), [](const char c){ return c >= '0' && c <= '9'; });
 }
 
 bool ConvUtils::isNonzero(const str& s)
@@ -177,6 +177,11 @@ str ConvUtils::timeToString(const double d)
 	return timeToString(d, d);
 }
 
+/**
+ * Converts a real number to a string in scientific notation
+ * @param d real number to convert
+ * @return converted string
+ */
 str toScientific(const double d)
 {
 	std::ostringstream oss;
@@ -186,6 +191,12 @@ str toScientific(const double d)
 	return oss.str();
 }
 
+/**
+ * Converts a real number to a string in fixed point notation (not scientific) with a given number of decimal places
+ * @param d real number to convert
+ * @param prec number of decimal places (after the decimal point)
+ * @return converted string
+ */
 str toFixed(const double d, const uint32_t prec)
 {
 	std::ostringstream oss;

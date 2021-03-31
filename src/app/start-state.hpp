@@ -9,8 +9,6 @@
 
 #include <gtkmm/application.h>
 
-#include "glob.hpp"
-
 #include "about-window.hpp"
 #include "application-abstr.hpp"
 #include "ptr.hpp"

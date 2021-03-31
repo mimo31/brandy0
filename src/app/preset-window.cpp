@@ -20,7 +20,7 @@ PresetWindow::PresetWindow(ConfigStateAbstr *const parent)
 {
 	set_resizable(false);
 
-	for (const SimulationParamsPreset &preset : SimulationParamsPreset::presets)
+	for (const SimulationParamsPreset &preset : SimulationParamsPreset::Presets)
 		presetSelector.append(preset.name);
 
 	grid.attach(presetLabel, 0, 0);
@@ -40,7 +40,7 @@ PresetWindow::PresetWindow(ConfigStateAbstr *const parent)
 	confirmButton.signal_clicked().connect([this, parent]
 	{
 		const uint32_t selectedi = presetSelector.get_active_row_number();
-		parent->confirmPreset(SimulationParamsPreset::presets[selectedi].params);
+		parent->confirmPreset(SimulationParamsPreset::Presets[selectedi].params);
 	});
 	
 	show_all_children();

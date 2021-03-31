@@ -7,8 +7,6 @@
 #ifndef BOUNDARY_COND_HPP
 #define BOUNDARY_COND_HPP
 
-#include "glob.hpp"
-
 #include "vec2d.hpp"
 
 namespace brandy0
@@ -23,6 +21,10 @@ enum BoundaryCondType
 	Dirichlet, Neumann
 };
 
+/**
+ * Contains the full specification of a boundary condition at one side of the container as possible in our program.
+ * In particular, it describes what the boundary conditions for pressure and velocity are
+ */
 struct BoundaryCond
 {
 	/// Type of the boundary condition for velocity

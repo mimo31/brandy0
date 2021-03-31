@@ -9,6 +9,8 @@
 
 #include <gtkmm/scale.h>
 
+#include "func.hpp"
+
 namespace brandy0
 {
 
@@ -20,11 +22,29 @@ public:
 	double getSpeedup() const;
 };
 
-class TimeScale : public Gtk::Scale
+class MutableScale : public Gtk::Scale
+{
+private:
+	bool settingValue = false;
+public:
+	void quietSetValue(double value);
+	void connectUserChangedHandler(const VoidFunc &f);
+};
+
+template<typename T>
+class TimeScaleTemplate : public T
 {
 public:
-	TimeScale();
+	TimeScaleTemplate()
+	{
+		T::set_draw_value(false);
+		T::set_range(0, 1);
+		T::set_increments(.001, .001);
+	}
 };
+
+typedef TimeScaleTemplate<Gtk::Scale> TimeScale;
+typedef TimeScaleTemplate<MutableScale> MutableTimeScale;
 
 }
 

@@ -11,8 +11,6 @@
 #include <gtkmm/grid.h>
 #include <gtkmm/label.h>
 
-#include "glob.hpp"
-
 #include "hideable.hpp"
 #include "str.hpp"
 #include "style-manager.hpp"

@@ -33,12 +33,19 @@ private:
 	/// Label with a link to the project repository
 	Gtk::Label repoLabel;
 
+	/// Frame containing the list of the external libraries used
 	Gtk::Frame librariesFrame;
+	/// Grid containing the list of the external libraries used
 	Gtk::Grid librariesGrid;
+	/// Label explaining that what follows is the list of external libraries used
 	Gtk::Label librariesLabel;
+	/// Label with the name of the gtkmm library
 	Gtk::Label gtkmmNameLabel;
+	/// Label with the link to the gtkmm repository
 	Gtk::Label gtkmmLinkLabel;
+	/// Label with the name of the used FFmpeg libraries
 	Gtk::Label ffmpegNameLabel;
+	/// Label with the link to the FFmpeg website
 	Gtk::Label ffmpegLinkLabel;
 	
 public:

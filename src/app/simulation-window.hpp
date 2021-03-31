@@ -20,8 +20,6 @@
 #include <gtkmm/scale.h>
 #include <gtkmm/switch.h>
 
-#include "glob.hpp"
-
 #include "brandy-window.hpp"
 #include "display-area.hpp"
 #include "scales.hpp"
@@ -56,8 +54,7 @@ private:
 	Gtk::ComboBoxText playbackModeSelector;
 	Gtk::Button playPauseButton;
 	Gtk::Label timeLabel, playbackSpeedLabel;
-	bool timeScaleAutoSet;
-	TimeScale timeScale;
+	MutableTimeScale timeScale;
 	SpeedScale playbackSpeedScale;
 
 	Gtk::Frame viewFrame;

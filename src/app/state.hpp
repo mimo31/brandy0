@@ -7,8 +7,6 @@
 #ifndef STATE_HPP
 #define STATE_HPP
 
-#include "glob.hpp"
-
 namespace brandy0
 {
 

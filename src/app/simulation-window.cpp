@@ -89,19 +89,16 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		parent->editingTime = false;
 		return false;
 	});
-	timeScale.signal_value_changed().connect([this, parent]
+	timeScale.connectUserChangedHandler([this, parent]
 	{
-		if (!timeScaleAutoSet)
+		const double scaleValue = timeScale.get_value();
+		parent->time = scaleValue * parent->computedTime;
+		if (!parent->playbackPaused && parent->playbackMode == PlaybackMode::LastFrameOnly)
 		{
-			const double scaleValue = timeScale.get_value();
-			parent->time = scaleValue * parent->computedTime;
-			if (!parent->playbackPaused && parent->playbackMode == PlaybackMode::LastFrameOnly)
-			{
-				parent->playbackMode = PlaybackMode::PlayUntilEnd;
-				parent->playbackModeChangeListeners.invoke();
-			}
-			parent->editingTime = true;
+			parent->playbackMode = PlaybackMode::PlayUntilEnd;
+			parent->playbackModeChangeListeners.invoke();
 		}
+		parent->editingTime = true;
 	});
 
 	playbackSpeedScale.signal_value_changed().connect([this, parent]
@@ -168,9 +165,7 @@ SimulationWindow::SimulationWindow(SimulationStateAbstr *const parent)
 		backDisplaySelector.set_active(BackDisplayModeDefault);
 		frontDisplaySelector.set_active(FrontDisplayModeDefault);
 		computingSwitch.set_sensitive(true);
-		timeScaleAutoSet = true;
-		timeScale.set_value(0);
-		timeScaleAutoSet = false;
+		timeScale.quietSetValue(0);
 		playbackSpeedScale.set_value(0);
 	});
 
@@ -238,9 +233,7 @@ void SimulationWindow::updateStats()
 	if (!parent->editingTime)
 	{
 		const double val = parent->computedTime != 0 ? parent->time / parent->computedTime : 0;
-		timeScaleAutoSet = true;
-		timeScale.set_value(val);
-		timeScaleAutoSet = false;
+		timeScale.quietSetValue(val);
 	}
 	else
 	{

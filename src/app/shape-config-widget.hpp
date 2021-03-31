@@ -9,8 +9,6 @@
 
 #include <gtkmm/widget.h>
 
-#include "glob.hpp"
-
 #include "config-state-abstr.hpp"
 #include "obstacle-shape.hpp"
 #include "shape-config-window-abstr.hpp"
