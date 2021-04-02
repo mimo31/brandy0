@@ -9,6 +9,11 @@
 namespace brandy0
 {
 
+/**
+ * Run's the application or just tests (iff the TESTING macro is defined)
+ * @param argc the number of command-line arguments (the argc as in the main function)
+ * @param argv the array of command-line arguments (the argv as in the main function)
+ */
 void run(const int argc, const char *const *const argv)
 {
 	#ifdef TESTING
@@ -27,6 +32,9 @@ void run(const int argc, const char *const *const argv)
 
 }
 
+/**
+ * Our application's main
+ */
 int main(const int argc, const char *const *const argv)
 {
 	brandy0::run(argc, argv);

@@ -234,7 +234,7 @@ void FrameDrawer::computeMat(float *mat) const
 	}
 }
 
-void FrameDrawer::addStreamLine(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& ini)
+void FrameDrawer::addStreamline(const SimFrame& frame, vec<LineSegment>& segs, const vec2d& ini)
 {
 	Point ipoi = to_poi(ini);
 	if (!ipoi.inside(0, 0, wp - 1, hp - 1) || solid(ipoi))
@@ -480,16 +480,16 @@ void FrameDrawer::drawAll(const SimFrame& frame, GraphicsManager *const manager)
 			for (double x = w / 2; x >= 0; x -= line_d)
 			{
 				for (double y = h / 2; y >= 0; y -= line_d)
-					addStreamLine(frame, segs, vec2d(x, y));
+					addStreamline(frame, segs, vec2d(x, y));
 				for (double y = h / 2 + line_d; y <= h; y += line_d)
-					addStreamLine(frame, segs, vec2d(x, y));
+					addStreamline(frame, segs, vec2d(x, y));
 			}
 			for (double x = w / 2 + line_d; x <= w; x += line_d)
 			{
 				for (double y = h / 2; y >= 0; y -= line_d)
-					addStreamLine(frame, segs, vec2d(x, y));
+					addStreamline(frame, segs, vec2d(x, y));
 				for (double y = h / 2 + line_d; y <= h; y += line_d)
-					addStreamLine(frame, segs, vec2d(x, y));
+					addStreamline(frame, segs, vec2d(x, y));
 			}
 		}
 

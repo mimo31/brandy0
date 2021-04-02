@@ -90,8 +90,7 @@ void ObstacleShapeStack::fill(Grid<bool>& grid) const
 void ObstacleShapeStack::set(Grid<bool>& grid) const
 {
 	grid.set_all(false);
-	for (const sptr<ObstacleShape>& shape : *this)
-		shape->fill(grid);
+	fill(grid);
 }
 
 ObstacleEllipse::ObstacleEllipse(const bool negative, const vec2d& p0, const vec2d& p1)
@@ -133,6 +132,12 @@ void ObstacleEllipse::draw(const Cairo::RefPtr<Cairo::Context>& cr) const
 	}
 }
 
+/**
+ * @param v0 first end of a line segment
+ * @param v1 second end of a line segment
+ * @param p point to investiage
+ * @return true iff the given point (p) lies on the specified line segment (between v0 and v1)
+ */
 bool onSegment(const vec2d v0, const vec2d v1, const vec2d p)
 {
 	const vec2d v = v1 - v0;

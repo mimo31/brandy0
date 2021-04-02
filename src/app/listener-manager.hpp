@@ -13,13 +13,25 @@
 namespace brandy0
 {
 
+/**
+ * A container for arbitrarily many void(void) callbacks.
+ * Meant primarily for events -- call plug to register a listener, call invoke to fire the event.
+ */
 class ListenerManager
 {
 private:
+	/// All the registered listners
 	vec<VoidFunc> listeners;
 
 public:
-	void plug(const VoidFunc& listener);
+	/**
+	 * Registers a new listener
+	 * @param listener listener to register
+	 */
+	void plug(const VoidFunc &listener);
+	/**
+	 * Calls all the previously registered listeners
+	 */
 	void invoke() const;
 };
 

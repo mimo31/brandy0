@@ -27,9 +27,13 @@ ShapeConfigWidget::ShapeConfigWidget(ConfigStateAbstr *const parent, ShapeConfig
 	parentWindow->nextShapeChangeListeners.plug([this](){ refresh(); });
 }
 
+/// Widget's minimum width (in pixels)
 constexpr uint32_t MINIMUM_WIDTH = 32;
+/// Widget's natural width (in pixels)
 constexpr uint32_t NATURAL_WIDTH = 512;
+/// Widget's minimum height (in pixels)
 constexpr uint32_t MINIMUM_HEIGHT = 32;
+/// Widget's natural height (in pixels)
 constexpr uint32_t NATURAL_HEIGHT = 512;
 
 void ShapeConfigWidget::get_preferred_width_vfunc(int& minimum_width, int& natural_width) const
@@ -152,6 +156,9 @@ void ShapeConfigWidget::markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const
 
 bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
+	// TODO: split into a few shorter methods
+	// TODO: extract the colors into constants
+
 	const uint32_t sw = getWidth(), sh = getHeight();
 	const double w = parent->params->w, h = parent->params->h;
 	const uint32_t wp = parent->params->wp, hp = parent->params->hp;
@@ -383,7 +390,7 @@ bool ShapeConfigWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 	return true;
 }
 
-vec2d ShapeConfigWidget::widgetToUnitCoors(const vec2d wCoors)
+vec2d ShapeConfigWidget::widgetToUnitCoors(const vec2d wCoors) const
 {
 	const uint32_t sw = getWidth(), sh = getHeight();
 	const double w = parent->params->w, h = parent->params->h;
@@ -456,7 +463,7 @@ bool ShapeConfigWidget::leaveHandler(GdkEventCrossing *const /*event*/)
 
 void ShapeConfigWidget::activateRefresher()
 {
-	redrawConnection = Glib::signal_timeout().connect([this](){ refresh(); return true; }, 17);
+	redrawConnection = Glib::signal_timeout().connect([this]{ refresh(); return true; }, 17);
 }
 
 void ShapeConfigWidget::deactivateRefresher()
