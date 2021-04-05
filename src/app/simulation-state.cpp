@@ -17,8 +17,8 @@ namespace brandy0
 
 SimulationState::SimulationState(ApplicationAbstr *const app)
 	: SimulationStateAbstr(app),
-	mainWin(make_unique<SimulationWindow>(this)),
-	exportWin(make_unique<ExportWindow>(this))
+	mainWin(this),
+	exportWin(this)
 {
 }
 
@@ -46,7 +46,7 @@ void SimulationState::start(const SimulationParams& params)
 	initListeners.invoke();
 	resumeComputation();
 	lastUpdate = std::chrono::steady_clock::now();
-	redrawConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::update), 40);
+	updateConnection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &SimulationState::update), 40);
 }
 
 void SimulationState::activate(const SimulationParams& params)
@@ -59,22 +59,22 @@ void SimulationState::run(const SimulationParams &params, const uint32_t frames)
 {
 	closeAfterFrames = frames;
 	start(params);
-	mainWin->show();
-	app->run(*mainWin);
+	mainWin.show();
+	app->run(mainWin);
 }
 
 void SimulationState::deactivate()
 {
 	leaveVideoExport();
-	exportWin->hide();
+	exportWin.hide();
 	computingMutex.lock();
 	if (computing)
 		stopComputingSignal = true;
 	computingMutex.unlock();
 	if (computeThread.joinable())
 		computeThread.join();
-	redrawConnection.disconnect();
-	mainWin->hide();
+	updateConnection.disconnect();
+	mainWin.hide();
 }
 
 void SimulationState::goBackToConfig()
@@ -85,12 +85,14 @@ void SimulationState::goBackToConfig()
 void SimulationState::pauseComputation()
 {
 	computingMutex.lock();
+	const bool paused = computing;
 	if (computing)
 		stopComputingSignal = true;
 	computingMutex.unlock();
 	if (computeThread.joinable())
 		computeThread.join();
-	computingSwitchListeners.invoke();
+	if (paused)
+		computingSwitchListeners.invoke();
 }
 
 void SimulationState::resumeComputation()
@@ -98,9 +100,7 @@ void SimulationState::resumeComputation()
 	computingMutex.lock();
 	const bool started = !computing;
 	if (!computing)
-	{
 		startComputeThread();
-	}
 	computingMutex.unlock();
 	if (started)
 		computingSwitchListeners.invoke();
@@ -111,7 +111,7 @@ void SimulationState::closeAll()
 	if (inVideoExport)
 	{
 		leaveVideoExport();
-		exportWin->close();
+		exportWin.close();
 	}
 }
 
@@ -209,14 +209,14 @@ uint32_t SimulationState::getComputedIter()
 
 void SimulationState::showMainWindow()
 {
-	app->addWindow(*mainWin);
-	mainWin->show();
+	app->addWindow(mainWin);
+	mainWin.show();
 }
 
 void SimulationState::showExportWindow()
 {
-	app->addWindow(*exportWin);
-	exportWin->show();
+	app->addWindow(exportWin);
+	exportWin.show();
 }
 
 void SimulationState::checkCapacity()
@@ -331,7 +331,7 @@ void SimulationState::runComputeThread()
 void SimulationState::startComputeThread()
 {
 	computing = true;
-	computeThread = std::thread([=](){
+	computeThread = std::thread([=]{
 		runComputeThread();
 	});
 }
@@ -384,7 +384,7 @@ bool SimulationState::update()
 		{
 			framesMutex.unlock();
 			pauseComputation();
-			mainWin->close();
+			mainWin.close();
 		}
 		else
 			framesMutex.unlock();

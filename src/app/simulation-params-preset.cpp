@@ -15,7 +15,7 @@ const SimulationParams SimulationParamsPreset::DefaultParams(DefaultW, DefaultH,
 			   	DefaultDt, DefaultBc, DefaultBc, DefaultBc, DefaultBc, DefaultRho, DefaultMu, ObstacleShapeStack(),
 				DefaultStopAfter, DefaultStepsPerFrame, DefaultFrameCapacity);
 
-const vec<SimulationParamsPreset> SimulationParamsPreset::Presets {
+const std::array<SimulationParamsPreset, 13> SimulationParamsPreset::Presets {
 	SimulationParamsPreset(SimulationParamsPreset::DefaultParams, "static (default)"),
 
 	SimulationParamsPreset(SimulationParams(DefaultW, DefaultH, DefaultWp, DefaultHp,
