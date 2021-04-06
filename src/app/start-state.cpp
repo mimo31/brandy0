@@ -11,27 +11,27 @@ namespace brandy0
 
 StartState::StartState(ApplicationAbstr *const app)
 	: app(app),
-	mainWin(make_unique<StartWindow>(this)),
-	aboutWin(make_unique<AboutWindow>(this))
+	mainWin(this),
+	aboutWin(this)
 {
 }
 
 void StartState::activate()
 {
-	mainWin->show();
-	app->addWindow(*mainWin);
+	mainWin.show();
+	app->addWindow(mainWin);
 }
 
 void StartState::deactivate()
 {
-	aboutWin->hide();
-	mainWin->hide();
+	aboutWin.hide();
+	mainWin.hide();
 }
 
 void StartState::run()
 {
-	mainWin->show();
-	app->run(*mainWin);
+	mainWin.show();
+	app->run(mainWin);
 }
 
 void StartState::goToNewSimulation()
@@ -41,8 +41,8 @@ void StartState::goToNewSimulation()
 
 void StartState::showAbout()
 {
-	aboutWin->show();
-	aboutWin->present();
+	aboutWin.show();
+	aboutWin.present();
 }
 
 }

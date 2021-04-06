@@ -10,6 +10,8 @@
 
 #include <glibmm.h>
 
+#include "print.hpp"
+
 namespace brandy0
 {
 
@@ -29,14 +31,16 @@ uint32_t VideoExporter::videoTimeToFrame(const double videoTime) const
 	return res < frames.size() ? res : frames.size() - 1;
 }
 
-void VideoExporter::detectError(const str& /*message*/)
+void VideoExporter::detectError(const str &message)
 {
 	// TODO implement
+	cout << "video export error: " << message << endl;
 }
 
 void VideoExporter::detectFatalError(const str& message)
 {
 	failed = true;
+	errorMessage = message;
 	detectError(message);
 }
 
@@ -52,6 +56,7 @@ VideoExporter::VideoExporter(
 		const double dtPerFrame,
 		const uint32_t width,
 		const uint32_t height,
+		const uint32_t bitrate,
 		GraphicsManager *const graphicsManager
 	) :
 		drawer(params),
@@ -63,15 +68,18 @@ VideoExporter::VideoExporter(
 		dtPerFrame(dtPerFrame),
 		width(width),
 		height(height),
-		graphicsManager(graphicsManager)
+		bitrate(bitrate),
+		graphicsManager(graphicsManager),
+		framesToProcess(0),
+		processedFrames(0),
+		finishing(false),
+		complete(false),
+		failed(false),
+		inProgress(false),
+		errorMessage("")
 {
 	drawer.setFrontDisplayMode(frontDisplayMode);
 	drawer.setBackDisplayMode(backDisplayMode);
-
-	framesToProcess = 0;
-	processedFrames = 0;
-	finishing = complete = failed = inProgress = false;
-	errorMessage = "";
 }
 
 void VideoExporter::exportVideo()
@@ -84,8 +92,9 @@ void VideoExporter::exportVideo()
 	errorMessage = "";
 
 	const double vidTimeBound = compTimeToVideoTime(endTime);
-	framesToProcess = uint32_t(vidTimeBound * fps);
+	framesToProcess = floor(vidTimeBound * fps);
 
+	// only log fatal information
 	av_log_set_level(AV_LOG_FATAL);
 
 	format = av_guess_format(NULL, filename.c_str(), NULL);
@@ -190,9 +199,11 @@ void VideoExporter::exportVideo()
 		detectFatalError("error in av_image_alloc");
 		return;
 	}
+	
+	av_init_packet(&packet);
 
 	drawnFramei = -1;
-	drawndata = new uint8_t[width * height * 3];
+	videoTime = 0;
 
 	Glib::signal_timeout().connect_once(sigc::mem_fun(*this, &VideoExporter::receiveContinueCall), 1);
 	updateListeners.invoke();
@@ -223,22 +234,19 @@ void VideoExporter::doExport()
 			sws_scale(swsctx, rgbframe->data, rgbframe->linesize, 0, height, frame->data, frame->linesize);
 			drawnFramei = framei;
 		}
-		av_init_packet(&packet);
-		packet.flags |= AV_PKT_FLAG_KEY;
-		packet.pts = frame->pts = pts;
-		packet.data = NULL;
-		packet.size = 0;
-		packet.stream_index = stream->index;
+		frame->pts = pts;
 
 		if (avcodec_send_frame(encoderctx, frame) < 0)
 			detectError("error in avcodec_send_frame");
-
-		if (avcodec_receive_packet(encoderctx, &packet) == 0)
+		
+		const int receive_status = avcodec_receive_packet(encoderctx, &packet);
+		if (receive_status == 0)
 		{
 			if (av_interleaved_write_frame(formatctx, &packet))
 				detectError("error in av_interleaved_write_frame");
-			av_packet_unref(&packet);
 		}
+		else if (receive_status != AVERROR(EAGAIN)) // (because AVERROR(EAGAIN) probably just means that the sent frames were buffered and are not yet ready)
+			detectError("error in avcodec_receive_packet");
 	}
 	finishExport();
 	updateListeners.invoke();
@@ -247,25 +255,30 @@ void VideoExporter::doExport()
 void VideoExporter::finishExport()
 {
 	finishing = true;
-	delete [] drawndata;
+
 	av_frame_free(&frame);
 	av_frame_free(&rgbframe);
 	sws_freeContext(swsctx);
 
+	if (avcodec_send_frame(encoderctx, NULL) < 0)
+		detectError("error in avcodec_send_frame");
+	
 	while (true)
 	{
-		if (avcodec_send_frame(encoderctx, NULL) < 0)
-			detectError("error in avcodec_send_frame");
-		
-		if (avcodec_receive_packet(encoderctx, &packet) == 0)
+		const int receive_status = avcodec_receive_packet(encoderctx, &packet);
+		if (receive_status == 0)
 		{
 			if (av_interleaved_write_frame(formatctx, &packet))
 				detectError("error in av_interleaved_write_frame");
-			av_packet_unref(&packet);
 		}
 		else
+		{
+			if (receive_status != AVERROR_EOF)
+				detectError("error in avcodec_receive_packet");
 			break;
+		}
 	}
+	av_packet_unref(&packet);
 
 	if (av_write_trailer(formatctx))
 		detectError("error in av_write_trailer");
@@ -290,7 +303,6 @@ void VideoExporter::cancel()
 {
 	if (inProgress)
 	{
-		delete[] drawndata;
 		av_frame_free(&frame);
 		av_frame_free(&rgbframe);
 		sws_freeContext(swsctx);

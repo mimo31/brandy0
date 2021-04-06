@@ -16,7 +16,7 @@ Simulator::Simulator(const SimulationParams& params)
 	dt(params.dt),
 	dx(w / (params.wp - 1)), dy(h / (params.hp - 1)),
 	wp(params.wp), hp(params.hp),
-	rho(params.rho), mu(params.mu), nu(params.mu / params.rho), /* shouldn't nu be mu / rho, not rho / mu ??? */
+	rho(params.rho), mu(params.mu), nu(params.mu / params.rho),
 	solid(params.wp, params.hp), indep(params.wp, params.hp),
 	bcx0(params.bcx0), bcx1(params.bcx1), bcy0(params.bcy0), bcy1(params.bcy1)
 {
@@ -41,16 +41,6 @@ Simulator::Simulator(const SimulationParams& params)
 	f1.p.set_all(0);
 	f0.u.set_all(vec2d(0, 0));
 	f1.u.set_all(vec2d(0, 0));
-}
-
-vec2d Simulator::to_coor(const Point& p) const
-{
-	return vec2d(p.x * w / (wp - 1), p.y * h / (hp - 1));
-}
-
-vec2d Simulator::to_coor(const int32_t x, const int32_t y) const
-{
-	return to_coor(Point(x, y));
 }
 
 void Simulator::setPauseControl(const bool *const pauseSignal, std::mutex *const controlMutex)

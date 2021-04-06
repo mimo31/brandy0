@@ -20,17 +20,30 @@
 namespace brandy0
 {
 
+/**
+ * Class representing the start window
+ */
 class StartWindow : public BrandyWindow
 {
 private:
+	/// Pointer to the parent (abstract) start state
 	StartStateAbstr *parent;
 
-	Gtk::Button newButton, aboutButton;
+	/// Button for starting (the configuration of) a new simulation
+	Gtk::Button newButton;
+	/// Button for opening the about window
+	Gtk::Button aboutButton;
+	/// Label with a welcome message
 	Gtk::Label descriptionLabel;
+	/// Window's main grid
 	Gtk::Grid layoutGrid;
 
 public:
-	StartWindow(StartStateAbstr *);
+	/**
+	 * Constructs a StartWindow object
+	 * @param parent pointer to the parent (abstract) start state
+	 */
+	StartWindow(StartStateAbstr *parent);
 };
 
 }

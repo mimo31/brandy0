@@ -161,6 +161,7 @@ void SimulationState::confirmVideoExport()
 		params->dt * params->stepsPerFrame * frameStepSize,
 		videoExportWidth,
 		videoExportHeight,
+		videoExportBitrate,
 		&app->graphicsManager);
 	videoExporter->updateListeners.plug([this]
 	{

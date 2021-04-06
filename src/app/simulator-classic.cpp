@@ -25,7 +25,7 @@ void SimulatorClassic::visit(const Point p)
 }
 
 SimulatorClassic::SimulatorClassic(const SimulationParams& params)
-	: Simulator(params), w(wp, hp), field(wp, hp), dirichlet(wp, hp), visited(wp, hp), lapL1limit(.001 * wp * hp / 64 / 64), crashLimit(1e13)
+	: Simulator(params), ww(wp, hp), field(wp, hp), dirichlet(wp, hp), visited(wp, hp), lapL1limit(.001 * wp * hp / 64 / 64), crashLimit(1e13)
 {
 	dirichlet.set_all(false);
 	if (bcx0.ptype == BoundaryCondType::Dirichlet)
@@ -41,6 +41,8 @@ SimulatorClassic::SimulatorClassic(const SimulationParams& params)
 		for (uint32_t x = 0; x < wp; x++)
 			dirichlet(x, hp - 1) = true;
 	
+	// search the grid as a graph and for each connected component without any points with
+	// pressure set by a Dirichlet b.c., choose one that will be set that way
 	visited.set_all(false);
 	for (uint32_t y = 0; y < hp; y++)
 	{
@@ -118,6 +120,8 @@ void SimulatorClassic::enforcePBoundary(Grid<double>& p)
 			}
 			if (solid(x, y) || indep(x, y))
 				continue;
+			
+			// average the pressure from neighbors
 			uint32_t cou = 0;
 			double sm = 0;
 			if (indep(x - 1, y))
@@ -187,6 +191,8 @@ void SimulatorClassic::enforceUBoundary(Grid<vec2d>& u)
 		for (uint32_t x = 0; x < wp; x++)
 			u(x, hp - 1) = u(x, hp - 2);
 	}
+
+	// at obstacle boundaries, the velocity is given as (0, 0) by the no-slip condition
 	for (uint32_t y = 1; y < hp - 1; y++)
 	{
 		for (uint32_t x = 1; x < wp - 1; x++)
@@ -210,30 +216,34 @@ void SimulatorClassic::iter()
 	if (!incomplete)
 	{
 		f0 = f1;
+		// compute the w field
 		for (uint32_t y = 1; y < hp - 1; y++)
 		{
 			for (uint32_t x = 1; x < wp - 1; x++)
 			{
 				if (indep(x, y))
 				{
+					// viscous term (laplacian of u)
 					const vec2d lapu = (f0.u(x + 1, y) - 2 * f0.u(x, y) + f0.u(x - 1, y)) / (dx * dx)
 						+ (f0.u(x, y + 1) - 2 * f0.u(x, y) + f0.u(x, y - 1)) / (dy * dy);
 					/*const vec2d convec = f0.u(x, y).x * (f0.u(x + 1, y) - f0.u(x - 1, y)) / (2 * dx)
 						+ f0.u(x, y).y * (f0.u(x, y + 1) - f0.u(x, y - 1)) / (2 * dy);*/
+					// convective term of u (using upwind differencing)
 					const vec2d convec = f0.u(x, y).x * (f0.u(x, y).x > 0 ? f0.u(x, y) - f0.u(x - 1, y) : f0.u(x + 1, y) - f0.u(x, y)) / dx
 						+ f0.u(x, y).y * (f0.u(x, y).y > 0 ? f0.u(x, y) - f0.u(x, y - 1) : f0.u(x, y + 1) - f0.u(x, y)) / dy;
-					w(x, y) = f0.u(x, y) + dt * (nu * lapu - convec);
+					ww(x, y) = f0.u(x, y) + dt * (nu * lapu - convec);
 				}
 			}
 		}
-		enforceUBoundary(w);
+		enforceUBoundary(ww);
+		// compute the RHS of the Poisson equation for pressure
 		for (uint32_t y = 1; y < hp - 1; y++)
 		{
 			for (uint32_t x = 1; x < wp - 1; x++)
 			{
 				if (indep(x, y))
 				{
-					field(x, y) = rho / dt * ((w(x + 1, y).x - w(x - 1, y).x) / (2 * dx) + (w(x, y + 1).y - w(x, y - 1).y) / (2 * dy)); 
+					field(x, y) = rho / dt * ((ww(x + 1, y).x - ww(x - 1, y).x) / (2 * dx) + (ww(x, y + 1).y - ww(x, y - 1).y) / (2 * dy)); 
 					if (field(x, y) > crashLimit || field(x, y) < -crashLimit)
 					{
 						crashed = true;
@@ -245,11 +255,11 @@ void SimulatorClassic::iter()
 	}
 	incomplete = false;
 	uint32_t it = 0;
+	// solve the Poisson equation for pressure
 	while (true)
 	{
 		//f0.p = f1.p;
 		double dl1 = 0;
-		//cout.precision(15);
 		for (uint32_t y = 1; y < hp - 1; y++)
 		{
 			for (uint32_t x = 1; x < wp - 1; x++)
@@ -305,15 +315,15 @@ void SimulatorClassic::iter()
 			}
 		}
 	}
-	//cout << "lap in " << it + 1 << " its" << endl;
+	// update the velocity field using the computed pressure
 	for (uint32_t y = 1; y < hp - 1; y++)
 	{
 		for (uint32_t x = 1; x < wp - 1; x++)
 		{
 			if (indep(x, y))
 			{
-				f1.u(x, y).x = w(x, y).x - dt / rho * (f1.p(x + 1, y) - f1.p(x - 1, y)) / (2 * dx);
-				f1.u(x, y).y = w(x, y).y - dt / rho * (f1.p(x, y + 1) - f1.p(x, y - 1)) / (2 * dy);
+				f1.u(x, y).x = ww(x, y).x - dt / rho * (f1.p(x + 1, y) - f1.p(x - 1, y)) / (2 * dx);
+				f1.u(x, y).y = ww(x, y).y - dt / rho * (f1.p(x, y + 1) - f1.p(x, y - 1)) / (2 * dy);
 				if (std::isnan(f1.u(x, y).x) || std::isnan(f1.u(x, y).y))
 				{
 					crashed = true;
