@@ -9,7 +9,7 @@
 namespace brandy0
 {
 
-std::ostream& operator<<(std::ostream& os, const Point& p)
+std::ostream &operator<<(std::ostream &os, const Point &p)
 {
 	os << "Point(" << p.x << ", " << p.y << ")";
 	return os;

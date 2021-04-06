@@ -9,11 +9,6 @@
 namespace brandy0
 {
 
-vec2d operator*(const double a, const vec2d& v)
-{
-	return v * a;
-}
-
 std::ostream& operator<<(std::ostream& os, const vec2d& v)
 {
 	os << "vec2d(" << v.x << ", " << v.y << ")";
