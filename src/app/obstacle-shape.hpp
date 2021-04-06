@@ -196,7 +196,7 @@ public:
 	 * @param p0 first corner of the circumscribed rectangle
 	 * @param p1 second corner of the circumscribed rectangle
 	 */
-    ObstacleEllipse(bool negative, const vec2d& p0, const vec2d& p1);
+	ObstacleEllipse(bool negative, const vec2d& p0, const vec2d& p1);
 	/**
 	 * Constrcuts an ObstacleEllipse object given the center and semiaxis lengths
 	 * @param negative true iff the ellipse should be negative
@@ -219,7 +219,7 @@ class ObstaclePolygon : public ObstacleShape
 friend Tests;
 private:
 	/// Ordered list of this polygon's vertices
-    vec<vec2d> ps;
+	vec<vec2d> ps;
 
 	/**
 	 * Implements the non-zero winding rule
@@ -234,7 +234,7 @@ public:
 	 * @param negative true iff the polygon should be negative
 	 * @param ps ordered list of the polygon's vertices
 	 */
-    ObstaclePolygon(bool negative, const vec<vec2d>& ps);
+	ObstaclePolygon(bool negative, const vec<vec2d>& ps);
 
 	void draw(const Cairo::RefPtr<Cairo::Context>& cr) const override;
 	void fill(Grid<bool>& grid) const override;

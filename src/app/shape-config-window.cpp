@@ -51,10 +51,10 @@ void ShapeConfigWindow::updateAddShapeWidgets()
 }
 
 ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
-    : BrandyWindow(1280, 720),
+	: BrandyWindow(1280, 720),
 	dimensionsFrame("physical dimensions"),
-    widthEntry("width:", &parent->app->styleManager),
-    heightEntry("height:", &parent->app->styleManager),
+	widthEntry("width:", &parent->app->styleManager),
+	heightEntry("height:", &parent->app->styleManager),
 	addingShapeLabel("adding shape"),
 	addingShapeFrame("current rectangle"),
 	polygonVerticesLabel("0 vertices set"),
@@ -62,14 +62,14 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 	polygonPopVertexButton("pop vertex"),
 	polygonFinishButton("finish"),
 	generalFrame("general controls"),
-    undoButton("undo"),
-    redoButton("redo"),
+	undoButton("undo"),
+	redoButton("redo"),
 	clearAllButton("clear all (can't undo!)"),
 	shapeWidget(parent, this),
 	parent(parent)
 {
-    widthEntry.attachTo(dimensionsGrid, 0, 0);
-    heightEntry.attachTo(dimensionsGrid, 0, 1);
+	widthEntry.attachTo(dimensionsGrid, 0, 0);
+	heightEntry.attachTo(dimensionsGrid, 0, 1);
 
 	dimensionsGrid.set_column_spacing(StyleManager::WidgetSpacing);
 	StyleManager::setPadding(dimensionsGrid);
@@ -112,10 +112,10 @@ ShapeConfigWindow::ShapeConfigWindow(ConfigStateAbstr *parent)
 		shapeSelector.append(mode.name);
 	shapeSelector.set_active(AddShapeModeDefault);
 	addShapeMode = AddShapeModeDefault;
-    
-    add(rootGrid);
+	
+	add(rootGrid);
 
-    show_all_children();
+	show_all_children();
 
 	connectWindowEventHandlers();
 	connectStateEventHandlers();

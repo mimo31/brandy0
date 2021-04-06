@@ -20,13 +20,13 @@ class BrandyWindow : public Gtk::Window
 {
 protected:
 	/// Constructs the default brandy0 window
-    BrandyWindow();
+	BrandyWindow();
 	/**
 	 * Constructs the default brandy0 window with a particular default size.
 	 * @param defaultWidth the default width of the window
 	 * @param defaultHeight the default height of the window
 	 */
-    BrandyWindow(uint32_t defaultWidth, uint32_t defaultHeight);
+	BrandyWindow(uint32_t defaultWidth, uint32_t defaultHeight);
 };
 
 }

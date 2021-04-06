@@ -37,7 +37,7 @@ struct BackDisplayMode
 const std::array<BackDisplayMode, 6> BackDisplayModes{ 
 	BackDisplayMode("none"), BackDisplayMode("velocity magnitude"),
 	BackDisplayMode("vorticity"), BackDisplayMode("relative vorticity"),
-    BackDisplayMode("pressure"),
+	BackDisplayMode("pressure"),
 	BackDisplayMode("velocity divergence")
 	};
 /// Number (index) of the background visual mode 'None'
@@ -76,8 +76,8 @@ struct FrontDisplayMode
 
 /// Array of all foreground visual modes available in our program
 const std::array<FrontDisplayMode, 3> FrontDisplayModes{
-    FrontDisplayMode("none"), FrontDisplayMode("velocity (arrows)"),
-    FrontDisplayMode("velocity (streamlines)")
+	FrontDisplayMode("none"), FrontDisplayMode("velocity (arrows)"),
+	FrontDisplayMode("velocity (streamlines)")
 };
 /// Number (index) of the foreground visual mode 'None'
 constexpr uint32_t FrontDisplayNone = 0;

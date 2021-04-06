@@ -31,14 +31,14 @@ class ShapeConfigWindow : public ShapeConfigWindowAbstr, public BrandyWindow
 {
 private:
 	/// Window's main grid
-    Gtk::Grid rootGrid;
+	Gtk::Grid rootGrid;
 
 	/// Frame for the section with physical dimensions entries
 	Gtk::Frame dimensionsFrame;
 	/// Grid for the sectino with physical dimensions entries
 	Gtk::Grid dimensionsGrid;
 	/// Entry for the physical width
-    AnnotatedEntry widthEntry;
+	AnnotatedEntry widthEntry;
 	/// Entry for the physical height
 	AnnotatedEntry heightEntry;
 
@@ -64,14 +64,14 @@ private:
 	/// Grid for the section with general shape stack control
 	Gtk::Grid generalGrid;
 	/// Button for undoing the addition of the last shape
-    Gtk::Button undoButton;
+	Gtk::Button undoButton;
 	/// Button for redoing the previously undone additions of shapes
 	Gtk::Button redoButton;
 	/// Button for irreversibly removing all shapes from the shape stack
 	Gtk::Button clearAllButton;
 
 	/// Main interactive widget for shape configuration
-    ShapeConfigWidget shapeWidget;
+	ShapeConfigWidget shapeWidget;
 	/// Pointer to the parent (abstract) configuration state
 	ConfigStateAbstr *parent;
 
@@ -82,7 +82,7 @@ private:
 	/**
 	 * Sets the contents of the entries for physical dimensions (width and height) based on the data stored in *(parent->params)
 	 */
-    void setEntryFields();
+	void setEntryFields();
 
 	/**
 	 * Updates the visibility, sensitivity, and content of the widgets related to the shape that is currently being added
@@ -104,7 +104,7 @@ public:
 	 * Constructs a ShapeConfigWindow object
 	 * @param parent pointer to the parent (abstract) configuration state
 	 */
-    ShapeConfigWindow(ConfigStateAbstr *parent);
+	ShapeConfigWindow(ConfigStateAbstr *parent);
 };
 
 }

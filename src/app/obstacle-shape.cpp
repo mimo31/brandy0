@@ -94,7 +94,7 @@ void ObstacleShapeStack::set(Grid<bool>& grid) const
 }
 
 ObstacleEllipse::ObstacleEllipse(const bool negative, const vec2d& p0, const vec2d& p1)
-    : ObstacleShape(negative), center((p0 + p1) / 2),
+	: ObstacleShape(negative), center((p0 + p1) / 2),
 	xhaxis((std::max(p0.x, p1.x) - std::min(p0.x, p1.x)) / 2),
 	yhaxis((std::max(p0.y, p1.y) - std::min(p0.y, p1.y)) / 2)
 {
@@ -186,7 +186,7 @@ bool ObstaclePolygon::inside(const vec2d p) const
 }
 
 ObstaclePolygon::ObstaclePolygon(const bool negative, const vec<vec2d>& ps)
-    : ObstacleShape(negative), ps(ps)
+	: ObstacleShape(negative), ps(ps)
 {
 }
 

@@ -24,7 +24,7 @@ class ShapeConfigWidget : public Gtk::Widget
 {
 private:
 	/// Parent GDK window
-    Glib::RefPtr<Gdk::Window> win;
+	Glib::RefPtr<Gdk::Window> win;
 
 	/// Pointer to the parent (abstract) configuration state
 	ConfigStateAbstr *parent;
@@ -43,13 +43,13 @@ private:
 	/// True iff the mouse is currently inside (above) the container (inside the widget is necessary but not sufficient)
 	bool mouseInside;
 
-    void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
-    void get_preferred_height_vfunc(int& minimum_height, int& natural_height) const override;
-    void get_preferred_height_for_width_vfunc(int width, int& minimum_height, int& natural_height) const override;
-    void get_preferred_width_for_height_vfunc(int height, int& minimum_width, int& natural_width) const override;
-    void on_size_allocate(Gdk::Rectangle& allocation) override;
-    void on_realize() override;
-    void on_unrealize() override;
+	void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
+	void get_preferred_height_vfunc(int& minimum_height, int& natural_height) const override;
+	void get_preferred_height_for_width_vfunc(int width, int& minimum_height, int& natural_height) const override;
+	void get_preferred_width_for_height_vfunc(int height, int& minimum_width, int& natural_width) const override;
+	void on_size_allocate(Gdk::Rectangle& allocation) override;
+	void on_realize() override;
+	void on_unrealize() override;
 
 	/**
 	 * Draws marks at the specified points.
@@ -64,7 +64,7 @@ private:
 	 * Equivalent to markPoints(cr, baseCoors, vec<vec2d>{ p }).
 	 */
 	void markPoint(const Cairo::RefPtr<Cairo::Context>& cr, const cairo_matrix_t& baseCoors, vec2d p) const;
-    bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+	bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
 	/**
 	 * @return width of the widget in pixels
@@ -121,7 +121,7 @@ public:
 	 * @param parent pointer to the parent (abstract) configuration state
 	 * @param parentWindow pointer to the parent (abstract) shape configuration window
 	 */
-    ShapeConfigWidget(ConfigStateAbstr *parent, ShapeConfigWindowAbstr *parentWindow);
+	ShapeConfigWidget(ConfigStateAbstr *parent, ShapeConfigWindowAbstr *parentWindow);
 };
 
 }

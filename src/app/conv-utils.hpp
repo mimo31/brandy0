@@ -36,7 +36,7 @@ private:
 	 * @param s string to analyze
 	 * @return true iff the specified string denotes a non-negative real number
 	 */
-    static bool isNonnegativeReal(const str& s);
+	static bool isNonnegativeReal(const str& s);
 	/**
 	 * Determines if a string denotes a real number.
 	 * 
@@ -46,7 +46,7 @@ private:
 	 * @param s string to analyze
 	 * @return true iff the specified string denotes a real number
 	 */
-    static bool isReal(const str& s);
+	static bool isReal(const str& s);
 	/**
 	 * Determines if a string denotes a non-negative integer.
 	 *
@@ -55,12 +55,12 @@ private:
 	 * @param s string to analyze
 	 * @return true iff the specified string denotes a non-negative integer
 	 */
-    static bool isNonnegativeInt(const str& s);
+	static bool isNonnegativeInt(const str& s);
 	/**
 	 * @param s string to analyze
 	 * @return true iff the specified string contains at least one character different from '0'
 	 */
-    static bool isNonzero(const str& s);
+	static bool isNonzero(const str& s);
 	/**
 	 * Converts a string to an integer while checking for overflows.
 	 * @param s string to convert
@@ -71,14 +71,14 @@ private:
 	 * @return true iff the conversion succeeded
 	 * writeto is written to iff the conversion succeeded (this function returns true)
 	 */
-    static bool boundedStoi(const str& s, uint32_t& writeto, uint32_t maxVal);
+	static bool boundedStoi(const str& s, uint32_t& writeto, uint32_t maxVal);
 
 public:
 	/**
 	 * Parses a positive integer from an AnnotatedEntry and updates its indicator accordinlgy.
 	 * Equivalent to updatePosIntIndicator(aentry, writeto, defaultVal, 0, maxVal).
 	 */
-    static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, uint32_t defaultVal, uint32_t maxVal);
+	static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, uint32_t defaultVal, uint32_t maxVal);
 	/**
 	 * Parses a positive integer from an AnnotatedEntry and updates its indicator accordingly.
 	 * @param aentry the AnnotatedEntry to be read and updated
@@ -87,7 +87,7 @@ public:
 	 * @param minVal the minimum value (to possibly invalidate the input)
 	 * @param maxVal the maximum value (to possibly invalidate the input)
 	 */
-    static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, uint32_t defaultVal, uint32_t minVal, uint32_t maxVal);
+	static void updatePosIntIndicator(AnnotatedEntry& aentry, uint32_t& writeto, uint32_t defaultVal, uint32_t minVal, uint32_t maxVal);
 	/**
 	 * Parses a positive real number from an AnnotatedEntry and updates its indicator accordingly.
 	 * @param aentry the AnnotatedEntry to be read and updated
@@ -96,7 +96,7 @@ public:
 	 * @param minVal the minimum value (to possibly invalidate the input)
 	 * @param maxVal the maximum value (to possibly invalidate the input)
 	 */
-    static void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, double defaultVal, double minVal, double maxVal);
+	static void updatePosRealIndicator(AnnotatedEntry& aentry, double& writeto, double defaultVal, double minVal, double maxVal);
 	/**
 	 * Parses a real number from an AnnotatedEntry and updates its indicator accordingly.
 	 * @param aentry the AnnotatedEntry to be read and updated
@@ -104,7 +104,7 @@ public:
 	 * @param defaultVal the default value of the quantity that is being entered (to possibly set the aentry's indicator state to default)
 	 * @param maxVal the maximum absolute value (to possibly invalidate the input)
 	 */
-    static void updateRealIndicator(AnnotatedEntry& aentry, double& writeto, double defaultVal, double maxVal);
+	static void updateRealIndicator(AnnotatedEntry& aentry, double& writeto, double defaultVal, double maxVal);
 
 	/**
 	 * Converts a real number to a string in the default format (i.e. the format given by sending a double to a stream)
