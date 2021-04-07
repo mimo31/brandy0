@@ -31,18 +31,18 @@
 
 % Abstrakt česky
 \def\Abstrakt{%
-Abstrakt.
+	Software vyvinutý v rámci této práce je nativní aplikací pro operační systémy Linux a Windows, která simuluje a vizualizuje proudění nestlačitelné tekutiny kolem libovolných pevných překážek ve dvoudimenzionálním prostoru za různých podmínek. Jeho cílem je prohloubit základní povědomí o~proudění tekutin u koncových uživatelů pomocí fyzikálně přesných vizualizací bez nutnosti ovládat složitá rozhraní, která bývají součástí průmyslového software pro simulaci tekutin. Proudění tekutiny se simuluje na základě tvarů překážek a okrajových podmínek pro tlak a rychlost, což vše koncový uživatel zadává před spuštěním simulace. Nejrychleji a nejspolehlivěji náš software pracuje při nízkých Reynoldsových číslech (laminární proudění), zatímco při vysokých Reynoldsových číslech (turbulentní proudění) začíná potřebný výpočetní výkon prudce narůstat. I přesto náš software dosahuje svého cíle tím, že je schopen simulovat širokou škálu laminárních proudění a jevů při přechodu k turbulentnímu proudění (např.\ vznik vírů).
 }
 
 % Abstrakt anglicky
 \def\AbstraktEN{%
-The \software{} developed in this \this{}, \pname{}, is a native application for Linux and Windows that predicts and visualizes the flow of an incompressible fluid around arbitrary obstacles and under various conditions in two-dimensional space. It aims to deepen the basic understanding of fluid flow among its end-users by presenting physically accurate visualizations without the sophisticated interface that often comes with fluid simulation software used in the industry. It simulates the flow based on the shapes of the obstacles and the boundary conditions for pressure and velocity, all of which can be configured by the end-user before starting the simulation. The \software{} works the fastest and most reliably for low Reynold numbers (laminar flow), whereas for high Reynold numbers (turbulent flow), the amount of required computational resources (both in time and space) increases rapidly. Nevertheless, the \software{} achieves its goal by being able to simulate a wide range of laminar flows and phenomena (such as the development of vortices) during at the transition to turbulent flows.
+The \software{} developed in this \this{}, \pname{}, is a native application for Linux and Windows that simulates and visualizes the flow of an incompressible fluid around arbitrary solid obstacles and under various conditions in two-dimensional space. It aims to deepen the basic understanding of fluid flow among its end-users by presenting physically accurate visualizations without the sophisticated interface that often comes with fluid simulation software used in the industry. It simulates the flow based on the shapes of the obstacles and the boundary conditions for pressure and velocity, all of which can be configured by the end-user before starting the simulation. The \software{} works the fastest and most reliably for low Reynold numbers (laminar flow), whereas for high Reynold numbers (turbulent flow), the amount of required computational power (both in time and space) increases rapidly. Nevertheless, the \software{} achieves its goal by being able to simulate a wide range of laminar flows and phenomena (such as the development of vortices) during at the transition to turbulent flows.
 }
 
 % 3 až 5 klíčových slov
-\def\KlicovaSlova{klíčové slovo, další pojem, jiný důležitý termín, a ještě jeden}
+\def\KlicovaSlova{výpočetní dynamika tekutin, Navier-Stokesovy rovnice pro nestalčitelné tekutiny, vizualizace dat, počítačové simulace}
 % 3 až 5 klíčových slov anglicky
-\def\KlicovaSlovaEN{computational fluid dynamics, incompressible Navier-Stokes equations, visualization, computer simulation}
+\def\KlicovaSlovaEN{computational fluid dynamics, incompressible Navier-Stokes equations, data visualization, computer simulation}
 
 
 \begin{document}
@@ -439,14 +439,14 @@ There were a few unexpected problems, such as the already mentioned bugs in GTK+
 \printbibliography[title={Bibliography},heading={bibintoc}]
 
 %%% Seznam obrázků
-\openright
-\listoffigures
-\addcontentsline{toc}{chapter}{Seznam obrázků}
+%\openright
+%\listoffigures
+%\addcontentsline{toc}{chapter}{Seznam obrázků}
 
 %%% Seznam tabulek
-\clearpage
-\listoftables
-\addcontentsline{toc}{chapter}{Seznam tabulek}
+%\clearpage
+%\listoftables
+%\addcontentsline{toc}{chapter}{Seznam tabulek}
 
 %%% Přílohy k práci, existují-li. Každá příloha musí být alespoň jednou
 %%% odkazována z vlastního textu práce. Přílohy se číslují.
