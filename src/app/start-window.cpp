@@ -15,7 +15,7 @@ StartWindow::StartWindow(StartStateAbstr *const parent)
 	: parent(parent),
 	newButton("new simulation"),
 	aboutButton("about"),
-	descriptionLabel("Welcome to brandy0, a fluid dynamics simulator!")
+	descriptionLabel("Welcome to brandy0, a fluid flow simulator!")
 {
 	set_resizable(false);
 	
