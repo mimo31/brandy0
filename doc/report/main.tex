@@ -31,7 +31,7 @@
 
 % Abstrakt česky
 \def\Abstrakt{%
-	Software vyvinutý v rámci této práce je nativní aplikací pro operační systémy Linux a Windows, která simuluje a vizualizuje proudění nestlačitelné tekutiny kolem libovolných pevných překážek ve dvoudimenzionálním prostoru za různých podmínek. Jeho cílem je prohloubit základní povědomí o~proudění tekutin u koncových uživatelů pomocí fyzikálně přesných vizualizací bez nutnosti ovládat složitá rozhraní, která bývají součástí průmyslového software pro simulaci tekutin. Proudění tekutiny se simuluje na základě tvarů překážek a okrajových podmínek pro tlak a rychlost, což vše koncový uživatel zadává před spuštěním simulace. Nejrychleji a nejspolehlivěji náš software pracuje při nízkých Reynoldsových číslech (laminární proudění), zatímco při vysokých Reynoldsových číslech (turbulentní proudění) začíná potřebný výpočetní výkon prudce narůstat. I přesto náš software dosahuje svého cíle tím, že je schopen simulovat širokou škálu laminárních proudění a jevů při přechodu k turbulentnímu proudění (např.\ vznik vírů).
+	Software vyvinutý v rámci této práce je nativní aplikací pro operační systémy Linux a Windows, která simuluje a vizualizuje proudění nestlačitelné tekutiny kolem libovolných pevných překážek ve dvoudimenzionálním prostoru za různých podmínek. Jeho cílem je prohloubit základní povědomí o~proudění tekutin u koncových uživatelů pomocí fyzikálně přesných vizualizací bez nutnosti ovládat složitá rozhraní, jež bývají součástí průmyslového software pro simulaci tekutin. Proudění tekutiny se simuluje na základě tvarů překážek a okrajových podmínek pro tlak a pro rychlost, což koncový uživatel zadává před spuštěním simulace. Nejrychleji a nejspolehlivěji náš software pracuje při nízkých Reynoldsových číslech (laminární proudění), zatímco při vysokých Reynoldsových číslech (turbulentní proudění) začíná potřebný výpočetní výkon prudce narůstat. I přesto náš software dosahuje svého cíle tím, že je schopen simulovat širokou škálu laminárních proudění a jevů při přechodu k turbulentnímu proudění (např.\ vznik vírů).
 }
 
 % Abstrakt anglicky
@@ -101,7 +101,7 @@ We assume no external forces, so $\mathbf g=0$. Hence, the momentum equation tha
 \end{align}
 where $\nu=\mu/\rho$ is the \emph{kinematic} viscosity.
 \section{Numerical Model}
-Our way of numerically solving the above equations that is not the most accurate or computationaly efficient, but it is relatively simple to implement and to work with. It is essentially the Chorin's projection method introduced in \cite{Chorin}. What we've implemented in an explicit, finite difference method.
+Our way of numerically solving the above equations that is not the most accurate or computationaly efficient, but it is relatively simple to implement and to work with. It is essentially the Chorin's projection method introduced in \cite{Chorin}. What I have implemented in an explicit, finite difference method.
 
 % TODO resolve that Barba's materials are also mentioned in 2.2 Course of Development
 During the implementation, Lorena A. Barba's practical examples of solving the Navier-Stokes equations \cite{CFDpython} as well the recordings of her CFD course at Boston University \cite{BarbaCourse} were of great help. The solver used in \cite{CFDpython} is an implementation of Chorin's projection method, and is therefore similar to our implementation, but there are also some notable differences such as the fact that the solver in \cite{CFDpython} neglects some of the terms on the right-hand side of the pressure Poisson equation, doesn't incorporate any obstacles inside the enclosing rectangular boundary, and doesn't use the general upwind differecing scheme as we do.
@@ -188,7 +188,7 @@ By definition, the advection term is the sum of the terms in \eqref{eq:advx} and
 The \software{} is written mostly in C++\footnote{See \cite{cppreference} for a good C++ reference.}. C++ is a compiled programming language with multiple freely available compilers, which are capable of many optimizations, so that the resulting executable programs are one of the fastest when compared to other programming languages. This is important for us because computational resources (and their efficient use) are a limiting factor during the simulations. Moreover, C++ code can be written in a highly structured manner (e.g.\ using objects and classes, namespaces, templates, \icd{constexpr}, \icd{const}, static assertions, etc.), which decreases the likelihood of errors altogether or at least enables better static analysis and the discovery of potential errors at compile time (compared to the C programming language, for example). 
 
 \subsection{User Interface, Widget Toolkit}
-The most visible technology used in the \software{} is gtkmm 3 \footnote{The official tutorial can be found in \cite{gtkmm3} and the official reference manual in \cite{gtkmm3ref}.}, a C++ wrapper around GTK+ 3 \footnote{The official reference manual including some examples and an explanation of the GTK+ general principles is in \cite{gtk3ref}. When working with gtkmm, it is rarely useful -- only in the exceptional cases when the gtkmm reference isn't comprehensive enough.} user interface widget toolkit library. It is one of the two most widely used user interface libraries for C++, the other being Qt\footnote{See \cite{qt}.}. Qt is written natively in C++ (in contrast to GTK being a C library), but the gtkmm wrapper for C++ makes good use of C++ paradigms, so that gtkmm interoperates with C++ code just as easily. Hence, both gtkmm and Qt seemed adequate for our \software{} and the final decision was based on a personal preference for the GNOME ecosystem.
+The most visible technology used in the \software{} is gtkmm 3 \footnote{The official tutorial can be found in \cite{gtkmm3} and the official reference manual in \cite{gtkmm3ref}.}, a C++ wrapper around GTK+ 3 \footnote{The official reference manual including some examples and an explanation of the GTK+ general principles is in \cite{gtk3ref}. When working with gtkmm, it is rarely useful -- only in the exceptional cases when the gtkmm reference is not comprehensive enough.} user interface widget toolkit library. It is one of the two most widely used user interface libraries for C++, the other being Qt\footnote{See \cite{qt}.}. Qt is written natively in C++ (in contrast to GTK being a C library), but the gtkmm wrapper for C++ makes good use of C++ paradigms, so that gtkmm interoperates with C++ code just as easily. Hence, both gtkmm and Qt seemed adequate for our \software{} and the final decision was based on a personal preference for the GNOME ecosystem.
 
 \subsection{OpenGL for Visualizations}
 Specifically for the visualization of the simulated fluid flow, we use the OpenGL API\footnote{Reference in \cite{openglref}.} to produce detailed images accurately representing the computed states easily and to do so fast enough to be able to play the images as a continuous video. No complex graphics was necessary for our \software{}, so only 4 relatively simple shaders written in the OpenGL Shading Language are a part of the source code.
@@ -248,10 +248,9 @@ When computing the frames of a simulation, our \software{} does not know how muc
 
 The \software{} uses a specific method to tackle this problem. A method which is elegantly simple and scalable with the number of frames, but it definitely has drawbacks too. One of the parameters of a simulation is the maximum number of frames that can be stored at once. When the simulation starts, the newly computed frames are being stored until the set capacity is reached. When tha capacity is reached, every other of the already stored frames gets deleted and after this moment, only every other frame is stored. This coarsening of the temporal resolution by a factor of two is repeated every time the capacity is reached.
 
-This method prevents the consumption of too much memory and it ensures that frames representing the entire duration of the computed simulation are still available at a reasonable temporal resolution. It is also probably one of the simplest solutions to achieve this. Besides the overall capacity, it doesn't require any configuration from the user.
+This method prevents the consumption of too much memory and it ensures that frames representing the entire duration of the computed simulation are still available at a reasonable temporal resolution. It is also probably one of the simplest solutions to achieve this. Besides the overall capacity, it does not require any configuration from the user.
 
-% TODO come up with word choice
-Nevertheless, more [smart ? -- find a word] method might be desirable in some cases. It not unusual that at the beginning of a simulation, there is a short time of drastic changes in the state of the fluid. Then, if the simulator runs for long enough, the temporal resolution might degrade so much that only a few frames, if any, show what happened during that short initial period of time. It could therefore be of value to allow for a variable temporal resolution during the simulation (typically high at the beginning, lower as the simulation progresses). Such an approach would however be unlikely to reach its full potential unless the user were able to configure these changes in resolution.
+Nevertheless, this approach might be inadequate in some cases. It not unusual that at the beginning of a simulation, there is a short time of drastic changes in the state of the fluid. Then, if the simulator runs for long enough, the temporal resolution might degrade so much that only a few frames, if any, show what happened during that short initial period of time. It could therefore be of value to allow for a variable temporal resolution during the simulation (typically high at the beginning, lower as the simulation progresses). Such an approach would however be unlikely to reach its full potential unless the user were able to configure these changes in resolution.
 
 \section{Technical Complications during Development}
 
@@ -267,14 +266,14 @@ In our \software{} the crash can be avoided by removing the \icd{Gtk::Switch} fr
 While developing the \software{}, we noticed that the window that shows displays the visualizations of the simulated states sometimes starts to flicker. This typically happens when the user interacts with some of the widgets in this window and some kind of the flickering is almost always visible whenever the user drags a corner of the window to resize it. The intensity of the flickering varies depending on platform the \software{} currently runs on.
 % TODO add screenshot of the flickering window
 
-This seems to be caused by an already reported\footnote{See \cite{GtkFlickerReport}.} bug in GTK+ 3 (again, this bug does not affect GTK 4) and it is only manifested in the window with the visualizations because that is the only window which uses the affected \icd{GtkGLArea} widget. We weren't able to implement any workaround for this bug.
+This seems to be caused by an already reported\footnote{See \cite{GtkFlickerReport}.} bug in GTK+ 3 (again, this bug does not affect GTK 4) and it is only manifested in the window with the visualizations because that is the only window which uses the affected \icd{GtkGLArea} widget. I was not able to implement any workaround for this bug.
 
 The flickering certainly constitues a considerable inconvenience, but it is almost always possible to get rid of if by some sequence of user interactions with the widgets. It often helps to maximize the window to fullscreen or to click or hover over some of the widgets.
 
 \subsection{Oversimplification of the Model}
-The way we model the state of the fluid and its evolution can be viewed as oversimplified in at least two ways. One could think of the physical model as oversimplified, since it doesn't incorporate quantities and phenomena that manifest themselves in fluids we encounter every day (e.g.\ changes in tempreture, density, or viscosity between multiple regions of the same fluid). Even though this is a valid objection to our model, let us rather focus on the (over)simplification of the numerical model, since this \this{} is primarily a computer science \this{}.
+The way we model the state of the fluid and its evolution can be viewed as oversimplified in at least two ways. One could think of the physical model as oversimplified, since it does not incorporate quantities and phenomena that manifest themselves in fluids we encounter every day (e.g.\ changes in tempreture, density, or viscosity between multiple regions of the same fluid). Even though this is a valid objection to our model, let us rather focus on the (over)simplification of the numerical model, since this \this{} is primarily a computer science \this{}.
 
-Our numerical model -- the algorithm we use to solve the incompressible Navier-Stokes equations -- is arguably one of the simplest ones capable of this. Modern solvers use more complicated and involved algortihms, which have the advantage of being more accurate and precise, more computationally efficient, or both. Most notably perhaps, one could achieve higher efficiency by using irregular grids with higher density near the edges of solid obstacles because that is where the quantities describing the fluid change most rapidly. We could do that, if we used the finite element method\footnote{Essential information about the Finite element method can be found in \cite{WikiFEM}.}. Altough, we should keep in mind that implementing the current model correctly was already by no means trivial, so there would be a high risk of failure or serious problems should we have chosen a more complex approach.
+Our numerical model -- the algorithm we use to solve the incompressible Navier-Stokes equations -- is arguably one of the simplest ones capable of this. Modern solvers use more complicated and involved algortihms, which have the advantage of being more accurate and precise, more computationally efficient, or both. Most notably perhaps, one could achieve higher efficiency by using irregular grids with higher density near the edges of solid obstacles because that is where the quantities describing the fluid change most rapidly. We could do that, if we used the finite element method\footnote{Essential information about the Finite element method can be found in \cite{WikiFEM}.}. Altough, we should keep in mind that implementing the current model correctly was already by no means trivial, so there would be a high risk of failure or serious problems should  have chosen a more complex approach.
 
 % TODO add some measurements of simulation run time and table of parameters for which the simulation diverges for which not
 
@@ -282,9 +281,9 @@ Our numerical model -- the algorithm we use to solve the incompressible Navier-S
 
 \section{Installation}
 
-\pname{} can be distributed as a single executable file which dynamically links to libraries it depends on. The executable file itself can (in some cases) be directly downloaded from the project repository or it can be compiled from source. Either way, dependencies in the list that follows must be installed whenever \pname{} runs.
+\pname{} can be distributed as a single executable file which dynamically links to libraries it depends on. The executable file can be compiled from source available in the project repository. Regardless of how the executable file is acquired, dependencies from the list below must be installed whenever \pname{} runs.
 
-\subsection{Dependencies required at run time}\label{sec:runtimedeps}
+\subsection{Dependencies Required at Run Time}\label{sec:runtimedeps}
 For every dependency listed below, automatically include all its dependencies. (If using a package manager, they typically install automatically.)
 \begin{itemize}
 	\item gtkmm 3 (a C++ interface for GTK (GTK+) -- a GUI library)
@@ -302,7 +301,7 @@ For every dependency listed below, automatically include all its dependencies. (
 		\end{itemize}
 \end{itemize}
 
-\subsection{Additional dependencies required for compilation}\label{sec:compiledeps}
+\subsection{Additional Dependencies Required for Compilation}\label{sec:compiledeps}
 \begin{itemize}
 	\item developer packages for the above run-time dependencies (unless the developer files were already included in the main package)
 		\begin{itemize}
@@ -371,7 +370,7 @@ For every dependency listed below, automatically include all its dependencies. (
 \end{enumerate}
 
 \section{Navigation and Use}
-When running, the application can always be thought of as being in of three states: the start state, the configuration state, the simulation state. Each of these is described in more detail in the following sections.
+When running, the application can always be thought of as being in of three states: the start state, the configuration state, or the simulation state. Each of these is described in more detail in the following sections.
 
 \subsection{The Start State}
 The start state is the simplest of all of the application's states. It is the active state at the start of the application. It consists of a button to continue to the configuration state and a button to show a window with information about the project.
@@ -396,16 +395,17 @@ In the shape configuration window, the shape of the container and the obstacles 
 The third window in the configuration state is the window for selecting presets, which can be opened from the main configuration window. It offers a list of presets -- predefined values of all simulation parameters -- and sets the values of the parameters in the other two windows to those of the preset once a preset is confirmed. Trying some of the presets is the recommended way of getting to know the capabilities of the simulator.
 
 \subsection{The Simulation State}
-There is one primary window in the simulation state -- the simulation window. It's divided into the visualization display area and the control panel. The display area visualizes computed frames of the simulation based on what is set in the control panel.
+There is one primary window in the simulation state -- the simulation window. It is divided into the visualization display area and the control panel. The display area visualizes computed frames of the simulation based on what is set in the control panel.
 
 In the control panel, the computation and visualization of the simulation can be controlled. From left to right, the control panel contains
 \begin{itemize}
 	\item a button for closing the current simulation and returning to the configuration state,
 	\item controls and information related to the state of the computation, i.e., a switch for pausing and resuming the computation of the simulation, information of how many computed frames are currently stored, and how many iterations have been computed for the next frame,
 	\item controls for what part of the computed simulation should be displayed and how and how fast it should be played (there are three playback modes: \emph{play until end} plays the frames at the set speed until it reaches the end of the computed segment where it can play no faster than the speed of the computation, \emph{loop} plays the frames at the set speed and starts from the beginning whenever it reaches the end of the computed segment, \emph{last frame only} always (unless the playback is paused) displays the last computed frame),
-	\item controls for what should be visualized -- what should be visualized in the background using color (\emph{background visual}\footnote{Apart from the self-explanatory visuals, \emph{relative vorticity} stands for vorticity divided by velocity magnitude and \emph{velocity divergence} should theoretically be zero everywhere (since the fluid is incompressible), but it is not exactly zero due to approximations in the model}), where the red color stands for high values and blue for low values, and what in the foreground (\emph{foreground visual}),
+	\item controls for what should be visualized -- what should be visualized in the background using color (\emph{background visual}\footnote{Apart from the visuals with self-explanatory names, \emph{relative vorticity} stands for vorticity divided by velocity magnitude and \emph{velocity divergence} should theoretically be zero everywhere (since the fluid is incompressible), but it is not exactly zero due to approximations in the model.}), where the red color stands for high values and blue for low values, and what in the foreground (\emph{foreground visual}),
 	\item and a button for opening the video export dialog.
 \end{itemize}
+For some combinations of simulation parameters, it may happen that the computational model collapses and the simulation diverges. Information about this is then displayed below the switch for pausing the computation, the computation is stopped, and it cannot be resumed.
 
 The other window in the simulation state is the video export dialog, which can be opened from the control panel in the main window. The dialog lets the user set the start and the end times of the exported video and the playback speed. It also allows the user to preview the video that will be exported by letting the simulation play as it will in the video -- the output of this preview is displayed in the display area in the main simulation window. Even when the export dialog is open, the visuals can be controlled by the control panel in the main simulation window and changes in the visuals are immediately reflected in the preview and in the exported video. At last, the video export dialog contains entries for configuring the width, height, bitrate, and filename of the exported video.
 
@@ -418,7 +418,7 @@ Software developed in this \this{} completely fulfills the assigned specificatio
 
 I think it would have been a good idea to have done even more research at the beginning of the project -- especially in the field of CFD. That could have helped develop a reliable computational model faster. On the other hand, I had the opportunity to experiment with different models I came up with myself, which deepened my intuition in CFD and more generally in numerical methods and computer simulation too.
 
-Overall, this was not an easy project and it was definitely one of the largest pieces of software I've ever developed, which took a proportionally large amount of time, a sizeable portion of which has been spent on watching the computed simulations and trying to recognize the displayed physical phenomena. Even though I already had experience in software development before the project, it has taught me new skills such as project management or smoother usage of the C++ programming language.
+Overall, this was not an easy project and it was definitely one of the largest pieces of software I have ever developed, which took a proportionally large amount of time, a sizeable portion of which has been spent on watching the computed simulations and trying to recognize the displayed physical phenomena. Even though I already had experience in software development before the project, it has taught me new skills such as project management or smoother usage of the C++ programming language.
 
 There were a few unexpected problems, such as the already mentioned bugs in GTK+, but with these few exceptions, I think I did well and enjoyed working on the project.
 % proposed content
