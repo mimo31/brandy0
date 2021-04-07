@@ -62,7 +62,7 @@ In this \this{} however, we are not focused on any of these direct applications 
 
 My main motivation for committing myself to the development of the \software{} constituting this \this{} was my fascination with the computers' ability to simulate (parts of) the real world and my curiosity as to how far one can get with only the general knowledge of physics and numerical analysis fundamentals and no prior expertise in CFD specifically.
 
-Our \software{} computes and visualizes the temporal evolution of the state of a fluid inside a two-dimensional, rectangular container. The state of the fluid is given by the velocity vector field and the pressure scalar field, each of which has a value at every point inside the container. This state at some given time after the start of the simulation is dependent on a multitude of parameters:
+Our \software{} computes and visualizes the temporal evolution of the state of a fluid inside a two-dimensional, rectangular container. The state of the fluid is given by the velocity vector field and the pressure scalar field, each of which has a value at every point inside the container. This state at some given time after the start of the simulation depends on a multitude of parameters:
 \begin{itemize}
 	\item \textbf{the shape of the container,}\\
 		This includes the dimensions of the rectangular enclosing container and also the shapes and dimensions of the solid obstacles inside it. Both can be freely configured by the end-user before a simulation.
@@ -369,9 +369,57 @@ For every dependency listed below, automatically include all its dependencies. (
 		Run the executable. It has been generated at \icd{\$REPO/build/release/app/brandy0}.
 \end{enumerate}
 
-Poslední kapitola obsahuje informace o tom, jak projekt, který v rámci maturitní práce vznikl, nainstalovat, spustit a používat.
+\section{Navigation and Use}
+When running, the application can always be thought of as being in of three states: the start state, the configuration state, the simulation state. Each of these is described in more detail in the following sections.
 
-\chapter*{Závěr}
+\subsection{The Start State}
+The start state is the simplest of all of the application's states. It is the active state at the start of the application. It consists of a button to continue to the configuration state and a button to show a window with information about the project.
+
+\subsection{The Configuration State}
+The configuration state can be reached from the start state by starting a new simulation or from the simulation state by ending the running simulation. Its main purpose is to let the user configure parameters of a simulation.
+
+The configuration state primarily consists of the windows. There is the main configuration window and the shape configuration window. Moreover, there is a button in the main configuration window which can open a third window -- the window for selecting presets.
+
+In the main configuration window, the user set various parameters of the simulation such as
+\begin{itemize}
+	\item properties of the fluid (density and viscosity),
+	\item boundary conditions (independently for each of the four sides of the container),
+	\item and computational parameters of the simulator.
+\end{itemize}
+For each side of the container, the boundary condition for pressure and the boundary condition for velocity must be set. Each of these two can either be Neumann type boundary condition (then derivative of the field along the normal to the side will be zero) or a Dirichlet type boundary condition (then the value of the field at the given side must be specified). Note that all quantities are taken to be unitless, which yields the same results as if all the quantities were in, for example, SI base units.
+
+Computational parameters of the simulator include the resolution of the discretizing grid (number of its point along the $x$ axis (width) and along the $y$ axis (height)), the time step in one iteration of the simulator ($\dt$), number of iterations (steps) of the simulator between two consecutive outputted frames, and the maximum number of computed frames that can be stored at once.
+
+In the shape configuration window, the shape of the container and the obstacles inside it can be set. There are entries for specifying the physical width and height of the container. Obstacles can be added by selecting one of the shape types and then clicking inside the chequered area below. The chequered area is a one-to-one image of the simulated container.
+
+The third window in the configuration state is the window for selecting presets, which can be opened from the main configuration window. It offers a list of presets -- predefined values of all simulation parameters -- and sets the values of the parameters in the other two windows to those of the preset once a preset is confirmed. Trying some of the presets is the recommended way of getting to know the capabilities of the simulator.
+
+\subsection{The Simulation State}
+There is one primary window in the simulation state -- the simulation window. It's divided into the visualization display area and the control panel. The display area visualizes computed frames of the simulation based on what is set in the control panel.
+
+In the control panel, the computation and visualization of the simulation can be controlled. From left to right, the control panel contains
+\begin{itemize}
+	\item a button for closing the current simulation and returning to the configuration state,
+	\item controls and information related to the state of the computation, i.e., a switch for pausing and resuming the computation of the simulation, information of how many computed frames are currently stored, and how many iterations have been computed for the next frame,
+	\item controls for what part of the computed simulation should be displayed and how and how fast it should be played (there are three playback modes: \emph{play until end} plays the frames at the set speed until it reaches the end of the computed segment where it can play no faster than the speed of the computation, \emph{loop} plays the frames at the set speed and starts from the beginning whenever it reaches the end of the computed segment, \emph{last frame only} always (unless the playback is paused) displays the last computed frame),
+	\item controls for what should be visualized -- what should be visualized in the background using color (\emph{background visual}\footnote{Apart from the self-explanatory visuals, \emph{relative vorticity} stands for vorticity divided by velocity magnitude and \emph{velocity divergence} should theoretically be zero everywhere (since the fluid is incompressible), but it is not exactly zero due to approximations in the model}), where the red color stands for high values and blue for low values, and what in the foreground (\emph{foreground visual}),
+	\item and a button for opening the video export dialog.
+\end{itemize}
+
+The other window in the simulation state is the video export dialog, which can be opened from the control panel in the main window. The dialog lets the user set the start and the end times of the exported video and the playback speed. It also allows the user to preview the video that will be exported by letting the simulation play as it will in the video -- the output of this preview is displayed in the display area in the main simulation window. Even when the export dialog is open, the visuals can be controlled by the control panel in the main simulation window and changes in the visuals are immediately reflected in the preview and in the exported video. At last, the video export dialog contains entries for configuring the width, height, bitrate, and filename of the exported video.
+
+\chapter*{Conclusion}
+
+\pagestyle{empty}
+\addcontentsline{toc}{chapter}{Conclusion}
+
+Software developed in this \this{} completely fulfills the assigned specification. The specification was not overly concrete as to what exact features the software should have (e.g.\ what modes of visualization should be available, what simulation parameters should be configurable etc.), but I believe that the implemented features are fully adequate for what is required by the specification. Despite all this, even more features were originally considered -- such as the simulation of compressible fluids --, but these were later excluded as the project turned out to be complex enough.
+
+I think it would have been a good idea to have done even more research at the beginning of the project -- especially in the field of CFD. That could have helped develop a reliable computational model faster. On the other hand, I had the opportunity to experiment with different models I came up with myself, which deepened my intuition in CFD and more generally in numerical methods and computer simulation too.
+
+Overall, this was not an easy project and it was definitely one of the largest pieces of software I've ever developed, which took a proportionally large amount of time, a sizeable portion of which has been spent on watching the computed simulations and trying to recognize the displayed physical phenomena. Even though I already had experience in software development before the project, it has taught me new skills such as project management or smoother usage of the C++ programming language.
+
+There were a few unexpected problems, such as the already mentioned bugs in GTK+, but with these few exceptions, I think I did well and enjoyed working on the project.
 % proposed content
 % * assignment specification fulfilled
 % ** (of course) even stuff that was not explicitely there
@@ -385,11 +433,6 @@ Poslední kapitola obsahuje informace o tom, jak projekt, který v rámci maturi
 % * feel like I spent a lot of time on this -- part of that just watching the simulations
 % * lots of experimenting -- a bit fun a bit frustrating
 % * programming itself was relatively enjoyable and not a big (the biggest) problem
-
-\pagestyle{empty}
-\addcontentsline{toc}{chapter}{Závěr}
-
-Závěr obsahuje shrnutí práce a vyjadřuje se k míře splnění jejího zadání. Dále by se zde mělo objevit sebehodnocení studenta a informace o tom, co nového se naučil a jak vnímal svou práci na projektu.
 
 %%% Seznam použité literatury
 \printbibliography[title={Seznam použité literatury},heading={bibintoc}]
