@@ -110,6 +110,10 @@ public:
 	 * @param preset the simulation parameters from the preset
 	 */
 	virtual void confirmPreset(const SimulationParams &preset) = 0;
+	/**
+	 * Informs this state that the presets window is now closing
+	 */
+	virtual void presetsClosing() = 0;
 
 	/**
 	 * Constructs the abstract interface of the configuration state

@@ -42,6 +42,12 @@ PresetWindow::PresetWindow(ConfigStateAbstr *const parent)
 		const uint32_t selectedi = presetSelector.get_active_row_number();
 		parent->confirmPreset(SimulationParamsPreset::Presets[selectedi].params);
 	});
+
+	signal_delete_event().connect([parent](GdkEventAny*)
+	{
+		parent->presetsClosing();
+		return false;
+	});
 	
 	show_all_children();
 }

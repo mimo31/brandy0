@@ -72,6 +72,7 @@ public:
 	void closeAll() override;
 	void openPresets() override;
 	void confirmPreset(const SimulationParams &preset) override;
+	void presetsClosing() override;
 };
 
 }

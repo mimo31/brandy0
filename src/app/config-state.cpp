@@ -95,12 +95,19 @@ void ConfigState::openPresets()
 		app->addWindow(presetWin);
 		presetWin.show();
 	}
+	else
+		presetWin.present();
 }
 
 void ConfigState::confirmPreset(const SimulationParams &preset)
 {
 	setParams(preset);
 	presetWin.hide();
+	presetsOpened = false;
+}
+
+void ConfigState::presetsClosing()
+{
 	presetsOpened = false;
 }
 
