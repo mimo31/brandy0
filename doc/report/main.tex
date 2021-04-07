@@ -374,6 +374,11 @@ When running, the application can always be thought of as being in of three stat
 
 \subsection{The Start State}
 The start state is the simplest of all of the application's states. It is the active state at the start of the application. It consists of a button to continue to the configuration state and a button to show a~window with information about the project.
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.5]{../shots/2021-04-07_start_screen.png}
+	\caption{The main window in the start state.}
+\end{figure}
 
 \subsection{The Configuration State}
 The configuration state can be reached from the start state by starting a new simulation or from the simulation state by ending the running simulation. Its main purpose is to let the user configure the parameters of a simulation.
@@ -390,7 +395,19 @@ For each side of the container, the boundary condition for pressure and the boun
 
 Computational parameters of the simulator include the resolution of the discretizing grid (number of its point along the $x$ axis (width) and along the $y$ axis (height)), the time step in one iteration of the simulator ($\dt$), number of iterations (steps) of the simulator between two consecutive outputted frames, and the maximum number of computed frames that can be stored at once.
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.35]{../shots/2021-04-07_config_screen.png}
+	\caption{The main configuration window.}
+\end{figure}
+
 In the shape configuration window, the shape of the container and the obstacles inside it can be set. There are entries for specifying the physical width and height of the container. Obstacles can be added by selecting one of the shape types and then clicking inside the chequered area below. The chequered area is a one-to-one image of the simulated container.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.3]{../shots/2021-04-07_shape_config_screen.png}
+	\caption{The shape configuration window.}
+\end{figure}
 
 The third window in the configuration state is the window for selecting presets, which can be opened from the main configuration window. It offers a list of presets -- predefined values of all simulation parameters -- and sets the values of the parameters in the other two windows to those of the preset once a preset is confirmed. Trying some of the presets is the recommended way of getting to know the capabilities of the simulator.
 
@@ -407,7 +424,31 @@ In the control panel, the computation and visualization of the simulation can be
 \end{itemize}
 For some combinations of simulation parameters, it may happen that the computational model collapses and the simulation diverges. Indication that this happened is then displayed below the switch for pausing the computation, the computation is stopped, and it cannot be resumed.
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../shots/2021-04-07_simulation_screen_u.png}
+	\caption{The simulation window with the \emph{velocity magnitude} visual.}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../shots/2021-04-07_simulation_screen_p.png}
+	\caption{The simulation window with the \emph{pressure} visual.}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../shots/2021-04-07_simulation_screen_u_2.png}
+	\caption{The simulation window with the \emph{velocity magnitude} visual for another simulation.}
+\end{figure}
+
 The other window in the simulation state is the video export dialog, which can be opened from the control panel in the main window. The dialog lets the user set the start and the end times of the exported video and the playback speed. It also allows the user to preview the video that will be exported by letting the simulation play as it will in the video -- the output of this preview is displayed in the display area in the main simulation window. Even when the export dialog is open, the visuals can be controlled by the control panel in the main simulation window and changes in the setting of the visuals are immediately reflected in the preview and in the exported video (unless the export operation has already been started). At last, the video export dialog contains entries for configuring the width, height, bitrate, and filename of the exported video.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.4]{../shots/2021-04-07_video_export_screen.png}
+	\caption{The video export dialog.}
+\end{figure}
 
 \chapter*{Conclusion}
 
@@ -439,9 +480,9 @@ There were a few unexpected problems, such as the already mentioned bugs in GTK+
 \printbibliography[title={Bibliography},heading={bibintoc}]
 
 %%% Seznam obrázků
-%\openright
-%\listoffigures
-%\addcontentsline{toc}{chapter}{Seznam obrázků}
+\openright
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
 
 %%% Seznam tabulek
 %\clearpage
