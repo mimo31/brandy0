@@ -283,6 +283,8 @@ Our numerical model -- the algorithm we use to solve the incompressible Navier-S
 
 \pname{} can be distributed as a single executable file which dynamically links to libraries it depends on. The executable file can be compiled from source available in the project repository. Regardless of how the executable file is acquired, dependencies from the list below must be installed whenever \pname{} runs.
 
+The following installation instructions are platform independent, but they are accompanied by example commands for Ubuntu. The \software{} has also been successfully compiled, run, and tested on Windows, where the installation of the dependencies may, however, be slightly more difficult.\footnote{I used the MSYS2 environment (see \cite{msys2}) to install the dependencies and compile the program on Windows 10.} In general, our software can be run on any platform on which all dependencies can be installed and for which there exists a C++17 compiler.
+
 \subsection{Dependencies Required at Run Time}\label{sec:runtimedeps}
 For every dependency listed below, automatically include all its dependencies. (If using a package manager, they typically install automatically.)
 \begin{itemize}
